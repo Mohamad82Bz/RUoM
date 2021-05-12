@@ -1,0 +1,6 @@
+name: RUoM
+version: ${project.version}
+main: me.Mohamad82.RUoM.RUoM
+api-version: 1.13
+authors: [ Mohamad82 ]
+description: A custom exclusive utils
