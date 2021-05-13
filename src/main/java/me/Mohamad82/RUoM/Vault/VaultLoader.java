@@ -1,4 +1,4 @@
-package me.Mohamad82.RUoM.Loaders;
+package me.Mohamad82.RUoM.Vault;
 
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
