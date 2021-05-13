@@ -9,6 +9,14 @@
     <version>1.3</version>
     <packaging>jar</packaging>
 
+    <distributionManagement>
+        <repository>
+            <id>repsy</id>
+            <name>RUoM Private Maven Repository</name>
+            <url>https://repo.repsy.io/mvn/mohamad82/ruom</url>
+        </repository>
+    </distributionManagement>
+
     <name>RUoM</name>
 
     <description>A custom exclusive utils</description>
