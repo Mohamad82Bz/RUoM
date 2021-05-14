@@ -1,5 +1,8 @@
 package me.Mohamad82.RUoM.GUI;
 
+import me.Mohamad82.RUoM.GUI.Exceptions.AnimatorWrongConfigurationException;
+import me.Mohamad82.RUoM.Translators.ItemReader;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -26,6 +29,24 @@ public class GUIAnimation {
         this.firstItem = firstItem;
         this.secondItem = secondItem;
         this.slots = slots;
+    }
+
+    public GUIAnimation(ConfigurationSection section, ItemReader itemReader) throws AnimatorWrongConfigurationException {
+        try {
+            animation = section.getName();
+            firstItem = itemReader.toItemStack(section.getString("first_item"));
+            secondItem = itemReader.toItemStack(section.getString("second_item"));
+            slots = section.getIntegerList("slots");
+
+            setLoop(section.getBoolean("loop"));
+            setTick(section.getInt("tick"));
+            setTrails(section.getBoolean("trails"));
+            setTrailsLenght(section.getInt("trails_lenght", 1));
+            setDeTrail(section.getBoolean("detrail"));
+            setDelayStart(section.getInt("start_delay"));
+        } catch (Exception e) {
+            throw new AnimatorWrongConfigurationException(section.getName());
+        }
     }
 
     public String getAnimation() {

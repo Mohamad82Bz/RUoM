@@ -21,6 +21,7 @@ public abstract class GUI extends GUIAnimator implements InventoryHolder {
     public GUI(JavaPlugin plugin, String title) {
         super(plugin);
         this.inventory = Bukkit.createInventory(this, 54, title);
+        this.setGUI(inventory);
     }
 
     public GUI(InventoryType type, String title) {
@@ -31,6 +32,7 @@ public abstract class GUI extends GUIAnimator implements InventoryHolder {
     public GUI(JavaPlugin plugin, InventoryType type, String title) {
         super(plugin);
         this.inventory = Bukkit.createInventory(this, type, title);
+        this.setGUI(inventory);
     }
 
     public GUI(int size, String title) {
@@ -41,6 +43,7 @@ public abstract class GUI extends GUIAnimator implements InventoryHolder {
     public GUI(JavaPlugin plugin, int size, String title) {
         super(plugin);
         this.inventory = Bukkit.createInventory(this, size, title);
+        this.setGUI(inventory);
     }
 
     /**

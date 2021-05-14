@@ -1,5 +1,6 @@
 package me.Mohamad82.RUoM.GUI;
 
+import me.Mohamad82.RUoM.GUI.Exceptions.AnimatorNullGUIException;
 import me.Mohamad82.RUoM.GUI.Exceptions.AnimatorNullPluginException;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -12,15 +13,19 @@ import java.util.List;
 public class GUIAnimator {
 
     private final JavaPlugin plugin;
+    private Inventory gui;
     private boolean isCanceled = false;
 
     public GUIAnimator(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void animate(GUIAnimation guiAnimation, Inventory gui, int totalAnimateTime, List<Integer> prevents) {
+    public void animate(GUIAnimation guiAnimation, int totalAnimateTime, List<Integer> prevents) {
         if (plugin == null) {
             throw new AnimatorNullPluginException();
+        }
+        if (gui == null) {
+            throw new AnimatorNullGUIException();
         }
         ItemStack firstItem = guiAnimation.getFirstItem();
         ItemStack secondItem = guiAnimation.getSecondItem();
@@ -35,8 +40,8 @@ public class GUIAnimator {
         }
 
         int tick = guiAnimation.getTick();
-        if (tick == -1) {
-            if (totalAnimateTime != 0)
+        if (tick <= 0) {
+            if (totalAnimateTime <= 0)
                 tick = totalAnimateTime / (guiAnimation.getSlots().size() + guiAnimation.getTrailsLenght());
             else tick = 1;
         }
@@ -108,25 +113,41 @@ public class GUIAnimator {
                 guiAnimation.getDelayStart(), tick);
     }
 
-    public void animate(List<GUIAnimation> guiAnimations, Inventory gui, int totalAnimateTime, List<Integer> prevents) {
+    public void animate(GUIAnimation guiAnimation, int totalAnimateTime) {
+        animate(guiAnimation, totalAnimateTime, null);
+    }
+
+    public void animate(GUIAnimation guiAnimation, List<Integer> prevents) {
+        animate(guiAnimation, 0, prevents);
+    }
+
+    public void animate(GUIAnimation guiAnimation) {
+        animate(guiAnimation, 0, null);
+    }
+
+    public void animate(List<GUIAnimation> guiAnimations, int totalAnimateTime, List<Integer> prevents) {
         for (GUIAnimation guiAnimation : guiAnimations) {
-            this.animate(guiAnimation, gui, totalAnimateTime, prevents);
+            this.animate(guiAnimation, totalAnimateTime, prevents);
         }
     }
 
-    public void animate(List<GUIAnimation> guiAnimations, Inventory gui, int totalAnimateTime) {
+    public void animate(List<GUIAnimation> guiAnimations, int totalAnimateTime) {
         for (GUIAnimation guiAnimation : guiAnimations) {
-            this.animate(guiAnimation, gui, totalAnimateTime, null);
+            this.animate(guiAnimation, totalAnimateTime, null);
         }
     }
 
-    public void animate(List<GUIAnimation> guiAnimations, Inventory gui) {
+    public void animate(List<GUIAnimation> guiAnimations) {
         for (GUIAnimation guiAnimation : guiAnimations) {
-            this.animate(guiAnimation, gui, 0, null);
+            this.animate(guiAnimation, 0, null);
         }
     }
 
-    public void cancel() {
+    public void setGUI(Inventory gui) {
+        this.gui = gui;
+    }
+
+    public void stopAnimator() {
         this.isCanceled = true;
     }
 
