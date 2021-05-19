@@ -137,6 +137,12 @@ public class GUIAnimator {
         }
     }
 
+    public void animate(List<GUIAnimation> guiAnimations, List<Integer> prevents) {
+        for (GUIAnimation guiAnimation : guiAnimations) {
+            this.animate(guiAnimation, 0, prevents);
+        }
+    }
+
     public void animate(List<GUIAnimation> guiAnimations) {
         for (GUIAnimation guiAnimation : guiAnimations) {
             this.animate(guiAnimation, 0, null);

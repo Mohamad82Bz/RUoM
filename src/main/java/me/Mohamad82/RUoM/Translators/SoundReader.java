@@ -3,6 +3,7 @@ package me.Mohamad82.RUoM.Translators;
 import com.cryptomorin.xseries.XSound;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 public class SoundReader {
@@ -34,6 +35,12 @@ public class SoundReader {
                         rawSound.toUpperCase()));
             }
 
+        }
+    }
+
+    public void play(List<Player> players, String rawSound) {
+        for (Player player : players) {
+            play(player, rawSound);
         }
     }
 
