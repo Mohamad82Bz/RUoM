@@ -9,13 +9,16 @@ public abstract class AreaSelection {
 
     protected final Player player;
     protected final ItemStack wand;
-
-    private BlockArrayClipboard clipboard;
-    private Location firstPos, secondPos;
+    protected BlockArrayClipboard clipboard;
+    protected Location firstPos, secondPos;
 
     public AreaSelection(Player player, ItemStack wand) {
         this.player = player;
         this.wand = wand;
+    }
+
+    public AreaSelection(ItemStack wand) {
+        this(null, wand);
     }
 
     public abstract void onFirstPos(Player player, boolean updated);
@@ -28,6 +31,14 @@ public abstract class AreaSelection {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public BlockArrayClipboard getClipboard() {
+        return clipboard;
+    }
+
+    public void setClipboard(BlockArrayClipboard clipboard) {
+        this.clipboard = clipboard;
     }
 
     public Location getFirstPos() {

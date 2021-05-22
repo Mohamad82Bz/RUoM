@@ -16,8 +16,14 @@ public class GUIAnimator {
     private Inventory gui;
     private boolean isCanceled = false;
 
+    public GUIAnimator(JavaPlugin plugin, Inventory gui) {
+        this.plugin = plugin;
+        this.gui = gui;
+    }
+
     public GUIAnimator(JavaPlugin plugin) {
         this.plugin = plugin;
+        this.gui = null;
     }
 
     public void animate(GUIAnimation guiAnimation, int totalAnimateTime, List<Integer> prevents) {
