@@ -35,6 +35,8 @@ public class YamlConfig {
             this.fileName = fileName;
         else
             this.fileName = fileName + ".yml";
+
+        saveDefaultConfig();
     }
 
     public void reloadConfig() {
