@@ -32,21 +32,17 @@ public class AreaSelectionListener implements Listener {
         if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             //First Position Select
             Location blockLoc = event.getClickedBlock().getLocation();
-            if (areaSelection.getFirstPos() == null) {
-                boolean updated = !(areaSelection.getFirstPos().equals(blockLoc));
-                if (updated)
-                    areaSelection.setFirstPos(event.getClickedBlock().getLocation());
-                areaSelection.onFirstPos(player, updated);
-            }
+            boolean updated = areaSelection.getFirstPos() == null || !areaSelection.getFirstPos().equals(blockLoc);
+            if (updated)
+                areaSelection.setFirstPos(event.getClickedBlock().getLocation());
+            areaSelection.onFirstPos(player, updated);
         } else if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             //Second Position Select
             Location blockLoc = event.getClickedBlock().getLocation();
-            if (areaSelection.getSecondPos() == null) {
-                boolean updated = !(areaSelection.getSecondPos().equals(blockLoc));
-                if (updated)
-                    areaSelection.setSecondPos(event.getClickedBlock().getLocation());
-                areaSelection.onSecondPos(player, updated);
-            }
+            boolean updated = areaSelection.getSecondPos() == null || !areaSelection.getSecondPos().equals(blockLoc);
+            if (updated)
+                areaSelection.setSecondPos(event.getClickedBlock().getLocation());
+            areaSelection.onSecondPos(player, updated);
         } else if (event.getAction().equals(Action.LEFT_CLICK_AIR)) {
             if (areaSelection.getFirstPos() != null) {
                 InstantFirework.explode(LocUtils.simplifyLocationToCenter(areaSelection.getFirstPos()), Color.BLUE, Color.AQUA,

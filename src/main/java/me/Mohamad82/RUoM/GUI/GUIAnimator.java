@@ -159,6 +159,10 @@ public class GUIAnimator {
         this.gui = gui;
     }
 
+    public Inventory getGUI() {
+        return gui;
+    }
+
     public void stopAnimator() {
         this.isCanceled = true;
     }
