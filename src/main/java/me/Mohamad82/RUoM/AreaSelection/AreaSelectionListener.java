@@ -17,13 +17,13 @@ public class AreaSelectionListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
-        AreaSelection areaSelection = AreaSelectionManager.getInstance().getPlayerAreaSection(player);
-        if (areaSelection == null) return;
 
         ItemStack wand = AreaSelectionManager.getInstance().wand;
-
         //TODO VERSIONSUP: MC-1.8 doesn't have Main Hand, add support for it.
         if (!(event.getPlayer().getInventory().getItemInMainHand().equals(wand))) return;
+        if (!(AreaSelectionManager.getInstance().containsPlayerAreaSelection(player))) return;
+
+        AreaSelection areaSelection = AreaSelectionManager.getInstance().getPlayerAreaSection(player);
 
         event.setCancelled(true);
 

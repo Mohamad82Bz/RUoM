@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class AreaSelectionManager {
 
-    Set<AreaSelection> areaSelections = new HashSet<>();
+    Set<AreaSelection> areaSelections;
     final protected ItemStack wand;
 
     private static AreaSelectionManager instance;
@@ -18,6 +18,7 @@ public class AreaSelectionManager {
 
     public AreaSelectionManager(ItemStack wand) {
         instance = this;
+        areaSelections = new HashSet<>();
         this.wand = wand;
     }
 
@@ -31,6 +32,14 @@ public class AreaSelectionManager {
                 return areaSelection;
         }
         return null;
+    }
+
+    public boolean containsPlayerAreaSelection(Player player) {
+        for (AreaSelection areaSelection : areaSelections) {
+            if (areaSelection.getPlayer().equals(player))
+                return true;
+        }
+        return false;
     }
 
 }
