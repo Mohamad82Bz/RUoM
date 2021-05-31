@@ -60,7 +60,7 @@ public class GUISpinner {
 
                     if (slots.size() == 1) {
                         for (Player player : players) {
-                            player.getInventory().setItem(slots.get(0), items.get(0));
+                            player.getInventory().setItem(slots.get(0), items.get(n));
                         }
                         n++;
                         if (n >= items.size())
