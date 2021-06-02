@@ -21,9 +21,7 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockState;
 import me.Mohamad82.RUoM.LocUtils;
 import me.Mohamad82.RUoM.MilliCounter;
-import me.Mohamad82.RUoM.StringUtils;
 import me.Mohamad82.RUoM.Vector3Utils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -40,7 +38,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class WEManager {
 
@@ -59,53 +56,52 @@ public class WEManager {
         this.plugin = plugin;
     }
 
-    public boolean buildSchematic(CompletableFuture<Float> cf, Location location, File file, boolean ignoreAir) {
+    public SchemProgress buildSchematic(Location location, File file, boolean ignoreAir) {
+        SchemProgress schemProgress = new SchemProgress();
+
         ClipboardFormat format = ClipboardFormats.findByFile(file);
         ClipboardReader reader;
         Clipboard clipboard;
-        World world = null;
 
         MilliCounter counter = new MilliCounter();
         MilliCounter counter2 = new MilliCounter();
 
         counter.start();
 
-        if (core.equals(WEType.FAWE)) {
-            world = FaweAPI.getWorld(location.getWorld().getName());
-            if (world == null) return false;
-        }
-
         if (format == null) {
             plugin.getLogger().severe("Unable to load Clipboard from file: " + file.getName());
-            return false;
+            return schemProgress;
         }
 
         try {
             reader = format.getReader(new FileInputStream(file));
             clipboard = reader.read();
 
-            if (clipboard == null) return false;
+            if (clipboard == null) return schemProgress;
         } catch (IOException e) {
             plugin.getLogger().severe(e.getMessage());
-            return false;
+            return schemProgress;
         }
 
-        final World finalWorld = world;
         final BlockVector3 minPoint = clipboard.getMinimumPoint();
         final BlockVector3 maxPoint = clipboard.getMaximumPoint();
-        final BlockVector3 clipboardCenter = Vector3Utils.toVector3(LocUtils.getCenter(Vector3Utils
-                .toLocation(location.getWorld(), minPoint), Vector3Utils.toLocation(location.getWorld(), maxPoint)));
+        final BlockVector3 clipboardCenter = Vector3Utils.toVector3(LocUtils.getCenter(
+                Vector3Utils.toLocation(location.getWorld(), minPoint),
+                Vector3Utils.toLocation(location.getWorld(), maxPoint)));
 
-        if (core.equals(WEType.FAWE))
+        if (core.equals(WEType.FAWE)) {
+            World world = FaweAPI.getWorld(location.getWorld().getName());
             new BukkitRunnable() {
                 int y = 0;
+                final int maxY = clipboard.getRegion().getHeight();
 
                 public void run() {
 
                     //Finish job when reached the highest Height
                     if (y > clipboard.getRegion().getHeight()) {
                         counter.stop();
-                        cf.complete(counter.get());
+                        schemProgress.setTimeTaken(counter.get());
+                        schemProgress.done();
                         cancel();
                         return;
                     }
@@ -114,7 +110,7 @@ public class WEManager {
 
                     counter2.start();
                     //noinspection deprecation
-                    try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(finalWorld, -1)) {
+                    try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1)) {
                         for (BlockVector3 block : blocks) {
                             BlockVector3 distance = Vector3Utils.getTravelDistance(clipboardCenter, block);
                             Location intendedLocation = location.clone();
@@ -123,17 +119,17 @@ public class WEManager {
                             editSession.setBlock(BlockVector3.at(intendedLocation.getBlockX(),
                                     intendedLocation.getBlockY(), intendedLocation.getBlockZ()), clipboard.getFullBlock(block));
                         }
-                    } catch (MaxChangedBlocksException ignored) {
-                    }
+                    } catch (MaxChangedBlocksException ignored) {}
                     counter2.stop();
-                    Bukkit.getConsoleSender().sendMessage(StringUtils.colorize(String.format("&6Layer &b%d took &3%sms &6time to perform.",
-                            y, counter2.get())));
+                    schemProgress.getLayerTimeTaken().add(counter2.get());
 
                     y++;
+                    schemProgress.setProgress((float) (y / maxY) * 100);
                     run();
                 }
             }.runTaskAsynchronously(plugin);
-        else if (core.equals(WEType.WORLDEDIT))
+        }
+        else if (core.equals(WEType.WORLDEDIT)) {
             new BukkitRunnable() {
                 int y = 0;
 
@@ -141,6 +137,7 @@ public class WEManager {
                 public void run() {
                     //Finish job when reached the highest Height
                     if (y > clipboard.getRegion().getHeight()) {
+                        schemProgress.done();
                         cancel();
                         return;
                     }
@@ -188,9 +185,11 @@ public class WEManager {
 
                     y++;
                     counter2.stop();
+                    schemProgress.getLayerTimeTaken().add(counter2.get());
                 }
             }.runTaskTimer(plugin, 0, 20);
-        return true;
+        }
+        return schemProgress;
     }
 
     public BlockArrayClipboard createClipboard(BlockVector3 firstPos, BlockVector3 secondPos, org.bukkit.World world) {

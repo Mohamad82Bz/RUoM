@@ -6,7 +6,7 @@
 
     <groupId>me.Mohamad82</groupId>
     <artifactId>RUoM</artifactId>
-    <version>1.6.10</version>
+    <version>1.6.11</version>
     <packaging>jar</packaging>
 
     <distributionManagement>

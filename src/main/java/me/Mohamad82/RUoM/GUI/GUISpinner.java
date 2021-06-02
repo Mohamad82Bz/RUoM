@@ -2,6 +2,7 @@ package me.Mohamad82.RUoM.GUI;
 
 import me.Mohamad82.RUoM.GUI.Exceptions.SpinnerNullSoundReaderException;
 import me.Mohamad82.RUoM.Translators.SoundReader;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -47,6 +48,12 @@ public class GUISpinner {
                         if (finalTickSound != null)
                             soundReader.play(players, finalTickSound);
 
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                            @Override
+                            public void run() {
+
+                            }
+                        }, 1);
                         cf.complete(players.get(0).getInventory().getItem(pointSlot));
 
                         cancel();
