@@ -1,22 +1,24 @@
 package me.Mohamad82.RUoM.WorldEdit;
 
+import me.Mohamad82.RUoM.ProgressBar;
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SchemProgress {
 
-    private List<Float> layerTimeTaken;
-    private boolean isDone;
-    private boolean isFailed;
+    DecimalFormat decimalFormat = new DecimalFormat("#.00");
+
+    private List<Float> layerTimeTaken = new ArrayList<>();
+    private boolean isDone = false;
+    private boolean isFailed = true;
     private int maxLayers;
-    private float progress;
+    private float progress = 0;
     private float timeTaken;
 
-    public SchemProgress() {
-        isDone = false;
-        isFailed = true;
-        progress = 0;
-        layerTimeTaken = new ArrayList<>();
+    public String getProgressBar(int total, String completeString, String notCompleteString) {
+        return ProgressBar.getBar(Math.round(progress), 100, total, completeString, notCompleteString);
     }
 
     public boolean isDone() {

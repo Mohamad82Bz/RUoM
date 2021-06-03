@@ -128,9 +128,10 @@ public class WEManager {
                     counter2.stop();
                     schemProgress.getLayerTimeTaken().add(counter2.get());
 
+                    float progress = ((float) y / maxY) * 100;
+                    schemProgress.setProgress(progress);
+
                     y++;
-                    Bukkit.broadcastMessage("Y: " + y + "  maxY: " + maxY + "   Calculate: " + y / maxY * 100);
-                    schemProgress.setProgress(((float) (y / maxY)) * 100);
                     asyncQueue(this);
                 }
             }.runTaskAsynchronously(plugin);
@@ -146,6 +147,8 @@ public class WEManager {
                 public void run() {
                     //Finish job when reached the highest Height
                     if (y > clipboard.getRegion().getHeight()) {
+                        counter.stop();
+                        schemProgress.setTimeTaken(counter.get());
                         schemProgress.done();
                         cancel();
                         return;
@@ -209,10 +212,12 @@ public class WEManager {
                         }
                     }
 
-                    y++;
                     counter2.stop();
-                    schemProgress.setProgress(((float) (y / maxY)) * 100);
+                    float progress = ((float) y / maxY) * 100;
+                    schemProgress.setProgress(progress);
                     schemProgress.getLayerTimeTaken().add(counter2.get());
+
+                    y++;
                     syncQueue(this, 20);
                 }
             }.runTask(plugin);
