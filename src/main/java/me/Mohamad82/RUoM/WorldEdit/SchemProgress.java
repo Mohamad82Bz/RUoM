@@ -27,6 +27,10 @@ public class SchemProgress {
         return isFailed;
     }
 
+    public void setFailed(boolean isFailed) {
+        this.isFailed = isFailed;
+    }
+
     public void done() {
         isDone = true;
         isFailed = false;

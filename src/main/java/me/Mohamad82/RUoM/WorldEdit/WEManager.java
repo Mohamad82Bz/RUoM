@@ -22,6 +22,7 @@ import com.sk89q.worldedit.world.block.BlockState;
 import me.Mohamad82.RUoM.LocUtils;
 import me.Mohamad82.RUoM.MilliCounter;
 import me.Mohamad82.RUoM.Vector3Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -38,6 +39,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class WEManager {
 
@@ -89,6 +92,8 @@ public class WEManager {
                 Vector3Utils.toLocation(location.getWorld(), minPoint),
                 Vector3Utils.toLocation(location.getWorld(), maxPoint)));
 
+        schemProgress.setFailed(false);
+
         if (core.equals(WEType.FAWE)) {
             World world = FaweAPI.getWorld(location.getWorld().getName());
             new BukkitRunnable() {
@@ -124,14 +129,18 @@ public class WEManager {
                     schemProgress.getLayerTimeTaken().add(counter2.get());
 
                     y++;
-                    schemProgress.setProgress((float) (y / maxY) * 100);
-                    run();
+                    Bukkit.broadcastMessage("Y: " + y + "  maxY: " + maxY + "   Calculate: " + y / maxY * 100);
+                    schemProgress.setProgress(((float) (y / maxY)) * 100);
+                    asyncQueue(this);
                 }
             }.runTaskAsynchronously(plugin);
         }
         else if (core.equals(WEType.WORLDEDIT)) {
             new BukkitRunnable() {
+                Future<List<BlockVector3>> futureBlocks = null;
+                List<BlockVector3> blocks;
                 int y = 0;
+                final int maxY = clipboard.getRegion().getHeight();
 
                 @Override
                 public void run() {
@@ -142,7 +151,24 @@ public class WEManager {
                         return;
                     }
 
-                    List<BlockVector3> blocks = getVectorListFromClipboardAtY(clipboard, y, ignoreAir);
+                    if (futureBlocks == null) {
+                        futureBlocks = getVectorListFromClipboardAtY(clipboard, y, ignoreAir);
+                        syncQueue(this, 5);
+                        return;
+                    } else {
+                        if (futureBlocks.isDone()) {
+                            try {
+                                blocks = futureBlocks.get();
+                                futureBlocks = null;
+                            } catch (Exception e) {
+                                plugin.getLogger().severe("Something wrong happened during pasting a schematic. Consider using FAWE or report this issue" +
+                                        " to the developer.");
+                                e.printStackTrace();
+                            }
+                        } else {
+                            syncQueue(this, 5);
+                        }
+                    }
 
                     for (BlockVector3 block : blocks) {
                         BaseBlock baseBlock = clipboard.getFullBlock(block);
@@ -185,11 +211,31 @@ public class WEManager {
 
                     y++;
                     counter2.stop();
+                    schemProgress.setProgress(((float) (y / maxY)) * 100);
                     schemProgress.getLayerTimeTaken().add(counter2.get());
+                    syncQueue(this, 20);
                 }
-            }.runTaskTimer(plugin, 0, 20);
+            }.runTask(plugin);
         }
         return schemProgress;
+    }
+
+    public void asyncQueue(BukkitRunnable runnable) {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }, 10);
+    }
+
+    public void syncQueue(BukkitRunnable runnable, int delay) {
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }, delay);
     }
 
     public BlockArrayClipboard createClipboard(BlockVector3 firstPos, BlockVector3 secondPos, org.bukkit.World world) {
@@ -265,25 +311,34 @@ public class WEManager {
         return blockVector3s;
     }
 
-    public List<BlockVector3> getVectorListFromClipboardAtY(Clipboard clipboard, int y, boolean ignoreAir) {
-        BlockVector3 minPoint = clipboard.getMinimumPoint();
-        BlockVector3 maxPoint = clipboard.getMaximumPoint();
-        List<BlockVector3> blockVectors = new ArrayList<>();
+    public Future<List<BlockVector3>> getVectorListFromClipboardAtY(Clipboard clipboard, int y, boolean ignoreAir) {
+        CompletableFuture<List<BlockVector3>> future = new CompletableFuture<>();
 
-        for (int x = 0; x <= maxPoint.getBlockX() - minPoint.getBlockX(); x++) {
-            for (int z = 0; z <= maxPoint.getBlockZ() - minPoint.getBlockZ(); z++) {
-                BlockVector3 relative = minPoint.add(x, y, z);
-                BlockState block = clipboard.getBlock(relative);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                BlockVector3 minPoint = clipboard.getMinimumPoint();
+                BlockVector3 maxPoint = clipboard.getMaximumPoint();
+                List<BlockVector3> blockVectors = new ArrayList<>();
 
-                if (ignoreAir)
-                    if (block.getBlockType().getMaterial().isAir())
-                        continue;
+                for (int x = 0; x <= maxPoint.getBlockX() - minPoint.getBlockX(); x++) {
+                    for (int z = 0; z <= maxPoint.getBlockZ() - minPoint.getBlockZ(); z++) {
+                        BlockVector3 relative = minPoint.add(x, y, z);
+                        BlockState block = clipboard.getBlock(relative);
 
-                blockVectors.add(relative);
+                        if (ignoreAir)
+                            if (block.getBlockType().getMaterial().isAir())
+                                continue;
+
+                        blockVectors.add(relative);
+                    }
+                }
+
+                future.complete(blockVectors);
             }
-        }
+        });
 
-        return blockVectors;
+        return future;
     }
 
 }
