@@ -22,6 +22,9 @@ import com.sk89q.worldedit.world.block.BlockState;
 import me.Mohamad82.RUoM.LocUtils;
 import me.Mohamad82.RUoM.MilliCounter;
 import me.Mohamad82.RUoM.Vector3Utils;
+import me.Mohamad82.RUoM.WorldEdit.Enums.PastePattern;
+import me.Mohamad82.RUoM.WorldEdit.Enums.PasteSpeed;
+import me.Mohamad82.RUoM.WorldEdit.Enums.WEType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,9 +39,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -50,8 +51,8 @@ public class WEManager {
         return instance;
     }
 
-    JavaPlugin plugin;
-    WEType core;
+    final JavaPlugin plugin;
+    final WEType core;
 
     public WEManager(JavaPlugin plugin, WEType core) {
         instance = this;
@@ -59,7 +60,7 @@ public class WEManager {
         this.plugin = plugin;
     }
 
-    public SchemProgress buildSchematic(Location location, File file, boolean ignoreAir) {
+    public SchemProgress buildSchematic(Location location, File file, PastePattern pattern, PasteSpeed speed, boolean ignoreAir) {
         SchemProgress schemProgress = new SchemProgress();
 
         ClipboardFormat format = ClipboardFormats.findByFile(file);
@@ -94,16 +95,42 @@ public class WEManager {
 
         schemProgress.setFailed(false);
 
+        int maxI = 0;
+        if (pattern.equals(PastePattern.LAYER_XSIDE))
+            maxI = clipboard.getRegion().getLength();
+        else if (pattern.equals(PastePattern.LAYER_ZSIDE))
+            maxI = clipboard.getRegion().getWidth();
+        else if (pattern.equals(PastePattern.LAYER_YSIDE))
+            maxI = clipboard.getRegion().getHeight();
+        else if (pattern.equals(PastePattern.SQUARE_FROM_MID))
+            maxI = Math.max(clipboard.getRegion().getLength(),
+                    clipboard.getRegion().getWidth());
+        else if (pattern.equals(PastePattern.CYLINDER_FROM_MID)) {
+            maxI = Math.max(clipboard.getRegion().getLength(),
+                    clipboard.getRegion().getWidth());
+        }
+        final int finalMaxI = maxI;
+
+        int delay = 10;
+        if (speed.equals(PasteSpeed.SLOW))
+            delay = 30;
+        else if (speed.equals(PasteSpeed.NORMAL))
+            delay = 20;
+        else if (speed.equals(PasteSpeed.FAST))
+            delay = 10;
+        else if (speed.equals(PasteSpeed.VERYFAST))
+            delay = 5;
+        final int finalDelay = delay;
+
         if (core.equals(WEType.FAWE)) {
             World world = FaweAPI.getWorld(location.getWorld().getName());
+
             new BukkitRunnable() {
-                int y = 0;
-                final int maxY = clipboard.getRegion().getHeight();
+                int i = 0;
 
                 public void run() {
-
                     //Finish job when reached the highest Height
-                    if (y > clipboard.getRegion().getHeight()) {
+                    if (i > finalMaxI) {
                         counter.stop();
                         schemProgress.setTimeTaken(counter.get());
                         schemProgress.done();
@@ -111,15 +138,16 @@ public class WEManager {
                         return;
                     }
 
-                    BlockVectorSet blocks = getVectorSetFromClipboardAtY(clipboard, y, ignoreAir);
+                    BlockVectorSet blocks = getVectorSetFromClipboardInPattern(clipboard, pattern, i, ignoreAir);
 
                     counter2.start();
                     //noinspection deprecation
                     try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1)) {
                         for (BlockVector3 block : blocks) {
                             BlockVector3 distance = Vector3Utils.getTravelDistance(clipboardCenter, block);
+                            BlockVector3 yDistance = Vector3Utils.getTravelDistance(block, Vector3Utils.toVector3(location));
                             Location intendedLocation = location.clone();
-                            intendedLocation.add(distance.getBlockX(), y, distance.getBlockZ());
+                            intendedLocation.add(distance.getBlockX(), i, distance.getBlockZ());
 
                             editSession.setBlock(BlockVector3.at(intendedLocation.getBlockX(),
                                     intendedLocation.getBlockY(), intendedLocation.getBlockZ()), clipboard.getFullBlock(block));
@@ -128,11 +156,11 @@ public class WEManager {
                     counter2.stop();
                     schemProgress.getLayerTimeTaken().add(counter2.get());
 
-                    float progress = ((float) y / maxY) * 100;
+                    float progress = ((float) i / finalMaxI) * 100;
                     schemProgress.setProgress(progress);
 
-                    y++;
-                    asyncQueue(this);
+                    i++;
+                    asyncQueue(this, finalDelay);
                 }
             }.runTaskAsynchronously(plugin);
         }
@@ -141,12 +169,11 @@ public class WEManager {
                 Future<List<BlockVector3>> futureBlocks = null;
                 List<BlockVector3> blocks;
                 int y = 0;
-                final int maxY = clipboard.getRegion().getHeight();
 
                 @Override
                 public void run() {
                     //Finish job when reached the highest Height
-                    if (y > clipboard.getRegion().getHeight()) {
+                    if (y > finalMaxI) {
                         counter.stop();
                         schemProgress.setTimeTaken(counter.get());
                         schemProgress.done();
@@ -167,6 +194,7 @@ public class WEManager {
                                 plugin.getLogger().severe("Something wrong happened during pasting a schematic. Consider using FAWE or report this issue" +
                                         " to the developer.");
                                 e.printStackTrace();
+                                cancel();
                             }
                         } else {
                             syncQueue(this, 5);
@@ -213,25 +241,26 @@ public class WEManager {
                     }
 
                     counter2.stop();
-                    float progress = ((float) y / maxY) * 100;
+                    float progress = ((float) y / finalMaxI) * 100;
                     schemProgress.setProgress(progress);
                     schemProgress.getLayerTimeTaken().add(counter2.get());
 
                     y++;
-                    syncQueue(this, 20);
+                    syncQueue(this, finalDelay);
                 }
             }.runTask(plugin);
         }
+
         return schemProgress;
     }
 
-    public void asyncQueue(BukkitRunnable runnable) {
+    public void asyncQueue(BukkitRunnable runnable, int delay) {
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
                 runnable.run();
             }
-        }, 10);
+        }, delay);
     }
 
     public void syncQueue(BukkitRunnable runnable, int delay) {
@@ -293,24 +322,77 @@ public class WEManager {
         }
     }
 
-    public BlockVectorSet getVectorSetFromClipboardAtY(Clipboard clipboard, int y, boolean ignoreAir) {
+    public BlockVectorSet getVectorSetFromClipboardInPattern(Clipboard clipboard, PastePattern pattern, int i, boolean ignoreAir) {
         BlockVector3 minPoint = clipboard.getMinimumPoint();
         BlockVector3 maxPoint = clipboard.getMaximumPoint();
         BlockVectorSet blockVector3s = new BlockVectorSet();
-        int i = 0;
 
-        for (int x = 0; x <= maxPoint.getBlockX() - minPoint.getBlockX(); x++) {
-            for (int z = 0; z <= maxPoint.getBlockZ() - minPoint.getBlockZ(); z++) {
-                BlockVector3 relative = minPoint.add(x, y, z);
-                BlockState block = clipboard.getBlock(relative);
+        if (pattern.equals(PastePattern.LAYER_YSIDE)) {
+            for (int x = 0; x <= maxPoint.getBlockX() - minPoint.getBlockX(); x++) {
+                for (int z = 0; z <= maxPoint.getBlockZ() - minPoint.getBlockZ(); z++) {
+                    BlockVector3 relative = minPoint.add(x, i, z);
 
-                if (ignoreAir)
-                    if (block.getBlockType().getMaterial().isAir())
+                    if (ignoreAir && isAir(clipboard.getBlock(relative)))
                         continue;
 
-                blockVector3s.add(relative);
-                i++;
+                    blockVector3s.add(relative);
+                }
             }
+        } else if (pattern.equals(PastePattern.LAYER_XSIDE)) {
+            //X Side Pasting
+            for (int y = 0; y <= clipboard.getRegion().getHeight(); y++) {
+                for (int z = 0; z <= clipboard.getRegion().getWidth(); z++) {
+                    BlockVector3 relative = minPoint.add(i, y, z);
+                    BlockState block = clipboard.getBlock(relative);
+
+                    if (ignoreAir && isAir(block))
+                        continue;
+
+                    blockVector3s.add(relative);
+                }
+            }
+        } else if (pattern.equals(PastePattern.LAYER_ZSIDE)) {
+            //Z Side Pasting
+            for (int y = 0; y <= maxPoint.getBlockY() - minPoint.getBlockY(); y++) {
+                for (int x = 0; x <= maxPoint.getBlockX() - minPoint.getBlockX(); x++) {
+                    BlockVector3 relative = minPoint.add(x, y, i);
+                    BlockState block = clipboard.getBlock(relative);
+
+                    if (ignoreAir && isAir(block))
+                        continue;
+
+                    blockVector3s.add(relative);
+                }
+            }
+        } else if (pattern.equals(PastePattern.SQUARE_FROM_MID)) {
+            BlockVector3 center = Vector3Utils.getCenter(minPoint, maxPoint);
+            for (int y = 0; y <= clipboard.getRegion().getHeight(); y++) {
+                for (int x = -i + 1; x <= i - 1; x++) {
+                    for (int z = -i + 1; z <= i - 1; z++) {
+                        BlockVector3 relative = center.add(x, y, z);
+                        if (!(x >= -(i - 1) + 1 && x <= i - 2 &&
+                                z >= -(i - 1) + 1 && z <= i - 2)) {
+                            blockVector3s.add(relative);
+                        }
+                    }
+                }
+            }
+        } else if (pattern.equals(PastePattern.CYLINDER_FROM_MID)) {
+            BlockVector3 center = Vector3Utils.getCenter(minPoint, maxPoint);
+            int maxHeight = clipboard.getRegion().getHeight();
+            blockVector3s.addAll(getFullBlockVectorsInCylinder(clipboard, center, i, i, maxHeight, ignoreAir));
+            int debug = 0;
+            for (BlockVector3 block : blockVector3s) {
+                debug++;
+            }
+            /*if (ignoreAir) {
+                BlockVectorSet blockVector3sToRemove = new BlockVectorSet();
+                for (BlockVector3 blockVector3 : blockVector3s) {
+                    if (isAir(clipboard.getBlock(blockVector3)))
+                        blockVector3sToRemove.add(blockVector3);
+                }
+                blockVector3s.removeAll(blockVector3sToRemove);
+            }*/
         }
 
         return blockVector3s;
@@ -344,6 +426,86 @@ public class WEManager {
         });
 
         return future;
+    }
+
+    public BlockVectorSet getFullBlockVectorsInCylinder(Clipboard clipboard, BlockVector3 center, double radiusX, double radiusZ, int heigh0, boolean ignoreAir) {
+        BlockVectorSet blockVector3s = new BlockVectorSet();
+        blockVector3s.addAll(getBlockVectorsInCylinder(clipboard, center, radiusX, radiusZ, false, 0, ignoreAir));
+        BlockVectorSet additions = new BlockVectorSet();
+        additions.addAll(getBlockVectorsInCylinder(clipboard, center, radiusX - 1, radiusZ - 1, false, 1, ignoreAir));
+        additions.addAll(getBlockVectorsInCylinder(clipboard, center, radiusX, radiusZ, false, -1, ignoreAir));
+        for (BlockVector3 addition : additions) {
+            if (!(blockVector3s.contains(addition)))
+                blockVector3s.add(addition);
+        }
+
+        return blockVector3s;
+    }
+
+    public BlockVectorSet getBlockVectorsInCylinder(Clipboard clipboard, BlockVector3 center,
+                                                    double radiusX, double radiusZ, boolean filled, int addition, boolean ignoreAir) {
+        BlockVectorSet blockVector3s = new BlockVectorSet();
+
+        radiusX += 0.5;
+        radiusZ += 0.5;
+
+        final double invRadiusX = 1 / radiusX;
+        final double invRadiusZ = 1 / radiusZ;
+
+        final int ceilRadiusX = (int) Math.ceil(radiusX);
+        final int ceilRadiusZ = (int) Math.ceil(radiusZ);
+
+        double nextX = 0;
+        xLoop: for (int x = 0; x <= ceilRadiusX; ++x) {
+            final double xn = nextX;
+            nextX = (x + 1) * invRadiusX;
+            double nextZn = 0;
+            for (int z = 0; z <= ceilRadiusZ; ++z) {
+                final double zn = nextZn;
+                nextZn = (z + 1) * invRadiusZ;
+
+                double distanceSq = lengthSq(xn, zn);
+                if (distanceSq > 1) {
+                    if (z == 0) {
+                        break xLoop;
+                    }
+                    break;
+                }
+
+                if (!filled) {
+                    if (lengthSq(nextX, zn) <= 1 && lengthSq(xn, nextZn) <= 1) {
+                        continue;
+                    }
+                }
+
+                Set<BlockVector3> rotateBlocks = new HashSet<>();
+
+                for (int y = clipboard.getMinimumPoint().getY(); y <= clipboard.getRegion().getHeight(); y++) {
+                    BlockVector3 distance = Vector3Utils.getTravelDistance(center, BlockVector3.at(0, y, 0));
+                    rotateBlocks.add(center.add(x + addition, distance.getBlockY(), z + addition));
+                    rotateBlocks.add(center.add(-x + addition, distance.getBlockY(), z + addition));
+                    rotateBlocks.add(center.add(x + addition, distance.getBlockY(), -z + addition));
+                    rotateBlocks.add(center.add(-x + addition, distance.getBlockY(), -z + addition));
+
+                    for (BlockVector3 blockVector3 : rotateBlocks) {
+                        if (ignoreAir && isAir(clipboard.getBlock(blockVector3)))
+                            continue;
+                        blockVector3s.add(blockVector3);
+                    }
+                    rotateBlocks.clear();
+                }
+            }
+        }
+
+        return blockVector3s;
+    }
+
+    private static double lengthSq(double x, double z) {
+        return (x * x) + (z * z);
+    }
+
+    private boolean isAir(BlockState block) {
+        return block.getBlockType().getMaterial().isAir();
     }
 
 }

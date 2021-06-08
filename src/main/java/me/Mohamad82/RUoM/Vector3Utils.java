@@ -39,4 +39,18 @@ public class Vector3Utils {
         return BlockVector3.at(xD, yD, zD);
     }
 
+    public static BlockVector3 getCenter(BlockVector3 first, BlockVector3 second) {
+        int minX = Math.min(first.getBlockX(), second.getBlockX());
+        int minY = Math.min(first.getBlockY(), second.getBlockY());
+        int minZ = Math.min(first.getBlockZ(), second.getBlockZ());
+        int x1 = Math.max(first.getBlockX(), second.getBlockX()) + 1;
+        int y1 = Math.max(first.getBlockY(), second.getBlockY()) + 1;
+        int z1 = Math.max(first.getBlockZ(), second.getBlockZ()) + 1;
+
+        return BlockVector3.at(
+                minX + (x1 - minX) / 2.0D,
+                minY + (y1 - minY) / 2.0D,
+                minZ + (z1 - minZ) / 2.0D);
+    }
+
 }

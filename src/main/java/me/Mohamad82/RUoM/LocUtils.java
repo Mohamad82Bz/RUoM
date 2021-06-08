@@ -71,15 +71,15 @@ public class LocUtils {
         return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 
-    public static Location getCenter(Location loc1, Location loc2) {
-        int minX = Math.min(loc1.getBlockX(), loc2.getBlockX());
-        int minY = Math.min(loc1.getBlockY(), loc2.getBlockY());
-        int minZ = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
-        int x1 = Math.max(loc1.getBlockX(), loc2.getBlockX()) + 1;
-        int y1 = Math.max(loc1.getBlockY(), loc2.getBlockY()) + 1;
-        int z1 = Math.max(loc1.getBlockZ(), loc2.getBlockZ()) + 1;
+    public static Location getCenter(Location first, Location second) {
+        int minX = Math.min(first.getBlockX(), second.getBlockX());
+        int minY = Math.min(first.getBlockY(), second.getBlockY());
+        int minZ = Math.min(first.getBlockZ(), second.getBlockZ());
+        int x1 = Math.max(first.getBlockX(), second.getBlockX()) + 1;
+        int y1 = Math.max(first.getBlockY(), second.getBlockY()) + 1;
+        int z1 = Math.max(first.getBlockZ(), second.getBlockZ()) + 1;
 
-        return new Location(loc1.getWorld(),
+        return new Location(first.getWorld(),
                 minX + (x1 - minX) / 2.0D,
                 minY + (y1 - minY) / 2.0D,
                 minZ + (z1 - minZ) / 2.0D);
