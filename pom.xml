@@ -6,7 +6,7 @@
 
     <groupId>me.Mohamad82</groupId>
     <artifactId>RUoM</artifactId>
-    <version>1.7.8</version>
+    <version>1.7.10</version>
     <packaging>jar</packaging>
 
     <distributionManagement>
@@ -48,6 +48,23 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.cryptomorin.xseries</pattern>
+                                    <shadedPattern>me.Mohamad82.RUoM.XSeries</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>com/cryptomorin/xseries/XBiome*</exclude>
+                                        <exclude>com/cryptomorin/xseries/NMSExtras*</exclude>
+                                        <exclude>com/cryptomorin/xseries/NoteBlockMusic*</exclude>
+                                        <exclude>com/cryptomorin/xseries/SkullUtils*</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -91,11 +108,6 @@
             <artifactId>spigot-api</artifactId>
             <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
         </dependency>
         <dependency>
             <groupId>com.github.cryptomorin</groupId>

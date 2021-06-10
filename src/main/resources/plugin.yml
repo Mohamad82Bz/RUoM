@@ -5,3 +5,5 @@ api-version: 1.13
 authors: [ Mohamad82 ]
 softdepends: [ Vault, WorldEdit, FAWE, MMOItems, Oraxen, Essentials ]
 description: A custom exclusive utils
+commands:
+  ruom:
