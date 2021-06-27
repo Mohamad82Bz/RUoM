@@ -45,13 +45,13 @@ public class AreaSelectionListener implements Listener {
             areaSelection.onSecondPos(player, updated);
         } else if (event.getAction().equals(Action.LEFT_CLICK_AIR)) {
             if (areaSelection.getFirstPos() != null) {
-                InstantFirework.explode(LocUtils.simplifyLocationToCenter(areaSelection.getFirstPos()), Color.BLUE, Color.AQUA,
+                InstantFirework.explode(LocUtils.simplifyToCenter(areaSelection.getFirstPos()), Color.BLUE, Color.AQUA,
                         FireworkEffect.Type.BALL_LARGE, false, false);
                 areaSelection.onFirstPosNotify(player);
             }
         } else if (event.getAction().equals(Action.RIGHT_CLICK_AIR)) {
             if (areaSelection.getSecondPos() != null) {
-                InstantFirework.explode(LocUtils.simplifyLocationToCenter(areaSelection.getSecondPos()), Color.RED, Color.ORANGE,
+                InstantFirework.explode(LocUtils.simplifyToCenter(areaSelection.getSecondPos()), Color.RED, Color.ORANGE,
                         FireworkEffect.Type.BALL_LARGE, false, false);
                 areaSelection.onSecondPosNotify(player);
             }

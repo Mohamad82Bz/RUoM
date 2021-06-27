@@ -8,11 +8,18 @@ public class LocUtils {
 
     public static String toString(Location loc) {
         String world = loc.getWorld().getName();
-        double x = (int) loc.getX() + 0.5;
+        double x = loc.getX();
         double y = loc.getY();
-        double z = (int) loc.getZ() + 0.5;
+        double z = loc.getZ();
         double yaw = (int) loc.getYaw();
         double pitch = (int) loc.getPitch();
+
+        if (x == (double) loc.getBlockX())
+            x = loc.getBlockX();
+        if (y == (double) loc.getBlockY())
+            y = loc.getBlockY();
+        if (z == (double) loc.getBlockZ())
+            z = loc.getBlockZ();
 
         return "World=" + world +
                 " : " + "X=" + x +
@@ -35,10 +42,10 @@ public class LocUtils {
             String[] pitchSplit = strSplit[5].split("=");
 
             World world = Bukkit.getWorld(worldSplit[1]);
-            double x = (int) Double.parseDouble(xSplit[1]) + 0.5;
-            double y = (int) Double.parseDouble(ySplit[1]);
-            double z = (int) Double.parseDouble(zSplit[1]) + 0.5;
-            float yaw = (int) Double.parseDouble(yawSplit[1]);
+            double x = Double.parseDouble(xSplit[1]);
+            double y = Double.parseDouble(ySplit[1]);
+            double z = Double.parseDouble(zSplit[1]);
+            float yaw =  (int) Double.parseDouble(yawSplit[1]);
             float pitch = (int) Double.parseDouble(pitchSplit[1]);
 
             loc = new Location(world, x, y, z, yaw, pitch);
@@ -50,25 +57,30 @@ public class LocUtils {
     }
 
     public static String toStringBlock(Location loc) {
-        String world = loc.getWorld().getName();
-        double x = loc.getBlockX();
-        double y = loc.getBlockY();
-        double z = loc.getBlockZ();
-
-        return "World=" + world +
-                " : " + "X=" + x +
-                " : " + "Y=" + y +
-                " : " + "Z=" + z +
-                " : " + "Yaw=" + 0 +
-                " : " + "Pitch=" + 0;
+        return toString(new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
     }
 
-    public static Location simplifyLocationToCenter(Location loc) {
+    public static Location simplifyToBlock(Location loc) {
+        return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    }
+
+    public static Location simplifyToCenter(Location loc) {
         return new Location(loc.getWorld(), loc.getBlockX() + 0.5, loc.getBlockY(), loc.getBlockZ() + 0.5);
     }
 
-    public static Location simplifyLocationToBlock(Location loc) {
-        return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    public static Location getTravelDistance(Location from, Location to) {
+        double xD = Math.abs(from.getX() - to.getX());
+        double yD = Math.abs(from.getY() - to.getY());
+        double zD = Math.abs(from.getZ() - to.getZ());
+
+        if (from.getX() > to.getX())
+            xD = xD * -1;
+        if (from.getY() > to.getY())
+            yD = yD * -1;
+        if (from.getZ() > to.getZ())
+            zD = zD * -1;
+
+        return new Location(to.getWorld(), xD, yD, zD);
     }
 
     public static Location getCenter(Location first, Location second) {

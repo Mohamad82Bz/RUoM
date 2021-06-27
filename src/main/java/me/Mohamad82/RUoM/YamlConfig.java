@@ -31,10 +31,7 @@ public class YamlConfig {
         this.folder = folder;
         this.saveDefaults = saveDefaults;
 
-        if (fileName.endsWith(".yml"))
-            this.fileName = fileName;
-        else
-            this.fileName = fileName + ".yml";
+        this.fileName = fileName;
 
         saveDefaultConfig();
     }

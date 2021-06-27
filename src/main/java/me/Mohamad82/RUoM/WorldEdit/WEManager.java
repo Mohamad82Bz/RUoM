@@ -89,7 +89,7 @@ public class WEManager {
 
         final BlockVector3 minPoint = clipboard.getMinimumPoint();
         final BlockVector3 maxPoint = clipboard.getMaximumPoint();
-        final BlockVector3 clipboardCenter = Vector3Utils.toVector3(LocUtils.getCenter(
+        final BlockVector3 clipboardCenter = Vector3Utils.toBlockVector3(LocUtils.getCenter(
                 Vector3Utils.toLocation(location.getWorld(), minPoint),
                 Vector3Utils.toLocation(location.getWorld(), maxPoint)));
 
@@ -145,7 +145,7 @@ public class WEManager {
                     try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1)) {
                         for (BlockVector3 block : blocks) {
                             BlockVector3 distance = Vector3Utils.getTravelDistance(clipboardCenter, block);
-                            BlockVector3 yDistance = Vector3Utils.getTravelDistance(block, Vector3Utils.toVector3(location));
+                            BlockVector3 yDistance = Vector3Utils.getTravelDistance(block, Vector3Utils.toBlockVector3(location));
                             Location intendedLocation = location.clone();
                             intendedLocation.add(distance.getBlockX(), i, distance.getBlockZ());
 
