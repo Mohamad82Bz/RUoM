@@ -1,4 +1,4 @@
-package me.Mohamad82.RUoM.misc.charanimation;
+package me.Mohamad82.RUoM.misc;
 
 public class CharAnimation {
 

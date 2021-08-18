@@ -5,19 +5,32 @@ import org.bukkit.Bukkit;
 
 public class ServerVersion {
 
-    public static String getVersion() {
-        return Bukkit.getBukkitVersion().split("-")[0];
+    /**
+     * @return The server's version without "1.", That would be an integer.
+     */
+    public static int getVersion() {
+        return ReflectionUtils.VER;
     }
 
-    public static boolean is1_8() {
-        return getVersion().equals("1.8");
-    }
-
+    /**
+     * @return true if the server is running on 1.8 - 1.12.2
+     */
     public static boolean isLegacy() {
-        String version = getVersion();
-        return version.equals("1.8") || version.equals("1.9") || version.equals("1.10") || version.equals("1.11") || version.equals("1.12");
+        return !supports(13);
     }
 
+    /**
+     * @return true if the server is running on 1.8.* or lower.
+     */
+    public static boolean isSuperLegacy() {
+        return !supports(9);
+    }
+
+    /**
+     * Checks whether the server version is equal or greater than the given version.
+     * @param version the version to compare the server version with
+     * @return true if the version is equal or newer, otherwise false
+     */
     public static boolean supports(int version) {
         return ReflectionUtils.supports(version);
     }

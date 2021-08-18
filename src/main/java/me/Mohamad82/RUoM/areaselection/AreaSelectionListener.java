@@ -1,6 +1,6 @@
 package me.Mohamad82.RUoM.areaselection;
 
-import me.Mohamad82.RUoM.misc.firework.InstantFirework;
+import me.Mohamad82.RUoM.misc.InstantFirework;
 import me.Mohamad82.RUoM.utils.LocUtils;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;

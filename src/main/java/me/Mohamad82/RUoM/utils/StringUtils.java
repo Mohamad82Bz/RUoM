@@ -9,6 +9,8 @@ public class StringUtils {
     }
 
     public static String colorize(String string) {
+        if (ServerVersion.supports(16))
+            string = RGBParser.parse(string);
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 

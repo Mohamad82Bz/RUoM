@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 public class PlayerUtils {
 
-    public static Vector3 getPlayerVector3(Player player) {
+    public static Vector3 getPlayerVector3Location(Player player) {
         return Vector3Utils.toVector3(player.getLocation());
     }
 

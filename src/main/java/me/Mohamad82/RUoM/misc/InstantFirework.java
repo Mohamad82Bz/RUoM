@@ -1,4 +1,4 @@
-package me.Mohamad82.RUoM.misc.firework;
+package me.Mohamad82.RUoM.misc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
