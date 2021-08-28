@@ -1,27 +1,15 @@
 package me.Mohamad82.RUoM;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
-public final class Main extends JavaPlugin {
-
-    public static JavaPlugin instance;
+public final class Main extends RUoMPlugin {
 
     @Override
     public void onEnable() {
-        initialize(this);
+
     }
 
     @Override
     public void onDisable() {
 
-    }
-
-    public static void initialize(JavaPlugin plugin) {
-        instance = plugin;
-    }
-
-    public static JavaPlugin getInstance() {
-        return instance;
     }
 
     /*public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {

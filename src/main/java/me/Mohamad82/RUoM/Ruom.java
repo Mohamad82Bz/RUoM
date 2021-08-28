@@ -11,13 +11,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Ruom {
 
-    public static boolean debug = false;
+    private static boolean debug = false;
 
-    public static void setDebug(boolean newDebug) {
-        debug = newDebug;
+    public static RUoMPlugin getPlugin() {
+        return RUoMPlugin.get();
     }
 
-    public static void registerEvents(Listener listener) {
+    public static void setDebug(boolean debug) {
+        Ruom.debug = debug;
+    }
+
+    public static void registerListener(Listener listener) {
         RUoMPlugin.get().getServer().getPluginManager().registerEvents(listener, RUoMPlugin.get());
     }
 
