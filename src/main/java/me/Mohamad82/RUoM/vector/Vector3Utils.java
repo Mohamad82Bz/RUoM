@@ -94,4 +94,28 @@ public class Vector3Utils {
                 minZ + (z1 - minZ) / 2.0D);
     }
 
+    public static Vector3 getMinPoint(Vector3 first, Vector3 second) {
+        return Vector3.at(
+                Math.min(first.getX(), second.getX()),
+                Math.min(first.getY(), second.getY()),
+                Math.min(first.getZ(), second.getZ())
+        );
+    }
+
+    public static Vector3 getMaxPoint(Vector3 first, Vector3 second) {
+        return Vector3.at(
+                Math.max(first.getX(), second.getX()),
+                Math.max(first.getY(), second.getY()),
+                Math.max(first.getZ(), second.getZ())
+        );
+    }
+
+    public static boolean containsBetween(Vector3 first, Vector3 second, Vector3 location) {
+        Vector3 minPoint = getMinPoint(first, second);
+        Vector3 maxPoint = getMaxPoint(first, second);
+
+        return location.getX() >= minPoint.getX() && location.getY() >= minPoint.getY() && location.getZ() >= minPoint.getZ() &&
+                location.getX() <= maxPoint.getX() && location.getY() <= maxPoint.getY() && location.getZ() <= maxPoint.getZ();
+    }
+
 }
