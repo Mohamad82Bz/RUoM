@@ -38,8 +38,9 @@ public class SQLiteQuery {
         failedAttempts += 1;
     }
 
-    public void setStatementValue(int index, Object value) {
+    public SQLiteQuery setStatementValue(int index, Object value) {
         statementValues.put(index, value);
+        return this;
     }
 
     public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
