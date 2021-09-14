@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class BlockUtils {
 
-    private void spawnBlockBreakParticles(Location blockLocation, Material material) {
+    public static void spawnBlockBreakParticles(Location blockLocation, Material material) {
         Location center = LocUtils.simplifyToCenter(blockLocation);
         for (int i = 0; i <= 30; i++) {
             blockLocation.getWorld().spawnParticle(Particle.BLOCK_CRACK,
@@ -17,7 +17,7 @@ public class BlockUtils {
         }
     }
 
-    private float getRandomInBlock() {
+    private static float getRandomInBlock() {
         return (float) (new Random().nextInt(10) - 5) / 10;
     }
 
