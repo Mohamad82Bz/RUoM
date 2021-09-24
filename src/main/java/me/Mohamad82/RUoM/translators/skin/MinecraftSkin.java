@@ -88,6 +88,12 @@ public class MinecraftSkin {
         }
     }
 
+    public void apply(Object entityPlayer) throws Exception {
+        GameProfile gameProfile = (GameProfile) entityPlayer.getClass().getMethod("getProfile").invoke(entityPlayer);
+        gameProfile.getProperties().removeAll("textures");
+        gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
+    }
+
     private Object getPacketPlayOutPlayerInfo(Object entityPlayer, String action) {
         try {
             Class<?> ENTITY_PLAYER = ReflectionUtils.getNMSClass("server.level", "EntityPlayer");

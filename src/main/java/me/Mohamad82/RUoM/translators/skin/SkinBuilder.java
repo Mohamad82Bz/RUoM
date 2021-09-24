@@ -1,7 +1,10 @@
 package me.Mohamad82.RUoM.translators.skin;
 
+import com.cryptomorin.xseries.ReflectionUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import me.Mohamad82.RUoM.Ruom;
 import me.Mohamad82.RUoM.translators.skin.exceptions.MineSkinAPIException;
 import me.Mohamad82.RUoM.translators.skin.exceptions.NoSuchAccountNameException;
@@ -9,6 +12,7 @@ import me.Mohamad82.RUoM.translators.skin.exceptions.SkinParseException;
 import net.skinsrestorer.api.SkinsRestorerAPI;
 import net.skinsrestorer.api.property.IProperty;
 import net.skinsrestorer.shared.utils.connections.MojangAPI;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -98,6 +102,21 @@ public class SkinBuilder {
                 cache.put(url, skin);
             }
             return skin;
+        }
+    }
+
+    public MinecraftSkin getSkin(Player player) {
+        try {
+            Class<?> CRAFT_PLAYER = ReflectionUtils.getCraftClass("entity.CraftClass");
+
+            Object entityPlayer = CRAFT_PLAYER.getMethod("getHandle").invoke(player);
+            GameProfile gameProfile = (GameProfile) entityPlayer.getClass().getMethod("getProfile").invoke(entityPlayer);
+            Property property = gameProfile.getProperties().get("textures").iterator().next();
+
+            return new MinecraftSkin(property.getValue(), property.getSignature());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
