@@ -1,5 +1,6 @@
 package me.Mohamad82.RUoM.configuration;
 
+import me.Mohamad82.RUoM.Ruom;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,8 +13,6 @@ import java.util.logging.Level;
 
 public class YamlConfig {
 
-    private final JavaPlugin plugin;
-
     private final String fileName;
 
     private final boolean saveDefaults;
@@ -22,12 +21,30 @@ public class YamlConfig {
     private final File folder;
     private File configFile = null;
 
-    public YamlConfig(JavaPlugin plugin, File folder, String fileName) {
-        this(plugin, folder, fileName, true);
+    public YamlConfig(File folder, String fileName) {
+        this(folder, fileName, false);
     }
 
+    public YamlConfig(File folder, String fileName, boolean saveDefaults) {
+        this.folder = folder;
+        this.saveDefaults = saveDefaults;
+
+        this.fileName = fileName;
+
+        saveDefaultConfig();
+    }
+
+    /**
+     * @deprecated JavaPlugin parameter is no longer needed, Don't forget to replace JavaPlugin with RUoMPlugin
+     */
+    public YamlConfig(JavaPlugin plugin, File folder, String fileName) {
+        this(plugin, folder, fileName, false);
+    }
+
+    /**
+     * @deprecated JavaPlugin parameter is no longer needed, Don't forget to replace JavaPlugin with RUoMPlugin
+     */
     public YamlConfig(JavaPlugin plugin, File folder, String fileName, boolean saveDefaults) {
-        this.plugin = plugin;
         this.folder = folder;
         this.saveDefaults = saveDefaults;
 
@@ -42,7 +59,7 @@ public class YamlConfig {
 
         this.config = YamlConfiguration.loadConfiguration(this.configFile);
 
-        InputStream defaultStream = this.plugin.getResource(fileName);
+        InputStream defaultStream = Ruom.getPlugin().getResource(fileName);
         if (defaultStream != null) {
             YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream));
             this.config.setDefaults(defaultConfig);
@@ -62,7 +79,7 @@ public class YamlConfig {
         try {
             this.getConfig().save(this.configFile);
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Could not save config to " + this.configFile, e);
+            Ruom.getPlugin().getLogger().log(Level.SEVERE, "Could not save config to " + this.configFile, e);
         }
     }
 
@@ -72,7 +89,7 @@ public class YamlConfig {
 
         if (!(this.configFile.exists())) {
             try {
-                this.plugin.saveResource(fileName, false);
+                Ruom.getPlugin().saveResource(fileName, false);
             } catch (IllegalArgumentException e) {
                 try {
                     this.configFile.createNewFile();
