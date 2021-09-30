@@ -1,13 +1,12 @@
 package me.Mohamad82.RUoM;
 
+import me.Mohamad82.RUoM.adventureapi.AdventureAPIManager;
 import me.Mohamad82.RUoM.areaselection.AreaSelectionListener;
 import me.Mohamad82.RUoM.areaselection.AreaSelectionManager;
 import me.Mohamad82.RUoM.gui.GUIListener;
 import me.Mohamad82.RUoM.worldedit.WEManager;
 import me.Mohamad82.RUoM.worldedit.enums.WEType;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class Ruom {
 
@@ -25,17 +24,21 @@ public class Ruom {
         RUoMPlugin.get().getServer().getPluginManager().registerEvents(listener, RUoMPlugin.get());
     }
 
+    public static void initializeAdventure() {
+        AdventureAPIManager.initialize();
+    }
+
     public static void initializeGUI() {
         RUoMPlugin.get().getServer().getPluginManager().registerEvents(new GUIListener(), RUoMPlugin.get());
     }
 
-    public static void initializeAreaSelection(ItemStack wand) {
-        new AreaSelectionManager(wand);
+    public static void initializeAreaSelection() {
+        new AreaSelectionManager();
         RUoMPlugin.get().getServer().getPluginManager().registerEvents(new AreaSelectionListener(), RUoMPlugin.get());
     }
 
-    public static void intializeWorldEdit(JavaPlugin plugin, WEType type) {
-        new WEManager(plugin, type);
+    public static void intializeWorldEdit(WEType type) {
+        new WEManager(RUoMPlugin.get(), type);
     }
 
     public static void log(String message) {
@@ -54,6 +57,12 @@ public class Ruom {
 
     public static void error(String message) {
         RUoMPlugin.get().getLogger().severe(message);
+    }
+
+    public static void shutdown() {
+        if (AdventureAPIManager.getAdventure() != null) {
+            AdventureAPIManager.getAdventure().close();
+        }
     }
 
 }

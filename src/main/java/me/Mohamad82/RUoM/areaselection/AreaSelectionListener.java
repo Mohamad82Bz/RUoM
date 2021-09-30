@@ -18,12 +18,12 @@ public class AreaSelectionListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
+        final ItemStack handItem = player.getInventory().getItem(EquipmentSlot.HAND);
 
-        ItemStack wand = AreaSelectionManager.getInstance().wand;
-        if (!(event.getPlayer().getInventory().getItem(EquipmentSlot.HAND).equals(wand))) return;
+        if (!(AreaSelectionManager.getInstance().getWands().contains(handItem))) return;
         if (!(AreaSelectionManager.getInstance().containsPlayerAreaSelection(player))) return;
 
-        AreaSelection areaSelection = AreaSelectionManager.getInstance().getPlayerAreaSection(player);
+        AreaSelection areaSelection = AreaSelectionManager.getInstance().getPlayerAreaSelection(player, handItem);
 
         event.setCancelled(true);
 

@@ -57,4 +57,8 @@ public abstract class AreaSelection {
         this.secondPos = secondPos;
     }
 
+    public boolean remove() {
+        return AreaSelectionManager.getInstance().removePlayerAreaSelection(player, wand);
+    }
+
 }
