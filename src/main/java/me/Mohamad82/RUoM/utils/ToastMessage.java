@@ -29,17 +29,11 @@ public class ToastMessage {
     public final static char ignoreChar = 'ˑ';
 
     private String title;
-    private final XMaterial icon;
-    private final FrameType frameType;
     private final NamespacedKey id;
     private final Advancement advancement;
-    private final boolean trimCharacters;
 
     protected ToastMessage(String title, XMaterial icon, FrameType frameType, boolean trimCharacters) {
         this.title = title;
-        this.icon = icon;
-        this.frameType = frameType;
-        this.trimCharacters = trimCharacters;
         id = NamespacedKey.fromString("ruom_toasts/" + UUID.randomUUID());
 
         String iconId;
@@ -93,7 +87,6 @@ public class ToastMessage {
         JsonObject conditionsObject = new JsonObject();
         JsonObject elytra = new JsonObject();
         JsonArray itemArray = new JsonArray();
-        JsonObject itemObject = new JsonObject();
 
         conditionsObject.add("items", itemArray);
         elytra.addProperty("trigger", "minecraft:impossible");
@@ -134,6 +127,7 @@ public class ToastMessage {
         this.advancement = Bukkit.getAdvancement(id);
     }
 
+    @SuppressWarnings("SuspiciousRegexArgument")
     private static String replaceTokensWithIgnoreChar(final String richMessage) {
         final StringBuilder sb = new StringBuilder();
         final Matcher matcher = AdventureAPIManager.escapeTokenPattern.matcher(richMessage);
@@ -147,17 +141,15 @@ public class ToastMessage {
             }
             lastEnd = endIndex;
 
-            final String start = matcher.group("start");
             String token = matcher.group("token");
             final String inner = matcher.group("inner");
-            final String end = matcher.group("end");
 
             // also escape inner
             if (inner != null) {
                 token = token.replace(inner, replaceTokensWithIgnoreChar(inner));
             }
 
-            sb.append(ignoreChar).append(token.replace(".", String.valueOf(ignoreChar))).append(ignoreChar);
+            sb.append(ignoreChar).append(token.replaceAll(".", String.valueOf(ignoreChar))).append(ignoreChar);
         }
 
         if (richMessage.length() > lastEnd) {
