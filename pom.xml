@@ -6,7 +6,7 @@
 
     <groupId>me.Mohamad82</groupId>
     <artifactId>RUoM</artifactId>
-    <version>2.5.2</version>
+    <version>2.6</version>
     <packaging>jar</packaging>
 
     <distributionManagement>
@@ -125,6 +125,11 @@
             <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
             <version>8.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-api</artifactId>
+            <version>4.9.1</version>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
