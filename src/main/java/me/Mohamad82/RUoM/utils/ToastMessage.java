@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 @SuppressWarnings("deprecation")
 public class ToastMessage {
 
-    public final static char ignoreChar = 'ˑ';
+    private final static char ignoreChar = 'ˑ';
 
     private String title;
     private final NamespacedKey id;
@@ -69,6 +69,8 @@ public class ToastMessage {
                         break;
                 }
                 title = title.substring(0, j);
+                if (i > 40)
+                    title = title + "...";
             }
 
             Component component = ComponentUtils.parseD(title);
