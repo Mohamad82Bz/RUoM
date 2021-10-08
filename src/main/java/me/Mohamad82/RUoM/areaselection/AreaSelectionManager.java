@@ -37,7 +37,7 @@ public class AreaSelectionManager {
 
     public AreaSelection getPlayerAreaSelection(Player player, ItemStack wand) {
         for (AreaSelection areaSelection : areaSelections) {
-            if (areaSelection.getPlayer().equals(player) &&
+            if (areaSelection.getPlayer() != null&& areaSelection.getPlayer().equals(player) &&
                     areaSelection.wand.isSimilar(wand))
                 return areaSelection;
         }
@@ -56,7 +56,7 @@ public class AreaSelectionManager {
 
     public boolean containsPlayerAreaSelection(Player player) {
         for (AreaSelection areaSelection : areaSelections) {
-            if (areaSelection.getPlayer().equals(player))
+            if (areaSelection.getPlayer() != null && areaSelection.getPlayer().equals(player))
                 return true;
         }
         return false;
