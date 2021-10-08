@@ -34,17 +34,13 @@ public class ToastMessage {
 
     protected ToastMessage(String title, XMaterial icon, FrameType frameType, boolean trimCharacters) {
         this.title = title;
-        id = NamespacedKey.fromString("ruom_toasts/" + UUID.randomUUID());
+        id = new NamespacedKey(Ruom.getPlugin(), "ruom/toasts/" + UUID.randomUUID());
 
-        String iconId;
-        if (ServerVersion.supports(13)) {
-            iconId = "minecraft:" + icon.parseMaterial().toString().toLowerCase();
-        } else {
-            iconId = "material:" + icon.getId();
-        }
+        String iconId = "minecraft:" + icon.parseMaterial().toString().toLowerCase();
 
         JsonObject json = new JsonObject();
         JsonObject iconObject = new JsonObject();
+
         iconObject.addProperty("item", iconId);
         if (!ServerVersion.supports(13)) {
             iconObject.addProperty("data", icon.getData());
