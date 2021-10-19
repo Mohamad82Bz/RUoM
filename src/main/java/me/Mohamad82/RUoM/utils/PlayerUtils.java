@@ -11,6 +11,12 @@ import java.util.Random;
 
 public class PlayerUtils {
 
+    public static void sendMessage(String message, Player... players) {
+        for (Player player : players) {
+            player.sendMessage(message);
+        }
+    }
+
     public static void spawnFoodEatParticles(Location location, ItemStack foodItem) {
         final Random random = new Random();
         final Location rightSide = getRightHandLocation(location).add(0, -0.25, 0);
