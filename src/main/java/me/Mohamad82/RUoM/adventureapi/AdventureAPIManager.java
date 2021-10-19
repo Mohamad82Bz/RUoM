@@ -16,7 +16,8 @@ public class AdventureAPIManager {
     }
 
     public static void initialize() {
-        adventure = BukkitAudiences.create(Ruom.getPlugin());
+        if (adventure == null)
+            adventure = BukkitAudiences.create(Ruom.getPlugin());
     }
 
 }
