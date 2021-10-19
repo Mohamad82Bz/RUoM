@@ -35,8 +35,10 @@ public final class Main extends RUoMPlugin implements CommandExecutor {
         counter.start();
         try {
             if (args[0].equalsIgnoreCase("toast")) {
-                ToastMessage toastMessage = ToastMessage.create(args[1], XMaterial.valueOf(args[2].toUpperCase()), ToastMessage.FrameType.valueOf(args[3].toUpperCase()), Boolean.parseBoolean(args[4]));
-                toastMessage.send((Player) sender);
+                Ruom.runAsync(() -> {
+                    ToastMessage toastMessage = ToastMessage.create(args[1], XMaterial.valueOf(args[2].toUpperCase()), ToastMessage.FrameType.valueOf(args[3].toUpperCase()), Boolean.parseBoolean(args[4]));
+                    toastMessage.send((Player) sender);
+                });
             } else if (args[0].equalsIgnoreCase("esc")) {
                 Component component = ComponentUtils.parseD(args[1]);
                 AdventureAPIManager.getAdventure().player((Player) sender).sendMessage(component);
