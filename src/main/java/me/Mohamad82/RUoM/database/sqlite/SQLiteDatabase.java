@@ -2,7 +2,6 @@ package me.Mohamad82.RUoM.database.sqlite;
 
 import me.Mohamad82.RUoM.RUoMPlugin;
 import me.Mohamad82.RUoM.Ruom;
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -173,12 +172,7 @@ public class SQLiteDatabase {
     }
 
     private void tickQueue(BukkitRunnable queueRunnable) {
-        Bukkit.getScheduler().runTaskLater(RUoMPlugin.get(), new Runnable() {
-            @Override
-            public void run() {
-                queueRunnable.run();
-            }
-        }, 1);
+        Ruom.runSync(queueRunnable, 1);
     }
 
 }

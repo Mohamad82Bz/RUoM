@@ -16,7 +16,7 @@
 
 package me.Mohamad82.RUoM.updater;
 
-import org.bukkit.Bukkit;
+import me.Mohamad82.RUoM.Ruom;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -91,14 +91,11 @@ public class Download {
 
     public CompletableFuture<Download> start() {
         CompletableFuture<Download> cf = new CompletableFuture<>();
-        Bukkit.getScheduler().runTaskAsynchronously(javaPlugin, new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    download(cf);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        Ruom.runAsync(() -> {
+            try {
+                download(cf);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
         return cf;

@@ -19,13 +19,13 @@ import com.sk89q.worldedit.registry.state.Property;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockState;
+import me.Mohamad82.RUoM.Ruom;
 import me.Mohamad82.RUoM.utils.LocUtils;
 import me.Mohamad82.RUoM.utils.MilliCounter;
 import me.Mohamad82.RUoM.vector.Vector3Utils;
 import me.Mohamad82.RUoM.worldedit.enums.PastePattern;
 import me.Mohamad82.RUoM.worldedit.enums.PasteSpeed;
 import me.Mohamad82.RUoM.worldedit.enums.WEType;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -255,21 +255,11 @@ public class WEManager {
     }
 
     public void asyncQueue(BukkitRunnable runnable, int delay) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
-            @Override
-            public void run() {
-                runnable.run();
-            }
-        }, delay);
+        Ruom.runAsync(runnable, delay);
     }
 
     public void syncQueue(BukkitRunnable runnable, int delay) {
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                runnable.run();
-            }
-        }, delay);
+        Ruom.runSync(runnable, delay);
     }
 
     public BlockArrayClipboard createClipboard(BlockVector3 firstPos, BlockVector3 secondPos, org.bukkit.World world) {
@@ -401,28 +391,25 @@ public class WEManager {
     public Future<List<BlockVector3>> getVectorListFromClipboardAtY(Clipboard clipboard, int y, boolean ignoreAir) {
         CompletableFuture<List<BlockVector3>> future = new CompletableFuture<>();
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-            @Override
-            public void run() {
-                BlockVector3 minPoint = clipboard.getMinimumPoint();
-                BlockVector3 maxPoint = clipboard.getMaximumPoint();
-                List<BlockVector3> blockVectors = new ArrayList<>();
+        Ruom.runAsync(() -> {
+            BlockVector3 minPoint = clipboard.getMinimumPoint();
+            BlockVector3 maxPoint = clipboard.getMaximumPoint();
+            List<BlockVector3> blockVectors = new ArrayList<>();
 
-                for (int x = 0; x <= maxPoint.getBlockX() - minPoint.getBlockX(); x++) {
-                    for (int z = 0; z <= maxPoint.getBlockZ() - minPoint.getBlockZ(); z++) {
-                        BlockVector3 relative = minPoint.add(x, y, z);
-                        BlockState block = clipboard.getBlock(relative);
+            for (int x = 0; x <= maxPoint.getBlockX() - minPoint.getBlockX(); x++) {
+                for (int z = 0; z <= maxPoint.getBlockZ() - minPoint.getBlockZ(); z++) {
+                    BlockVector3 relative = minPoint.add(x, y, z);
+                    BlockState block = clipboard.getBlock(relative);
 
-                        if (ignoreAir)
-                            if (block.getBlockType().getMaterial().isAir())
-                                continue;
+                    if (ignoreAir)
+                        if (block.getBlockType().getMaterial().isAir())
+                            continue;
 
-                        blockVectors.add(relative);
-                    }
+                    blockVectors.add(relative);
                 }
-
-                future.complete(blockVectors);
             }
+
+            future.complete(blockVectors);
         });
 
         return future;
