@@ -1,5 +1,6 @@
 package me.Mohamad82.RUoM.adventureapi;
 
+import me.Mohamad82.RUoM.Ruom;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.markdown.DiscordFlavor;
@@ -7,12 +8,22 @@ import org.bukkit.entity.Player;
 
 public class ComponentUtils {
 
+    static {
+        Ruom.initializeAdventure();
+    }
+
     public static void send(Player player, Component component) {
         AdventureAPIManager.getAdventure().player(player).sendMessage(component);
     }
 
+    public static void send(Component component, Player... players) {
+        for (Player player : players) {
+            send(player, component);
+        }
+    }
+
     public static Component parse(String string) {
-        return MiniMessage.get().parse(string);
+        return MiniMessage.get().parse(parseComponentColors(string));
     }
 
     public static Component parseD(String string) {
