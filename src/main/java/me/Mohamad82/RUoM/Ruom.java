@@ -4,6 +4,7 @@ import me.Mohamad82.RUoM.adventureapi.AdventureAPIManager;
 import me.Mohamad82.RUoM.areaselection.AreaSelectionListener;
 import me.Mohamad82.RUoM.areaselection.AreaSelectionManager;
 import me.Mohamad82.RUoM.gui.GUIListener;
+import me.Mohamad82.RUoM.translators.skin.SkinBuilder;
 import me.Mohamad82.RUoM.worldedit.WEManager;
 import me.Mohamad82.RUoM.worldedit.enums.WEType;
 import net.kyori.adventure.text.Component;
@@ -60,6 +61,10 @@ public class Ruom {
 
     public static void intializeWorldEdit(WEType type) {
         new WEManager(RUoMPlugin.get(), type);
+    }
+
+    public static void initializeSkinBuilder() {
+        new SkinBuilder();
     }
 
     public static void broadcast(String message) {
