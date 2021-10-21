@@ -20,6 +20,8 @@ import java.util.Set;
 
 public class Ruom {
 
+    private final static Set<String> recordedHasPluginSet = new HashSet<>();
+
     private static boolean debug = false;
 
     public static RUoMPlugin getPlugin() {
@@ -28,6 +30,20 @@ public class Ruom {
 
     public static Server getServer() {
         return getPlugin().getServer();
+    }
+
+    public static boolean hasPlugin(String plugin) {
+        if (recordedHasPluginSet.contains(plugin))
+            return true;
+        else {
+            if (getServer().getPluginManager().getPlugin(plugin) != null &&
+                    getServer().getPluginManager().isPluginEnabled(plugin)) {
+                recordedHasPluginSet.add(plugin);
+                return true;
+            }
+            else
+                return false;
+        }
     }
 
     public static Set<Player> getOnlinePlayers() {
@@ -121,6 +137,7 @@ public class Ruom {
         if (AdventureAPIManager.getAdventure() != null) {
             AdventureAPIManager.getAdventure().close();
         }
+        recordedHasPluginSet.clear();
     }
 
 }
