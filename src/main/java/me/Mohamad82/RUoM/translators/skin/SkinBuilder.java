@@ -19,6 +19,7 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SkinBuilder {
+
+    private static Class<?> CRAFT_PLAYER, ENTITY_PLAYER;
+
+    private static Method CRAFT_PLAYER_GET_HANDLE_METHOD, ENTITY_PLAYER_GET_PROFILE_METHOD;
+
+    static {
+        try {
+            {
+                CRAFT_PLAYER = ReflectionUtils.getCraftClass("entity.CraftPlayer");
+                ENTITY_PLAYER = ReflectionUtils.getNMSClass("server.level", "EntityPlayer");
+            }
+            {
+                CRAFT_PLAYER_GET_HANDLE_METHOD = CRAFT_PLAYER.getMethod("getHandle");
+                ENTITY_PLAYER_GET_PROFILE_METHOD = ENTITY_PLAYER.getMethod("getProfile");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private final Map<String, MinecraftSkin> cache = new HashMap<>();
 
@@ -45,7 +65,7 @@ public class SkinBuilder {
         instance = this;
         mineSkinAPI = new MineSkinAPI();
 
-        if (Ruom.getPlugin().getServer().getPluginManager().getPlugin("SkinsRestorer") != null) {
+        if (Ruom.hasPlugin("SkinsRestorer")) {
             hasSkinsRestorer = true;
             skinsRestorerAPI = SkinsRestorerAPI.getApi();
 
@@ -58,7 +78,7 @@ public class SkinBuilder {
             }
         }
 
-        Ruom.getPlugin().getServer().getPluginManager().registerEvents(new SkinBuilderListeners(), Ruom.getPlugin());
+        Ruom.registerListener(new SkinBuilderListeners());
     }
 
     public MinecraftSkin getSkin(String name, boolean shouldCache) throws NoSuchAccountNameException {
@@ -107,10 +127,8 @@ public class SkinBuilder {
 
     public MinecraftSkin getSkin(Player player) {
         try {
-            Class<?> CRAFT_PLAYER = ReflectionUtils.getCraftClass("entity.CraftClass");
-
-            Object entityPlayer = CRAFT_PLAYER.getMethod("getHandle").invoke(player);
-            GameProfile gameProfile = (GameProfile) entityPlayer.getClass().getMethod("getProfile").invoke(entityPlayer);
+            Object entityPlayer = CRAFT_PLAYER_GET_HANDLE_METHOD.invoke(player);
+            GameProfile gameProfile = (GameProfile) ENTITY_PLAYER_GET_PROFILE_METHOD.invoke(entityPlayer);
             Property property = gameProfile.getProperties().get("textures").iterator().next();
 
             return new MinecraftSkin(property.getValue(), property.getSignature());
