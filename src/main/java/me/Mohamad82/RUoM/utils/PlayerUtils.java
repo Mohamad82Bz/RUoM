@@ -17,6 +17,15 @@ public class PlayerUtils {
         }
     }
 
+    public static boolean hasPermission(String permission, Player... players) {
+        for (Player player : players) {
+            if (!player.hasPermission(permission)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void spawnFoodEatParticles(Location location, ItemStack foodItem) {
         final Random random = new Random();
         final Location rightSide = getRightHandLocation(location).add(0, -0.25, 0);
