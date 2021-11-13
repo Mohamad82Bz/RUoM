@@ -53,12 +53,6 @@ public class Vector3Utils {
         return new Location(world, vector3.getX(), vector3.getY(), vector3.getZ());
     }
 
-    public static BlockVector3 getTravelDistance(BlockVector3 from, BlockVector3 to) {
-        Vector3 travelDistance = getTravelDistance(Vector3.at(from.getBlockX(), from.getBlockY(), from.getBlockZ()),
-                Vector3.at(to.getBlockX(), to.getBlockY(), to.getBlockZ()));
-        return BlockVector3.at(travelDistance.getBlockX(), travelDistance.getBlockY(), travelDistance.getBlockZ());
-    }
-
     public static Vector3 getTravelDistance(Vector3 from, Vector3 to) {
         double xD = Math.abs(from.getX() - to.getX());
         double yD = Math.abs(from.getY() - to.getY());
@@ -72,6 +66,12 @@ public class Vector3Utils {
             zD = zD * -1;
 
         return Vector3.at(xD, yD, zD);
+    }
+
+    public static BlockVector3 getTravelDistance(BlockVector3 from, BlockVector3 to) {
+        Vector3 travelDistance = getTravelDistance(Vector3.at(from.getBlockX(), from.getBlockY(), from.getBlockZ()),
+                Vector3.at(to.getBlockX(), to.getBlockY(), to.getBlockZ()));
+        return BlockVector3.at(travelDistance.getBlockX(), travelDistance.getBlockY(), travelDistance.getBlockZ());
     }
 
     public static BlockVector3 getCenter(BlockVector3 first, BlockVector3 second) {
