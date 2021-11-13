@@ -7,7 +7,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class SkinBuilderListeners implements Listener {
 
-    public static boolean disableDeathMessage = false;
+    protected static boolean disableDeathMessage = false;
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
