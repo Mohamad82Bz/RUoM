@@ -56,6 +56,7 @@ public class SQLiteDatabase {
         try {
             queue.clear();
             connection.close();
+            queueTask.cancel();
             Ruom.log("SQLite database has been shutdown.");
         } catch (SQLException e) {
             Ruom.error("Failed to shutdown sqlite database. Stacktrace:");
@@ -160,7 +161,7 @@ public class SQLiteDatabase {
                             Ruom.warn("This query has been removed from the queue as it exceeded the maximum failures." +
                                     " It's more likely to see some stuff break because of this failure, Please report" +
                                     " this bug to the developers.\n" +
-                                    "Developer(s) of this project: " + RUoMPlugin.get().getDescription().getAuthors());
+                                    "Developer(s) of this project: " + Ruom.getPlugin().getDescription().getAuthors());
                         }
                     }
                     break;
@@ -168,7 +169,7 @@ public class SQLiteDatabase {
 
                 tickQueue(this);
             }
-        }.runTaskAsynchronously(RUoMPlugin.get());
+        }.runTaskAsynchronously(Ruom.getPlugin());
     }
 
     private void tickQueue(BukkitRunnable queueRunnable) {
