@@ -85,7 +85,6 @@ public class SkinBuilder {
         MinecraftSkin skin;
 
         if (cache.containsKey(name)) {
-            Ruom.log("Getting from cache");
             return cache.get(name);
         } else {
             try {
