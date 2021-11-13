@@ -3,6 +3,7 @@ package me.Mohamad82.RUoM;
 import me.Mohamad82.RUoM.adventureapi.AdventureAPIManager;
 import me.Mohamad82.RUoM.areaselection.AreaSelectionListener;
 import me.Mohamad82.RUoM.areaselection.AreaSelectionManager;
+import me.Mohamad82.RUoM.events.packets.PacketListenerManager;
 import me.Mohamad82.RUoM.gui.GUIListener;
 import me.Mohamad82.RUoM.translators.skin.SkinBuilder;
 import me.Mohamad82.RUoM.worldedit.WEManager;
@@ -134,10 +135,11 @@ public class Ruom {
     }
 
     public static void shutdown() {
+        recordedHasPluginSet.clear();
         if (AdventureAPIManager.getAdventure() != null) {
             AdventureAPIManager.getAdventure().close();
         }
-        recordedHasPluginSet.clear();
+        PacketListenerManager.shutdown();
     }
 
 }
