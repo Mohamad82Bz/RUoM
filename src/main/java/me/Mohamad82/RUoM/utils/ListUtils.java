@@ -19,4 +19,11 @@ public class ListUtils {
         return list;
     }
 
+    @SafeVarargs
+    public static <T> List<T> toList(T... t) {
+        List<T> list = new ArrayList<>();
+        Collections.addAll(list, t);
+        return list;
+    }
+
 }
