@@ -47,7 +47,7 @@ public class PacketListenerManager implements Listener {
         return instance;
     }
 
-    protected static void initialize() {
+    public static void initialize() {
         if (instance == null) {
             instance = new PacketListenerManager();
             Ruom.getOnlinePlayers().forEach(instance::injectPlayer);
@@ -80,7 +80,7 @@ public class PacketListenerManager implements Listener {
                 ServerBoundPacketEvent serverBoundPacketEvent = new ServerBoundPacketEvent(player, new PacketContainer(packet));
                 AsyncServerBoundPacketEvent asyncServerBoundPacketEvent = new AsyncServerBoundPacketEvent(player, new PacketContainer(packet));
 
-                Ruom.getServer().getPluginManager().callEvent(serverBoundPacketEvent);
+                Ruom.runSync(() -> Ruom.getServer().getPluginManager().callEvent(serverBoundPacketEvent));
                 Ruom.runAsync(() -> Ruom.getServer().getPluginManager().callEvent(asyncServerBoundPacketEvent));
 
                 if (!serverBoundPacketEvent.isCancelled()) {
@@ -99,7 +99,7 @@ public class PacketListenerManager implements Listener {
                 ClientBoundPacketEvent clientBoundPacketEvent = new ClientBoundPacketEvent(player, new PacketContainer(packet));
                 AsyncClientBoundPacketEvent asyncClientBoundPacketEvent = new AsyncClientBoundPacketEvent(player, new PacketContainer(packet));
 
-                Ruom.getServer().getPluginManager().callEvent(clientBoundPacketEvent);
+                Ruom.runSync(() -> Ruom.getServer().getPluginManager().callEvent(clientBoundPacketEvent));
                 Ruom.runAsync(() -> Ruom.getServer().getPluginManager().callEvent(asyncClientBoundPacketEvent));
 
                 if (!clientBoundPacketEvent.isCancelled()) {

@@ -84,6 +84,10 @@ public class Ruom {
         new SkinBuilder();
     }
 
+    public static void initializePacketListener() {
+        PacketListenerManager.initialize();
+    }
+
     public static void broadcast(String message) {
         Bukkit.broadcastMessage(message);
     }
@@ -136,9 +140,12 @@ public class Ruom {
 
     public static void shutdown() {
         recordedHasPluginSet.clear();
-        if (AdventureAPIManager.getAdventure() != null) {
-            AdventureAPIManager.getAdventure().close();
-        }
+        try {
+            Class.forName("net.kyori.adventure.platform.bukkit.BukkitAudiences");
+            if (AdventureAPIManager.getAdventure() != null) {
+                AdventureAPIManager.getAdventure().close();
+            }
+        } catch (ClassNotFoundException ignore) {}
         PacketListenerManager.shutdown();
     }
 

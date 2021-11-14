@@ -19,8 +19,6 @@ public class PacketEvent extends Event {
         super(isAsync);
         this.player = player;
         this.packet = packet;
-
-        PacketListenerManager.initialize();
     }
 
     public Player getPlayer() {
