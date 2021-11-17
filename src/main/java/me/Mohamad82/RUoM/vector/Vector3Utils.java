@@ -80,18 +80,11 @@ public class Vector3Utils {
         return BlockVector3.at(center.getBlockX(), center.getBlockY(), center.getBlockZ());
     }
 
-    public static Vector3 getCenter(Vector3 first, Vector3 second) {
-        double minX = Math.min(first.getX(), second.getX());
-        double minY = Math.min(first.getY(), second.getY());
-        double minZ = Math.min(first.getZ(), second.getZ());
-        double x1 = Math.max(first.getX(), second.getX()) + 1;
-        double y1 = Math.max(first.getY(), second.getY()) + 1;
-        double z1 = Math.max(first.getZ(), second.getZ()) + 1;
-
-        return Vector3.at(
-                minX + (x1 - minX) / 2.0D,
-                minY + (y1 - minY) / 2.0D,
-                minZ + (z1 - minZ) / 2.0D);
+    public static Vector3 getCenter(Vector3 firstPoint, Vector3 secondPoint) {
+        Vector3 minPoint = getMinPoint(firstPoint, secondPoint);
+        Vector3 maxPoint = getMaxPoint(firstPoint, secondPoint);
+        Vector3 sum = minPoint.clone().add(maxPoint);
+        return Vector3.at(sum.getX() / 2d, sum.getY() / 2d, sum.getZ() / 2d);
     }
 
     public static Vector3 getMinPoint(Vector3 first, Vector3 second) {
