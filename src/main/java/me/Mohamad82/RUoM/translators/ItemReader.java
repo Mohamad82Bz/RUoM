@@ -24,6 +24,13 @@ public class ItemReader {
     
     private final static Class<?> CRAFT_ITEMSTACK, ITEMSTACK, ITEM, CREATIVE_MODE_TAB;
 
+    static {
+        CRAFT_ITEMSTACK = ReflectionUtils.getCraftClass("inventory.CraftItemStack");
+        ITEMSTACK = ReflectionUtils.getNMSClass("world.item", "ItemStack");
+        ITEM = ReflectionUtils.getNMSClass("world.item", "Item");
+        CREATIVE_MODE_TAB = ReflectionUtils.getNMSClass("world.item", "CreativeModeTab");
+    }
+
     private final Set<Hook> softDepends;
     private final Logger logger;
     private String title = null;
@@ -36,13 +43,6 @@ public class ItemReader {
     String wrongEnchantment = "Could not read '%enchantment%' in '%item%' because enchantment is unknown or wrongly formatted!";
     String wrongSlotName = "Could not read '%slot%' slot(s) because the format is wrong!";
     String wrongSlotNumber = "Could not read '%slot%' slot(s) because it's bigger than gui size!";
-    
-    static {
-        CRAFT_ITEMSTACK = ReflectionUtils.getCraftClass("inventory.CraftItemStack");
-        ITEMSTACK = ReflectionUtils.getNMSClass("world.item", "ItemStack");
-        ITEM = ReflectionUtils.getNMSClass("world.item", "Item");
-        CREATIVE_MODE_TAB = ReflectionUtils.getNMSClass("world.item", "CreativeModeTab");
-    }
 
     public ItemReader(Logger logger, String title) {
         this.softDepends = getInstalledDependencies();
@@ -71,7 +71,7 @@ public class ItemReader {
 
             Object creativeModeTab;
             if (ServerVersion.supports(9)) {
-                creativeModeTab = ITEM.getMethod(ServerVersion.supports(17) ? "t" : ServerVersion.supports(16) ? "q" : "b");
+                creativeModeTab = ITEM.getMethod(ServerVersion.supports(17) ? "t" : ServerVersion.supports(16) ? "q" : "b").invoke(nmsItem);
             } else {
                 Field creativeModeTabField = ITEM.getDeclaredField("b");
                 creativeModeTabField.setAccessible(true);
