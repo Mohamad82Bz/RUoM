@@ -86,7 +86,7 @@ public class ItemReader {
             if (creativeModeTabName.equals("buildingBlocks")) {
                 category = Category.BLOCKS;
             } else {
-                category = Category.valueOf(creativeModeTabName);
+                category = Category.valueOf(creativeModeTabName.toUpperCase());
             }
             return category;
         } catch (Exception e) {
