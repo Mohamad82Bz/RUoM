@@ -62,14 +62,23 @@ public class ItemReader {
         this.logger = null;
         this.skullBuilder = new SkullBuilder();
     }
-    
+
+    /**
+     * Gets an itemstack's category that is categorized by Minecraft.
+     * @param item The itemstack to get its category.
+     * @return The category of the given item.
+     * @throws IllegalArgumentException If the itemstack is not avaiable in the creative inventory. Such as dragon eggs, barriers, etc.
+     */
     public static Category getItemCategory(ItemStack item) {
         if (item == null || item.getType().isAir()) return null;
+
+        Object creativeModeTab;
+        Field categoryNameField;
+
         try {
             Object nmsItemStack = CRAFT_ITEMSTACK.getMethod("asNMSCopy", ItemStack.class).invoke(null, item);
             Object nmsItem = ITEMSTACK.getMethod("getItem").invoke(nmsItemStack);
 
-            Object creativeModeTab;
             if (ServerVersion.supports(9)) {
                 creativeModeTab = ITEM.getMethod(ServerVersion.supports(17) ? "t" : ServerVersion.supports(16) ? "q" : "b").invoke(nmsItem);
             } else {
@@ -77,22 +86,27 @@ public class ItemReader {
                 creativeModeTabField.setAccessible(true);
                 creativeModeTab = creativeModeTabField.get(nmsItem);
             }
-            Field field = CREATIVE_MODE_TAB.getDeclaredField(ServerVersion.supports(9) ? "p" : "o");
-            field.setAccessible(true);
-
-            String creativeModeTabName = (String) field.get(creativeModeTab);
-
-            Category category;
-            if (creativeModeTabName.equals("buildingBlocks")) {
-                category = Category.BLOCKS;
-            } else {
-                category = Category.valueOf(creativeModeTabName.toUpperCase());
-            }
-            return category;
+            categoryNameField = CREATIVE_MODE_TAB.getDeclaredField(ServerVersion.supports(9) ? "p" : "o");
+            categoryNameField.setAccessible(true);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+
+        String creativeModeTabName;
+        try {
+            creativeModeTabName = (String) categoryNameField.get(creativeModeTab);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Given itemstack is not avaiable in creative menu.");
+        }
+
+        Category category;
+        if (creativeModeTabName.equals("buildingBlocks")) {
+            category = Category.BLOCKS;
+        } else {
+            category = Category.valueOf(creativeModeTabName.toUpperCase());
+        }
+        return category;
     }
 
     public ItemStack toItemStack(String string) {
