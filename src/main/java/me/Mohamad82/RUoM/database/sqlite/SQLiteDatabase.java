@@ -1,24 +1,24 @@
 package me.Mohamad82.RUoM.database.sqlite;
 
-import me.Mohamad82.RUoM.RUoMPlugin;
 import me.Mohamad82.RUoM.Ruom;
+import me.Mohamad82.RUoM.database.Database;
+import me.Mohamad82.RUoM.database.Query;
+import me.Mohamad82.RUoM.database.enums.Priority;
+import me.Mohamad82.RUoM.database.sqlite.exceptions.SQLiteException;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class SQLiteDatabase {
-
-    private final Map<Priority, List<SQLiteQuery>> queue = new HashMap<>();
+public class SQLiteDatabase extends Database {
 
     private final File dbFile;
     private Connection connection;
-    private BukkitTask queueTask;
-    private int failAttemptRemoval = 2;
 
     public SQLiteDatabase(File dbFile) {
         this.dbFile = dbFile;
@@ -29,139 +29,67 @@ public class SQLiteDatabase {
             Ruom.error("Failed to create the sqlite database file. Stacktrace:");
             e.printStackTrace();
         }
+    }
 
-        for (Priority priority : Priority.values()) {
-            queue.put(priority, new ArrayList<>());
+    @Override
+    public void connect() {
+        try {
+            this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getPath());
+            startQueue();
+        } catch (SQLException e) {
+            throw new SQLiteException(e.getMessage());
         }
     }
 
-    /**
-     * Initializes the sqlite connection.
-     * @param afterConnectStatements Statements that will be ran after the connection.
-     */
-    public void connect(String... afterConnectStatements) throws SQLException {
-        this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getPath());
-
-        startQueue();
-
-        for (String statement : afterConnectStatements) {
-            queueQuery(statement, Priority.HIGHEST);
-        }
-    }
-
-    /**
-     * Shutdowns the sqlite database.
-     */
+    @Override
     public void shutdown() {
         try {
-            queue.clear();
             connection.close();
+            queue.clear();
             queueTask.cancel();
-            Ruom.log("SQLite database has been shutdown.");
         } catch (SQLException e) {
-            Ruom.error("Failed to shutdown sqlite database. Stacktrace:");
-            e.printStackTrace();
+            throw new SQLiteException(e.getMessage());
         }
     }
 
-    /**
-     * Queues a query.
-     * @param statement Statement that is going to run.
-     * @param priority Priority of the query in queue. Higher priorities will be ran sooner in the queue.
-     * @return SQLiteQuery class that contains CompletableFuture with ResultSet callback. Useful when you need the ResultSet of the query.
-     * @see SQLiteQuery
-     */
-    public SQLiteQuery queueQuery(String statement, Priority priority) {
-        CompletableFuture<ResultSet> completableFuture = new CompletableFuture<>();
-        SQLiteQuery sqLiteQuery = new SQLiteQuery(completableFuture, statement);
-        queue.get(priority).add(sqLiteQuery);
-
-        return sqLiteQuery;
-    }
-
-    /**
-     * Queues a query with normal priority.
-     * @param statement Statement that is going to run.
-     * @return SQLiteQuery class that contains CompletableFuture with ResultSet callback. Useful when you need the ResultSet of the query.
-     * @see SQLiteQuery
-     */
-    public SQLiteQuery queueQuery(String statement) {
-        CompletableFuture<ResultSet> completableFuture = new CompletableFuture<>();
-        SQLiteQuery sqLiteQuery = new SQLiteQuery(completableFuture, statement);
-        queue.get(Priority.NORMAL).add(sqLiteQuery);
-
-        return sqLiteQuery;
-    }
-
-    /**
-     * Creates a table in the sqlite database. Priority will be the highest.
-     * Argument example:
-     * UUID VARCHAR(100),Name VARCHAR(100),PRIMARY KEY (UUID)
-     * @param tableName The table name that is going to be created.
-     * @param tableArgs The table arguments.
-     */
-    public void createTable(String tableName, String tableArgs) {
-        queueQuery("CREATE TABLE IF NOT EXISTS " + tableName + " (" + tableArgs + ")", Priority.HIGHEST);
-    }
-
-    /**
-     * Sets the maximum allowed query failures.
-     * If a query fails more than this value, It will be removed from the queue.
-     * Default is set to 2.
-     * @param failAttemptRemoval Allowed failures for a query.
-     */
-    public void setFailAttemptRemoval(int failAttemptRemoval) {
-        this.failAttemptRemoval = failAttemptRemoval;
-    }
-
-    /**
-     * Priority enum to use in queue.
-     */
-    public enum Priority {
-        LOW,
-        NORMAL,
-        HIGH,
-        HIGHEST
-    }
-
-    private void startQueue() {
-        queueTask = new BukkitRunnable() {
+    @Override
+    protected BukkitTask startQueue() {
+        return new BukkitRunnable() {
             public void run() {
                 List<Priority> priorities = new ArrayList<>(Arrays.asList(Priority.values()));
-                Collections.reverse(priorities);
 
                 for (Priority priority : priorities) {
-                    List<SQLiteQuery> queries = queue.get(priority);
+                    List<Query> queries = queue.get(priority);
                     if (queries.isEmpty()) continue;
 
-                    SQLiteQuery sqLiteQuery = queries.get(0);
+                    Query query = queries.get(0);
 
                     try {
-                        PreparedStatement preparedStatement = sqLiteQuery.createPreparedStatement(connection);
+                        PreparedStatement preparedStatement = query.createPreparedStatement(connection);
                         ResultSet resultSet = null;
 
-                        if (sqLiteQuery.getStatement().startsWith("INSERT") ||
-                                sqLiteQuery.getStatement().startsWith("UPDATE") ||
-                                sqLiteQuery.getStatement().startsWith("DELETE") ||
-                                sqLiteQuery.getStatement().startsWith("CREATE"))
+                        if (query.getStatement().startsWith("INSERT") ||
+                                query.getStatement().startsWith("UPDATE") ||
+                                query.getStatement().startsWith("DELETE") ||
+                                query.getStatement().startsWith("CREATE"))
                             preparedStatement.executeUpdate();
                         else
                             resultSet = preparedStatement.executeQuery();
 
-                        sqLiteQuery.getCompletableFuture().complete(resultSet);
+                        query.getCompletableFuture().complete(resultSet);
                         queries.remove(0);
                     } catch (SQLException e) {
                         Ruom.error("Failed to perform a query in the sqlite database. Stacktrace:");
-                        Ruom.debug("Statement: " + sqLiteQuery.getStatement());
+                        Ruom.debug("Statement: " + query.getStatement());
                         e.printStackTrace();
 
-                        sqLiteQuery.increaseFailedAttempts();
-                        if (sqLiteQuery.getFailedAttempts() > failAttemptRemoval) {
+                        query.increaseFailedAttempts();
+                        if (query.getFailedAttempts() > failAttemptRemoval) {
                             queries.remove(0);
-                            Ruom.warn("This query has been removed from the queue as it exceeded the maximum failures." +
+                            Ruom.warn("This query has been removed from the sqlite queue as it exceeded the maximum failures." +
                                     " It's more likely to see some stuff break because of this failure, Please report" +
                                     " this bug to the developers.\n" +
-                                    "Developer(s) of this project: " + Ruom.getPlugin().getDescription().getAuthors());
+                                    "Developer(s) of this plugin: " + Ruom.getPlugin().getDescription().getAuthors());
                         }
                     }
                     break;
@@ -170,10 +98,6 @@ public class SQLiteDatabase {
                 tickQueue(this);
             }
         }.runTaskAsynchronously(Ruom.getPlugin());
-    }
-
-    private void tickQueue(BukkitRunnable queueRunnable) {
-        Ruom.runSync(queueRunnable, 1);
     }
 
 }
