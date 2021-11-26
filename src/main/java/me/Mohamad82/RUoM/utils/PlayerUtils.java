@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
@@ -17,7 +18,7 @@ public class PlayerUtils {
         }
     }
 
-    public static boolean hasPermission(String permission, Player... players) {
+    public static boolean hasPermission(String permission, @NotNull Player... players) {
         for (Player player : players) {
             if (!player.hasPermission(permission)) {
                 return false;
