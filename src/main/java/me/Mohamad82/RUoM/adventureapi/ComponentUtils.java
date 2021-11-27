@@ -3,7 +3,6 @@ package me.Mohamad82.RUoM.adventureapi;
 import me.Mohamad82.RUoM.Ruom;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.markdown.DiscordFlavor;
 import org.bukkit.entity.Player;
 
 public class ComponentUtils {
@@ -23,11 +22,7 @@ public class ComponentUtils {
     }
 
     public static Component parse(String string) {
-        return MiniMessage.get().parse(parseComponentColors(string));
-    }
-
-    public static Component parseD(String string) {
-        return MiniMessage.withMarkdownFlavor(DiscordFlavor.get()).parse(parseComponentColors(string));
+        return MiniMessage.miniMessage().parse(parseComponentColors(string));
     }
 
     public static String parseComponentColors(String msg) {
