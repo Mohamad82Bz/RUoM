@@ -30,7 +30,7 @@ public class PacketListenerManager implements Listener {
                 NETWORK_MANAGER = ReflectionUtils.getNMSClass("network", "NetworkManager");
             }
             {
-                PLAYER_CONNECTION_NETWORK_MANAGER_FIELD = PLAYER_CONNECTION.getField(ServerVersion.supports(17) ? "b" : "networkManager");
+                PLAYER_CONNECTION_NETWORK_MANAGER_FIELD = PLAYER_CONNECTION.getField(ServerVersion.supports(17) ? "a" : "networkManager");
                 NETWORK_MANAGER_CHANNEL_FIELD = NETWORK_MANAGER.getField(ServerVersion.supports(17) ? "k" : "channel");
             }
         } catch (Exception e) {
