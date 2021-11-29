@@ -7,6 +7,7 @@ import me.Mohamad82.RUoM.Ruom;
 import me.Mohamad82.RUoM.database.Database;
 import me.Mohamad82.RUoM.database.Query;
 import me.Mohamad82.RUoM.database.enums.Priority;
+import me.Mohamad82.RUoM.utils.ServerVersion;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -41,7 +42,7 @@ public class MySQLDatabase extends Database {
     public void connect() {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(credentials.getUrl());
-        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        hikariConfig.setDriverClassName(ServerVersion.supports(13) ? "com.mysql.cj.jdbc.Driver" : "com.mysql.jdbc.Driver");
         hikariConfig.setUsername(credentials.getUsername());
         hikariConfig.setPassword(credentials.getPassword());
         hikariConfig.setMaximumPoolSize(poolingSize);
