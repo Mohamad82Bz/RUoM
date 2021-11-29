@@ -15,7 +15,7 @@ public class PacketContainer {
             String[] rawNameSplit2 = rawNameSplit[rawNameSplit.length - 1].split("@");
             this.name = rawNameSplit2[0];
 
-            if (!name.equals("Property") && !name.equals("GameProfile") && ReflectionUtils.getNMSClass("server.protocol.game", name) == null) {
+            if (!name.equals("Property") && !name.equals("GameProfile") && ReflectionUtils.getNMSClass("network.protocol.game", name) == null) {
                 throw new IllegalArgumentException("Given instance is not a packet.");
             }
         } catch (Exception e) {
