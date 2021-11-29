@@ -1,7 +1,5 @@
 package me.Mohamad82.RUoM.events.packets;
 
-import com.cryptomorin.xseries.ReflectionUtils;
-
 public class PacketContainer {
 
     private final Object packet;
@@ -14,10 +12,6 @@ public class PacketContainer {
             String[] rawNameSplit = packet.toString().split("\\.");
             String[] rawNameSplit2 = rawNameSplit[rawNameSplit.length - 1].split("@");
             this.name = rawNameSplit2[0];
-
-            if (!name.equals("Property") && !name.equals("GameProfile") && ReflectionUtils.getNMSClass("network.protocol.game", name) == null) {
-                throw new IllegalArgumentException("Given instance is not a packet.");
-            }
         } catch (Exception e) {
             throw new IllegalArgumentException("Given object is not a packet instance.");
         }
