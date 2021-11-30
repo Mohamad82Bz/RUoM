@@ -42,7 +42,9 @@ public class ToastMessage {
     static {
         try {
             {
-                DESERIALIZER = ReflectionUtils.getNMSClass("AdvancementDataWorld").getField("DESERIALIZER").get(null);
+                if (ServerVersion.supports(12)) {
+                    DESERIALIZER = ReflectionUtils.getNMSClass("AdvancementDataWorld").getField("DESERIALIZER").get(null);
+                }
             }
             {
                 MINECRAFT_KEY = ReflectionUtils.getNMSClass("resources", "MinecraftKey");
