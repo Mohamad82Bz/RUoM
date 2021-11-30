@@ -77,48 +77,54 @@ public class PacketListenerManager implements Listener {
         ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
             @Override
             public void channelRead(ChannelHandlerContext context, Object packet) {
-                ServerBoundPacketEvent serverBoundPacketEvent = new ServerBoundPacketEvent(player, new PacketContainer(packet));
-                AsyncServerBoundPacketEvent asyncServerBoundPacketEvent = new AsyncServerBoundPacketEvent(player, new PacketContainer(packet));
-
                 try {
-                    Ruom.runSync(() -> Ruom.getServer().getPluginManager().callEvent(serverBoundPacketEvent));
-                    Ruom.runAsync(() -> Ruom.getServer().getPluginManager().callEvent(asyncServerBoundPacketEvent));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    PacketContainer packetContainer = new PacketContainer(packet);
+                    ServerBoundPacketEvent serverBoundPacketEvent = new ServerBoundPacketEvent(player, packetContainer);
+                    AsyncServerBoundPacketEvent asyncServerBoundPacketEvent = new AsyncServerBoundPacketEvent(player, packetContainer);
 
-                if (!serverBoundPacketEvent.isCancelled()) {
                     try {
-                        super.channelRead(context, packet);
+                        Ruom.runSync(() -> Ruom.getServer().getPluginManager().callEvent(serverBoundPacketEvent));
+                        Ruom.runAsync(() -> Ruom.getServer().getPluginManager().callEvent(asyncServerBoundPacketEvent));
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Ruom.error("An error occured while handling (read) a packet. Please report this error to the plugin's author(s): " +
-                                Ruom.getPlugin().getDescription().getAuthors());
                     }
-                }
+
+                    if (!serverBoundPacketEvent.isCancelled()) {
+                        try {
+                            super.channelRead(context, packet);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Ruom.error("An error occured while handling (read) a packet. Please report this error to the plugin's author(s): " +
+                                    Ruom.getPlugin().getDescription().getAuthors());
+                        }
+                    }
+                } catch (IllegalArgumentException ignored) {}
             }
 
             @Override
             public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
-                ClientBoundPacketEvent clientBoundPacketEvent = new ClientBoundPacketEvent(player, new PacketContainer(packet));
-                AsyncClientBoundPacketEvent asyncClientBoundPacketEvent = new AsyncClientBoundPacketEvent(player, new PacketContainer(packet));
-
                 try {
-                    Ruom.runSync(() -> Ruom.getServer().getPluginManager().callEvent(clientBoundPacketEvent));
-                    Ruom.runAsync(() -> Ruom.getServer().getPluginManager().callEvent(asyncClientBoundPacketEvent));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    PacketContainer packetContainer = new PacketContainer(packet);
+                    ClientBoundPacketEvent clientBoundPacketEvent = new ClientBoundPacketEvent(player, packetContainer);
+                    AsyncClientBoundPacketEvent asyncClientBoundPacketEvent = new AsyncClientBoundPacketEvent(player, packetContainer);
 
-                if (!clientBoundPacketEvent.isCancelled()) {
                     try {
-                        super.write(context, packet, channelPromise);
+                        Ruom.runSync(() -> Ruom.getServer().getPluginManager().callEvent(clientBoundPacketEvent));
+                        Ruom.runAsync(() -> Ruom.getServer().getPluginManager().callEvent(asyncClientBoundPacketEvent));
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Ruom.error("An error occured while handling (write) a packet. Please report this error to the plugin's author(s): " +
-                                Ruom.getPlugin().getDescription().getAuthors());
                     }
-                }
+
+                    if (!clientBoundPacketEvent.isCancelled()) {
+                        try {
+                            super.write(context, packet, channelPromise);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Ruom.error("An error occured while handling (write) a packet. Please report this error to the plugin's author(s): " +
+                                    Ruom.getPlugin().getDescription().getAuthors());
+                        }
+                    }
+                } catch (IllegalArgumentException ignored) {}
             }
         };
 
