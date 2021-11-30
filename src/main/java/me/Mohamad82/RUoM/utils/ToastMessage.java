@@ -42,7 +42,7 @@ public class ToastMessage {
     static {
         try {
             {
-                if (ServerVersion.supports(12)) {
+                if (ServerVersion.getVersion() == 12) {
                     DESERIALIZER = ReflectionUtils.getNMSClass("AdvancementDataWorld").getField("DESERIALIZER").get(null);
                 }
             }
