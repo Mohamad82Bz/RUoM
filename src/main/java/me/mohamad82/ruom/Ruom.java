@@ -6,8 +6,6 @@ import me.mohamad82.ruom.areaselection.AreaSelectionManager;
 import me.mohamad82.ruom.events.packets.PacketListenerManager;
 import me.mohamad82.ruom.gui.GUIListener;
 import me.mohamad82.ruom.translators.skin.SkinBuilder;
-import me.mohamad82.ruom.worldedit.WEManager;
-import me.mohamad82.ruom.worldedit.enums.WEType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -74,10 +72,6 @@ public class Ruom {
     public static void initializeAreaSelection() {
         new AreaSelectionManager();
         RUoMPlugin.get().getServer().getPluginManager().registerEvents(new AreaSelectionListener(), RUoMPlugin.get());
-    }
-
-    public static void intializeWorldEdit(WEType type) {
-        new WEManager(RUoMPlugin.get(), type);
     }
 
     public static void initializeSkinBuilder() {
