@@ -1,0 +1,11 @@
+pluginManagement {
+    repositories {
+        maven {
+            url = "https://repo.screamingsandals.org/public/"
+        }
+
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'RUoM'

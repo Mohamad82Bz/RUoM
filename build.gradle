@@ -1,0 +1,568 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'org.screamingsandals.nms-mapper' version '1.1.1'
+}
+
+group = 'me.mohamad82'
+version = '3.0'
+description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
+java.sourceCompatibility = JavaVersion.VERSION_11
+compileJava.options.encoding = "UTF-8"
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://hub.spigotmc.org/nexus/content/repositories/snapshots/')
+    }
+    maven {
+        url = uri('https://jitpack.io')
+    }
+    maven {
+        url = uri('https://maven.enginehub.org/repo/')
+    }
+    maven {
+        url = uri('https://mvn.intellectualsites.com/content/repositories/releases/')
+    }
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+    maven {
+        url = uri('https://repo.screamingsandals.org/public/')
+    }
+}
+
+dependencies {
+    implementation 'com.github.cryptomorin:XSeries:8.5.0.1'
+    implementation 'net.kyori:adventure-api:4.9.3'
+    implementation 'net.kyori:adventure-platform-bukkit:4.0.0'
+    implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
+    implementation 'com.zaxxer:HikariCP:4.0.3'
+
+    compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+    compileOnly 'com.intellectualsites.fawe:FAWE-Bukkit:1.16-637'
+    compileOnly files('libs/MMOItems-6.5.1-SNAPSHOT.jar')
+    compileOnly files('libs/MMOLib-1.4.1.jar')
+    compileOnly files('libs/Oraxen-1.60.0.jar')
+    compileOnly files('libs/SkinsRestorer-14.1.5.jar')
+
+    testCompileOnly 'org.spigotmc:spigot:1.18.1-R0.1-SNAPSHOT:remapped-mojang'
+    //testCompileOnly 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
+}
+
+shadowJar {
+    minimize()
+    relocate('net.kyori.adventure', 'me.mohamad82.ruom.adventure')
+    relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
+    relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
+    relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
+}
+
+sourceSets.main.java.srcDirs = ['src/generated/java', 'src/main/java']
+
+nmsGen {
+    basePackage = 'me.mohamad82.ruom.nmsaccessors'
+    sourceSet = 'src/generated/java'
+    cleanOnRebuild = true
+
+    var ClientboundPlayerInfoPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket")
+    var ClientboundPlayerInfoPacketAction = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action')
+    var ClientboundPlayerInfoPacketPlayerUpdate = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate')
+    var ClientboundAddEntityPacket = reqClass("net.minecraft.network.protocol.game.ClientboundAddEntityPacket")
+    var ClientboundAddPlayerPacket = reqClass("net.minecraft.network.protocol.game.ClientboundAddPlayerPacket")
+    var ClientboundRotateHeadPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRotateHeadPacket")
+    var ClientboundRemoveEntitiesPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket")
+    var ClientboundMoveEntityPacketRot = reqClass('net.minecraft.network.protocol.game.ClientboundMoveEntityPacket$Rot')
+    var ClientboundMoveEntityPacketPos = reqClass('net.minecraft.network.protocol.game.ClientboundMoveEntityPacket$Pos')
+    var ClientboundMoveEntityPacketPosRot = reqClass('net.minecraft.network.protocol.game.ClientboundMoveEntityPacket$PosRot')
+    var ClientboundAnimatePacket = reqClass("net.minecraft.network.protocol.game.ClientboundAnimatePacket")
+    var ClientboundBlockBreakAckPacket = reqClass("net.minecraft.network.protocol.game.ClientboundBlockBreakAckPacket")
+    var ClientboundSetEntityDataPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket")
+    var ClientboundSetEquipmentPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket")
+    var ClientboundTeleportEntityPacket = reqClass("net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket")
+    var ClientboundSetEntityMotionPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket")
+    var ClientboundTakeItemEntityPacket = reqClass("net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket")
+    var ClientboundBlockEventPacket = reqClass("net.minecraft.network.protocol.game.ClientboundBlockEventPacket")
+    var ClientboundSetPassengersPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetPassengersPacket")
+    var ClientboundBlockDestructionPacket = reqClass("net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket")
+    var ClientboundUpdateAdvancementsPacket = reqClass("net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket")
+    var ClientboundLevelChunkPacketData = reqClass("net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData") //1.18 and above
+    var ClientboundLevelChunkWithLightPacket = reqClass("net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket") //1.18 and above
+    var ClientboundLevelChunkPacket = reqClass("net.minecraft.network.protocol.game.ClientboundLevelChunkPacket") //1.17 and below
+    var ClientboundLightUpdatePacket = reqClass("net.minecraft.network.protocol.game.ClientboundLightUpdatePacket")
+    var ClientboundOpenScreenPacket = reqClass("net.minecraft.network.protocol.game.ClientboundOpenScreenPacket")
+    var ClientboundRespawnPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRespawnPacket")
+
+    var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
+    var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
+
+    var ServerPlayer = reqClass("net.minecraft.server.level.ServerPlayer")
+    var Player = reqClass("net.minecraft.world.entity.player.Player")
+    var ServerLevel = reqClass("net.minecraft.server.level.ServerLevel")
+    var ServerPlayerGameMode = reqClass("net.minecraft.server.level.ServerPlayerGameMode")
+    var Level = reqClass("net.minecraft.world.level.Level")
+    var LevelChunk = reqClass("net.minecraft.world.level.chunk.LevelChunk")
+    var ChunkAccess = reqClass("net.minecraft.world.level.chunk.ChunkAccess")
+    var LevelLightEngine = reqClass("net.minecraft.world.level.lighting.LevelLightEngine")
+    var Packet = reqClass("net.minecraft.network.protocol.Packet")
+    var ServerGamePacketListenerImpl = reqClass("net.minecraft.server.network.ServerGamePacketListenerImpl")
+    var Connection = reqClass("net.minecraft.network.Connection")
+    var MinecraftServer = reqClass("net.minecraft.server.MinecraftServer")
+    var GameType = reqClass("net.minecraft.world.level.GameType")
+    var Pose = reqClass("net.minecraft.world.entity.Pose")
+    var Vec3 = reqClass("net.minecraft.world.phys.Vec3")
+    var Rotations = reqClass("net.minecraft.core.Rotations")
+    var Entity = reqClass("net.minecraft.world.entity.Entity")
+    var LivingEntity = reqClass("net.minecraft.world.entity.LivingEntity")
+    var EntityType = reqClass("net.minecraft.world.entity.EntityType")
+    var EquipmentSlot = reqClass("net.minecraft.world.entity.EquipmentSlot")
+    var BlockPos = reqClass("net.minecraft.core.BlockPos")
+    var ChunkPos = reqClass("net.minecraft.world.level.ChunkPos")
+    var BlockState = reqClass("net.minecraft.world.level.block.state.BlockState")
+    var Blocks = reqClass("net.minecraft.world.level.block.Blocks")
+    var Block = reqClass("net.minecraft.world.level.block.Block")
+    var Component = reqClass("net.minecraft.network.chat.Component")
+    var Item = reqClass("net.minecraft.world.item.Item")
+    var ItemStack = reqClass("net.minecraft.world.item.ItemStack")
+    var Potion = reqClass("net.minecraft.world.item.alchemy.Potion")
+    var Potions = reqClass("net.minecraft.world.item.alchemy.Potions")
+    var PotionUtils = reqClass("net.minecraft.world.item.alchemy.PotionUtils")
+    var SynchedEntityData = reqClass("net.minecraft.network.syncher.SynchedEntityData")
+    var CompoundTag = reqClass("net.minecraft.nbt.CompoundTag")
+    var TagParser = reqClass("net.minecraft.nbt.TagParser")
+    var EntityDataSerializer = reqClass("net.minecraft.network.syncher.EntityDataSerializer")
+    var EntityDataSerializers = reqClass("net.minecraft.network.syncher.EntityDataSerializers")
+    var EntityDataAccessor = reqClass("net.minecraft.network.syncher.EntityDataAccessor")
+    var ResourceLocation = reqClass("net.minecraft.resources.ResourceLocation")
+    var ResourceKey = reqClass("net.minecraft.resources.ResourceKey")
+    var Advancement = reqClass("net.minecraft.advancements.Advancement")
+    var AdvancementBuilder = reqClass('net.minecraft.advancements.Advancement$Builder')
+    var AdvancementProgress = reqClass("net.minecraft.advancements.AdvancementProgress")
+    var ServerAdvancementManager = reqClass("net.minecraft.server.ServerAdvancementManager")
+    var FrameType = reqClass("net.minecraft.advancements.FrameType")
+    var DeserializationContext = reqClass("net.minecraft.advancements.critereon.DeserializationContext")
+    var PredicateManager = reqClass("net.minecraft.world.level.storage.loot.PredicateManager")
+    var GsonHelper = reqClass("net.minecraft.util.GsonHelper")
+    var CreativeModeTab = reqClass("net.minecraft.world.item.CreativeModeTab")
+    var AbstractContainerMenu = reqClass("net.minecraft.world.inventory.AbstractContainerMenu")
+    var MenuType = reqClass("net.minecraft.world.inventory.MenuType")
+    var DimensionType = reqClass("net.minecraft.world.level.dimension.DimensionType")
+
+    var ArmorStand = reqClass("net.minecraft.world.entity.decoration.ArmorStand")
+    var Arrow = reqClass("net.minecraft.world.entity.projectile.Arrow")
+    var ThrownPotion = reqClass("net.minecraft.world.entity.projectile.ThrownPotion")
+    var ThrowableItemProjectile = reqClass("net.minecraft.world.entity.projectile.ThrowableItemProjectile")
+    var ItemEntity = reqClass("net.minecraft.world.entity.item.ItemEntity")
+    var FallingBlockEntity = reqClass("net.minecraft.world.entity.item.FallingBlockEntity")
+
+    ClientboundPlayerInfoPacket
+            .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
+            .reqField("action")
+            .reqField("entries")
+    ClientboundPlayerInfoPacketAction
+            .reqEnumField("ADD_PLAYER")
+            .reqEnumField("UPDATE_GAME_MODE")
+            .reqEnumField("UPDATE_LATENCY")
+            .reqEnumField("UPDATE_DISPLAY_NAME")
+            .reqEnumField("REMOVE_PLAYER")
+    ClientboundPlayerInfoPacketPlayerUpdate
+            .reqConstructor("com.mojang.authlib.GameProfile", int, GameType, Component)
+            .reqMethod("getProfile")
+            .reqMethod("getLatency")
+            .reqMethod("getGameMode")
+            .reqMethod("getDisplayName")
+    ClientboundAddEntityPacket
+            .reqConstructor(int, UUID, double, double, double, float, float, EntityType, int, Vec3)
+            .reqConstructor(Entity, int)
+            .reqConstructor(Entity)
+            .reqMethod("getId")
+            .reqMethod("getUUID")
+            .reqMethod("getX")
+            .reqMethod("getY")
+            .reqMethod("getZ")
+            .reqMethod("getXa")
+            .reqMethod("getYa")
+            .reqMethod("getZa")
+            .reqMethod("getyRot")
+            .reqMethod("getxRot")
+            .reqMethod("getType")
+            .reqMethod("getData")
+    ClientboundAddPlayerPacket
+            .reqConstructor(Player)
+            .reqMethod("getEntityId")
+            .reqMethod("getPlayerId")
+            .reqMethod("getX")
+            .reqMethod("getY")
+            .reqMethod("getZ")
+            .reqMethod("getyRot")
+            .reqMethod("getxRot")
+    ClientboundRotateHeadPacket
+            .reqConstructor(Entity, byte)
+            .reqMethod("getEntity", Level)
+            .reqMethod("getYHeadRot")
+    ClientboundRemoveEntitiesPacket
+            .reqConstructor(int[])
+            .reqMethod("getEntityIds")
+    ClientboundMoveEntityPacketRot
+            .reqConstructor(int, byte, byte, boolean)
+    ClientboundMoveEntityPacketPos
+            .reqConstructor(int, short, short, short, boolean)
+    ClientboundMoveEntityPacketPosRot
+            .reqConstructor(int, short, short, short, byte, byte, boolean)
+    ClientboundAnimatePacket
+            .reqConstructor(Entity, int)
+            .reqMethod("getId")
+            .reqMethod("getAction")
+    ClientboundBlockBreakAckPacket
+            .reqConstructor(BlockPos, BlockState, ServerboundPlayerActionPacketAction, boolean)
+    ClientboundSetEntityDataPacket
+            .reqConstructor(int, SynchedEntityData, boolean)
+            .reqMethod("getUnpackedData")
+            .reqMethod("getId")
+    ClientboundSetEquipmentPacket
+            .reqConstructor(int, List)
+    ClientboundTeleportEntityPacket
+            .reqConstructor(Entity)
+            .reqField("id")
+            .reqField("x")
+            .reqField("y")
+            .reqField("z")
+            .reqField("yRot")
+            .reqField("xRot")
+            .reqField("onGround")
+    ClientboundSetEntityMotionPacket
+            .reqConstructor(int, Vec3)
+            .reqConstructor(int, double, double, double)
+            .reqMethod("getId")
+            .reqMethod("getXa")
+            .reqMethod("getYa")
+            .reqMethod("getZa")
+    ClientboundTakeItemEntityPacket
+            .reqConstructor(int, int, int)
+            .reqConstructor(int, int)
+            .reqMethod("getItemId")
+            .reqMethod("getPlayerId")
+            .reqMethod("getAmount")
+    ClientboundBlockEventPacket
+            .reqConstructor(BlockPos, Block, int, int)
+            .reqMethod("getPos")
+            .reqMethod("getB0")
+            .reqMethod("getB1")
+            .reqMethod("getBlock")
+    ClientboundSetPassengersPacket
+            .reqConstructor(Entity)
+            .reqMethod("getPassengers")
+            .reqMethod("getVehicle")
+            .reqField("vehicle")
+            .reqField("passengers")
+    ClientboundBlockDestructionPacket
+            .reqConstructor(int, BlockPos, int)
+            .reqMethod("getId")
+            .reqMethod("getPos")
+            .reqMethod("getProgress")
+    ClientboundUpdateAdvancementsPacket
+            .reqConstructor(boolean, Collection, Set, Map)
+            .reqMethod("getAdded")
+            .reqMethod("getRemoved")
+            .reqMethod("getProgress")
+            .reqMethod("shouldReset")
+    ClientboundLevelChunkPacketData
+            .reqConstructor(LevelChunk)
+    ClientboundLevelChunkWithLightPacket
+            .reqConstructor(LevelChunk, LevelLightEngine, BitSet, BitSet, boolean)
+    ClientboundLevelChunkPacket
+            .reqConstructor(LevelChunk)
+            .reqConstructor(LevelChunk, int)
+    ClientboundLightUpdatePacket
+            .reqConstructor(ChunkPos, LevelLightEngine, BitSet, BitSet, boolean)
+            .reqConstructor(ChunkPos, LevelLightEngine, boolean)
+    ClientboundOpenScreenPacket
+            .reqConstructor(int, MenuType, Component)
+            .reqConstructor(int, String, Component, int)
+    ClientboundRespawnPacket
+            .reqConstructor(DimensionType, ResourceKey, long, GameType, GameType, boolean, boolean, boolean)
+
+    ServerPlayer
+            .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile")
+            .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ServerPlayerGameMode)
+            .reqMethod("setCamera", Entity)
+            .reqMethod("refreshContainer", AbstractContainerMenu)
+            .reqField("connection")
+    ServerPlayerGameMode
+            .reqConstructor(ServerLevel)
+    Level
+            .reqMethod("getChunk", int, int)
+            .reqMethod("getLightEngine")
+            .reqMethod("dimension")
+            .reqMethod("dimensionType")
+    LevelChunk
+            .reqMethod("getBlockState", BlockPos)
+            .reqMethod("getFluidState", BlockPos)
+            .reqMethod("setBlockState", BlockPos, BlockState, boolean)
+            .reqMethod("getBlockEntityNbtForSaving", BlockPos)
+            .reqMethod("getLevel")
+    ChunkAccess
+            .reqMethod("getPos")
+    LevelLightEngine
+            .reqMethod("checkBlock", BlockPos)
+            .reqMethod("hasLightWork")
+    Player
+            .reqMethod("setEntityOnShoulder", CompoundTag)
+            .reqMethod("setShoulderEntityRight", CompoundTag)
+            .reqMethod("setShoulderEntityLeft", CompoundTag)
+            .reqMethod("getGameProfile")
+            .reqField("containerMenu")
+    ServerLevel
+            .reqMethod("getSeed")
+    ServerGamePacketListenerImpl
+            .reqMethod("send", Packet)
+            .reqField("connection")
+    Connection
+            .reqMethod("disconnect", Component)
+            .reqMethod("connectToServer", InetSocketAddress, boolean)
+            .reqMethod("connectToLocalServer", SocketAddress)
+            .reqMethod("getAverageReceivedPackets")
+            .reqMethod("getAverageSentPackets")
+            .reqField("channel")
+    GameType
+            .reqEnumField("SURVIVAL")
+            .reqEnumField("CREATIVE")
+            .reqEnumField("ADVENTURE")
+            .reqEnumField("SPECTATOR")
+    Pose
+            .reqEnumField("STANDING")
+            .reqEnumField("FALL_FLYING")
+            .reqEnumField("SLEEPING")
+            .reqEnumField("SWIMMING")
+            .reqEnumField("SPIN_ATTACK")
+            .reqEnumField("CROUCHING")
+            .reqEnumField("LONG_JUMPING")
+            .reqEnumField("DYING")
+    Vec3
+            .reqConstructor(double, double, double)
+            .reqMethod("x")
+            .reqMethod("y")
+            .reqMethod("z")
+    Entity
+            .reqConstructor(EntityType, Level)
+            .reqMethod("getType")
+            .reqMethod("getId")
+            .reqMethod("setId", int)
+            .reqMethod("setPose", Pose)
+            .reqMethod("setPos", double, double, double)
+            .reqMethod("setRot", float, float)
+            .reqMethod("setGlowingTag", boolean) //1.17 and higher
+            .reqMethod("setGlowing", boolean) //1.16.5 and below
+            .reqMethod("setCustomName", Component)
+            .reqMethod("setCustomNameVisible", boolean)
+            .reqMethod("setInvisible", boolean)
+            .reqMethod("setInvulnerable", boolean)
+            .reqMethod("setIsInPowderSnow", boolean)
+            .reqMethod("setItemSlot", EquipmentSlot, ItemStack)
+            .reqMethod("setNoGravity", boolean)
+            .reqMethod("setOnGround", boolean)
+            .reqMethod("setRemainingFireTicks", int)
+            .reqMethod("setSecondsOnFire", int)
+            .reqMethod("setSprinting", boolean)
+            .reqMethod("setSwimming", boolean)
+            .reqMethod("setTicksFrozen", int) //1.17 and higher
+            .reqMethod("setUUID", UUID)
+            .reqMethod("getEntityData")
+            .reqField("position");
+    LivingEntity
+            .reqMethod("setArrowCount", int)
+    EquipmentSlot
+            .reqEnumField("MAINHAND")
+            .reqEnumField("OFFHAND")
+            .reqEnumField("FEET")
+            .reqEnumField("LEGS")
+            .reqEnumField("CHEST")
+            .reqEnumField("HEAD")
+    BlockPos
+            .reqConstructor(int, int, int)
+            .reqConstructor(double, double, double)
+            .reqConstructor(Vec3)
+    ChunkPos
+            .reqConstructor(int, int)
+            .reqMethod("getMiddleBlockX")
+            .reqMethod("getMiddleBlockZ")
+            .reqMethod("getMinBlockX")
+            .reqMethod("getMinBlockZ")
+            .reqMethod("getMaxBlockX")
+            .reqMethod("getMaxBlockZ")
+            .reqMethod("getBlockX", int)
+            .reqMethod("getBlockZ", int)
+    Rotations
+            .reqConstructor(float, float, float)
+            .reqMethod("getX")
+            .reqMethod("getY")
+            .reqMethod("getZ")
+            .reqMethod("getWrappedX")
+            .reqMethod("getWrappedY")
+            .reqMethod("getWrappedZ")
+    Block
+            .reqMethod("byItem", Item)
+            .reqMethod("defaultBlockState")
+            .reqMethod("getId", BlockState)
+    Component
+            .reqMethod("getStyle")
+            .reqMethod("getContents")
+            .reqMethod("getString", int)
+            .reqMethod("getSiblings")
+            .reqMethod("plainCopy")
+            .reqMethod("copy")
+    Item
+            .reqMethod("getItemCategory")
+    ItemStack
+            .reqMethod("of", CompoundTag)
+            .reqMethod("getTag")
+            .reqMethod("getOrCreateTag")
+            .reqMethod("setTag", CompoundTag)
+            .reqMethod("getHoverName")
+            .reqMethod("getItem")
+    PotionUtils
+            .reqMethod("getColor", ItemStack)
+            .reqMethod("getPotion", ItemStack)
+            .reqMethod("getPotion", CompoundTag)
+            .reqMethod("setPotion", ItemStack, Potion)
+    SynchedEntityData
+            .reqConstructor(Entity)
+            .reqMethod("define", EntityDataAccessor, Object)
+    CompoundTag
+            .reqMethod("getString", String)
+            .reqMethod("toString")
+    TagParser
+            .reqMethod("parseTag", String)
+    EntityDataSerializer
+            .reqMethod("createAccessor", int)
+    EntityDataSerializers
+            .reqField("BYTE")
+            .reqField("INT")
+            .reqField("FLOAT")
+            .reqField("STRING")
+            .reqField("COMPONENT")
+            .reqField("OPTIONAL_COMPONENT")
+            .reqField("ITEM_STACK")
+            .reqField("BLOCK_STATE")
+            .reqField("BOOLEAN")
+            .reqField("PARTICLE")
+            .reqField("ROTATIONS")
+            .reqField("BLOCK_POS")
+            .reqField("OPTIONAL_BLOCK_POS")
+            .reqField("DIRECTION")
+            .reqField("OPTIONAL_UUID")
+            .reqField("COMPOUND_TAG")
+            .reqField("VILLAGER_DATA")
+            .reqField("OPTIONAL_UNSIGNED_INT")
+            .reqField("POSE")
+    ResourceLocation
+            .reqConstructor(String)
+            .reqConstructor(String, String)
+            .reqMethod("getPath")
+            .reqMethod("getNamespace")
+            .reqMethod("toString")
+    Advancement
+            .reqMethod("getDisplay")
+            .reqMethod("getRewards")
+            .reqMethod("getCriteria")
+            .reqMethod("toString")
+            .reqMethod("getId")
+            .reqMethod("getRequirements")
+            .reqMethod("getChatComponent")
+    AdvancementBuilder
+            .reqMethod("advancement")
+            .reqMethod("parent", Advancement)
+            .reqMethod("parent", ResourceLocation)
+            .reqMethod("serializeToJson")
+            .reqMethod("fromJson", "com.google.gson.JsonObject", DeserializationContext)
+            .reqMethod("build", ResourceLocation)
+    AdvancementProgress
+            .reqConstructor()
+            .reqMethod("update", Map, "java.lang.String[][]")
+            .reqMethod("isDone")
+            .reqMethod("grantProgress", String)
+            .reqMethod("revokeProgress", String)
+    ServerAdvancementManager
+            .reqField("GSON")
+    DeserializationContext
+            .reqConstructor(ResourceLocation, PredicateManager)
+    PredicateManager
+            .reqConstructor()
+    GsonHelper
+            .reqMethod("fromJson", "com.google.gson.Gson", String, Class)
+    CreativeModeTab
+            .reqField("langId")
+    AbstractContainerMenu
+            .reqMethod("sendAllDataToRemote")
+            .reqField("containerId")
+    DimensionType
+            .reqField("DEFAULT_OVERWORLD")
+            .reqField("DEFAULT_NETHER")
+            .reqField("DEFAULT_END")
+
+    ArmorStand
+            .reqConstructor(EntityType, Level)
+            .reqMethod("setHeadPose", Rotations)
+            .reqMethod("setBodyPose", Rotations)
+            .reqMethod("setLeftArmPose", Rotations)
+            .reqMethod("setRightArmPose", Rotations)
+            .reqMethod("setLeftLegPose", Rotations)
+            .reqMethod("setRightLegPose", Rotations)
+            .reqMethod("setMarker", boolean)
+            .reqMethod("setNoBasePlate", boolean)
+            .reqMethod("setShowArms", boolean)
+            .reqMethod("setSmall", boolean)
+            .reqMethod("setYBodyRot", float)
+            .reqMethod("setYHeadRot", float)
+            .reqMethod("getHeadPose")
+            .reqMethod("getBodyPose")
+            .reqMethod("getLeftArmPose")
+            .reqMethod("getRightArmPose")
+            .reqMethod("getLeftLegPose")
+            .reqMethod("getRightLegPose")
+            .reqMethod("isMarker")
+            .reqMethod("isNoBasePlate")
+            .reqMethod("isShowArms")
+            .reqMethod("isSmall")
+    Arrow
+            .reqConstructor(EntityType, Level)
+            .reqMethod("setEffectsFromItem", ItemStack)
+            .reqMethod("makeParticle", int)
+            .reqMethod("getColor")
+            .reqMethod("setFixedColor", int)
+    ThrownPotion
+            .reqConstructor(EntityType, Level)
+    ThrowableItemProjectile
+            .reqMethod("setItem", ItemStack)
+            .reqMethod("getItemRaw")
+    ItemEntity
+            .reqConstructor(Level, double, double, double, ItemStack)
+            .reqMethod("setItem", ItemStack)
+            .reqMethod('getItem')
+    FallingBlockEntity
+            .reqConstructor(Level, double, double, double, BlockState)
+            .reqMethod("setStartPos", BlockPos)
+            .reqMethod("getBlockState")
+            .reqMethod("getAddEntityPacket")
+            .reqField("blockState")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url repsyUrl
+            credentials {
+                username repsyUsername
+                password repsyPassword
+            }
+        }
+    }
+}

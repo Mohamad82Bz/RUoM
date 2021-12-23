@@ -1,6 +1,6 @@
 name: RUoM
 version: "${project.version}"
-main: me.Mohamad82.RUoM.Main
+main: me.mohamad82.ruom.Testings
 api-version: 1.13
 authors: [ Mohamad82 ]
 softdepends: [ Vault, WorldEdit, FAWE, MMOItems, Oraxen, Essentials ]
