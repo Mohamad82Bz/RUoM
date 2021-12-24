@@ -121,13 +121,13 @@ public class Schematic {
         return blockData.get(blockLocation);
     }
 
-    private void removeFromLayer(int layerIndex, Vector3 blockLocation) {
+    public void removeFromLayer(int layerIndex, Vector3 blockLocation) {
         layerBlocks.get(layerIndex).remove(blockLocation);
         if (layerBlocks.get(layerIndex).isEmpty())
             layerBlocks.remove(layerIndex);
     }
 
-    private void remove(Vector3 blockLocation) {
+    public void remove(Vector3 blockLocation) {
         for (int layerIndex : layerBlocks.keySet()) {
             if (layerBlocks.get(layerIndex).remove(blockLocation)) {
                 if (layerBlocks.get(layerIndex).isEmpty())

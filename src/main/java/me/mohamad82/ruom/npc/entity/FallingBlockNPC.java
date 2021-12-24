@@ -38,7 +38,8 @@ public class FallingBlockNPC extends EntityNPC {
     @Override
     protected void addViewer(Player player) {
         NMSUtils.sendPacket(player,
-                PacketUtils.getAddEntityPacket(entity, data));
+                PacketUtils.getAddEntityPacket(entity, data),
+                PacketUtils.getEntityDataPacket(entity));
     }
 
 }
