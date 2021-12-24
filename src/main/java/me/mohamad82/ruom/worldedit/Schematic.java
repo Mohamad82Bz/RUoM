@@ -19,6 +19,7 @@ public class Schematic {
     private final Clipboard clipboard;
     private final Location location;
     private final EditSession editSession;
+    private final Random random = new Random();
     private final boolean ignoreAir;
 
     public Schematic(Clipboard clipboard, Location location, boolean ignoreAir) {
@@ -103,13 +104,27 @@ public class Schematic {
         return layerBlocks.get(layerIndex).iterator().next();
     }
 
+    public Vector3 getNearestBlock(int layerIndex, Vector3 location) {
+        if (!layerBlocks.containsKey(layerIndex)) return null;
+        double lowestDistance = Integer.MAX_VALUE;
+        Vector3 nearestBlock = null;
+        for (Vector3 blockLocation : layerBlocks.get(layerIndex)) {
+            double distance = blockLocation.distance(location);
+            if (distance < lowestDistance) {
+                lowestDistance = distance;
+                nearestBlock = blockLocation;
+            }
+        }
+        return nearestBlock;
+    }
+
     public int nextLayerIndex() {
         return layerBlocks.keySet().iterator().next();
     }
 
     public int randomLayerIndex() {
         List<Integer> layers = new ArrayList<>(layerBlocks.keySet());
-        return layers.get(new Random().nextInt(layers.size()));
+        return layers.get(random.nextInt(layers.size()));
     }
 
     public void update() {

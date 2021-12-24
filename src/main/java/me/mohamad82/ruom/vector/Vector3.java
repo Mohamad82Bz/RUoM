@@ -1,6 +1,6 @@
 package me.mohamad82.ruom.vector;
 
-import me.mohamad82.ruom.Ruom;
+import org.bukkit.util.NumberConversions;
 
 public class Vector3 implements Cloneable {
 
@@ -68,6 +68,14 @@ public class Vector3 implements Cloneable {
         z += other.getZ();
 
         return this;
+    }
+
+    public double distance(Vector3 other) {
+        return Math.sqrt(distanceSquared(other));
+    }
+
+    public double distanceSquared(Vector3 other) {
+        return NumberConversions.square(this.x - other.getX()) + NumberConversions.square(this.y - other.getY()) + NumberConversions.square(this.z - other.getZ());
     }
 
     @Override
