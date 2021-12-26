@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.0.2'
+version = '3.0.5'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -364,14 +364,13 @@ nmsGen {
             .reqMethod("setItemSlot", EquipmentSlot, ItemStack)
             .reqMethod("setNoGravity", boolean)
             .reqMethod("setOnGround", boolean)
-            .reqMethod("setRemainingFireTicks", int)
-            .reqMethod("setSecondsOnFire", int)
             .reqMethod("setSprinting", boolean)
             .reqMethod("setSwimming", boolean)
             .reqMethod("setTicksFrozen", int) //1.17 and higher
             .reqMethod("setUUID", UUID)
             .reqMethod("getEntityData")
-            .reqField("position");
+            .reqMethod("setSharedFlag", int, boolean)
+            .reqField("position")
     LivingEntity
             .reqMethod("setArrowCount", int)
     EquipmentSlot
@@ -551,18 +550,21 @@ nmsGen {
 }
 
 publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-        }
-    }
     repositories {
         maven {
-            url repsyUrl
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/mohamad82bz/ruom"
             credentials {
-                username repsyUsername
-                password repsyPassword
+                username = project.findProperty("gpr.user")
+                password = project.findProperty("gpr.key")
             }
+        }
+    }
+    publications {
+        gpr(MavenPublication) { publication ->
+            groupId 'me.mohamad82'
+            artifactId 'ruom'
+            from(components.java)
         }
     }
 }

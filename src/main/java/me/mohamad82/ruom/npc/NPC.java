@@ -139,13 +139,8 @@ public abstract class NPC extends Viewered {
         sendEntityData();
     }
 
-    public void setRemainingFireTicks(int remainingFireTicks) {
-        Ruom.run(() -> EntityAccessor.getMethodSetRemainingFireTicks1().invoke(entity, remainingFireTicks));
-        sendEntityData();
-    }
-
-    public void setSecondsOnFire(int secondsOnFire) {
-        Ruom.run(() -> EntityAccessor.getMethodSetSecondsOnFire1().invoke(entity, secondsOnFire));
+    public void setFire(boolean fire) {
+        Ruom.run(() -> EntityAccessor.getMethodSetSharedFlag1().invoke(entity, 0, fire));
         sendEntityData();
     }
 
@@ -165,7 +160,7 @@ public abstract class NPC extends Viewered {
                 PacketUtils.getEntityDataPacket(id, metadataId, value));
     }
 
-    public void addPassenger(int... passengerIds) {
+    public void setPassengers(int... passengerIds) {
         NMSUtils.sendPacket(getViewers(),
                 PacketUtils.getEntityPassengersPacket(entity));
     }
