@@ -3,6 +3,7 @@ package me.mohamad82.ruom.npc;
 import com.mojang.authlib.GameProfile;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
+import me.mohamad82.ruom.nmsaccessors.LivingEntityAccessor;
 import me.mohamad82.ruom.nmsaccessors.ServerPlayerAccessor;
 import me.mohamad82.ruom.nmsaccessors.ServerPlayerGameModeAccessor;
 import me.mohamad82.ruom.translators.skin.MinecraftSkin;
@@ -54,6 +55,19 @@ public class PlayerNPC extends NPC {
 
     public static PlayerNPC playerNPC(String name, Location location, Optional<MinecraftSkin> skin) {
         return new PlayerNPC(name, location, skin);
+    }
+
+    public void setArrowsOnBody(int arrowsOnBody) {
+        Ruom.run(() -> LivingEntityAccessor.getMethodSetArrowCount1().invoke(entity, arrowsOnBody));
+    }
+
+    public int getArrowsOnBody() {
+        try {
+            return (int) LivingEntityAccessor.getMethodGetArrowCount1().invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     public void collect(int collectedEntityId, int amount) {
