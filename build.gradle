@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.0.5'
+version = '3.0.6'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -355,24 +355,36 @@ nmsGen {
             .reqMethod("setPos", double, double, double)
             .reqMethod("setRot", float, float)
             .reqMethod("setGlowingTag", boolean) //1.17 and higher
+            .reqMethod("hasGlowingTag")
             .reqMethod("setGlowing", boolean) //1.16.5 and below
+            .reqMethod("isGlowing")
             .reqMethod("setCustomName", Component)
+            .reqMethod("getCustomName")
             .reqMethod("setCustomNameVisible", boolean)
+            .reqMethod("isCustomNameVisible")
             .reqMethod("setInvisible", boolean)
+            .reqMethod("isInvisible")
             .reqMethod("setInvulnerable", boolean)
             .reqMethod("setIsInPowderSnow", boolean)
             .reqMethod("setItemSlot", EquipmentSlot, ItemStack)
             .reqMethod("setNoGravity", boolean)
+            .reqMethod("isNoGravity")
             .reqMethod("setOnGround", boolean)
+            .reqMethod("isOnGround")
             .reqMethod("setSprinting", boolean)
+            .reqMethod("isSprinting")
             .reqMethod("setSwimming", boolean)
+            .reqMethod("isSwimming")
             .reqMethod("setTicksFrozen", int) //1.17 and higher
+            .reqMethod("getTicksFrozen") //1.17 and higher
             .reqMethod("setUUID", UUID)
             .reqMethod("getEntityData")
             .reqMethod("setSharedFlag", int, boolean)
+            .reqMethod("getSharedFlag", int)
             .reqField("position")
     LivingEntity
             .reqMethod("setArrowCount", int)
+            .reqMethod("getArrowCount")
     EquipmentSlot
             .reqEnumField("MAINHAND")
             .reqEnumField("OFFHAND")

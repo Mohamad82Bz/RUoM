@@ -15,6 +15,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -113,9 +114,34 @@ public abstract class NPC extends Viewered {
         sendEntityData();
     }
 
+    public boolean isGlowing() {
+        try {
+            if (ServerVersion.supports(17)) {
+                return (boolean) EntityAccessor.getMethodHasGlowingTag1().invoke(entity);
+            } else {
+                return (boolean) EntityAccessor.getMethodIsGlowing1().invoke(entity);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void setCustomName(Component component) {
         Ruom.run(() -> EntityAccessor.getMethodSetCustomName1().invoke(entity, MinecraftComponentSerializer.get().serialize(component)));
         sendEntityData();
+    }
+
+    @Nullable
+    public Component getCustomName() {
+        try {
+            Object component = EntityAccessor.getMethodGetCustomName1().invoke(entity);
+            if (component == null) return null;
+            return MinecraftComponentSerializer.get().deserialize(component);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void setCustomNameVisible(boolean customNameVisible) {
@@ -123,15 +149,27 @@ public abstract class NPC extends Viewered {
         sendEntityData();
     }
 
+    public boolean isCustomNameVisible() {
+        try {
+            return (boolean) EntityAccessor.getMethodIsCustomNameVisible1().invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void setInvisible(boolean invisible) {
         Ruom.run(() -> EntityAccessor.getMethodSetInvisible1().invoke(entity, invisible));
         sendEntityData();
     }
 
-    public void setIsInPowderSnow(boolean isInPowderSnow) {
-        if (!ServerVersion.supports(17)) return;
-        Ruom.run(() -> EntityAccessor.getMethodSetIsInPowderSnow1().invoke(entity, isInPowderSnow));
-        sendEntityData();
+    public boolean isInvisible() {
+        try {
+            return (boolean) EntityAccessor.getMethodIsInvisible1().invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void setNoGravity(boolean noGravity) {
@@ -139,9 +177,27 @@ public abstract class NPC extends Viewered {
         sendEntityData();
     }
 
-    public void setFire(boolean fire) {
+    public boolean isNoGravity() {
+        try {
+            return (boolean) EntityAccessor.getMethodIsNoGravity1().invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void setOnFire(boolean fire) {
         Ruom.run(() -> EntityAccessor.getMethodSetSharedFlag1().invoke(entity, 0, fire));
         sendEntityData();
+    }
+
+    public boolean isOnFire() {
+        try {
+            return (boolean) EntityAccessor.getMethodGetSharedFlag1().invoke(entity, 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void setSprinting(boolean sprinting) {
@@ -149,10 +205,28 @@ public abstract class NPC extends Viewered {
         sendEntityData();
     }
 
+    public boolean isSprinting() {
+        try {
+            return (boolean) EntityAccessor.getMethodIsSprinting1().invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void setTicksFrozen(int ticksFrozen) {
         if (!ServerVersion.supports(17)) return;
         Ruom.run(() -> EntityAccessor.getMethodSetTicksFrozen1().invoke(entity, ticksFrozen));
         sendEntityData();
+    }
+
+    public int getTicksFrozen() {
+        try {
+            return (int) EntityAccessor.getMethodGetTicksFrozen1().invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     public void setMetadata(int metadataId, Object value) {
