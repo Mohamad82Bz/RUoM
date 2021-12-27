@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.1'
+version = '3.1.2'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -123,6 +123,7 @@ nmsGen {
     var InteractionHand = reqClass("net.minecraft.world.InteractionHand")
     var BlockPos = reqClass("net.minecraft.core.BlockPos")
     var ChunkPos = reqClass("net.minecraft.world.level.ChunkPos")
+    var Direction = reqClass("net.minecraft.core.Direction")
     var BlockState = reqClass("net.minecraft.world.level.block.state.BlockState")
     var Blocks = reqClass("net.minecraft.world.level.block.Blocks")
     var Block = reqClass("net.minecraft.world.level.block.Block")
@@ -287,6 +288,19 @@ nmsGen {
     ClientboundRespawnPacket
             .reqConstructor(DimensionType, ResourceKey, long, GameType, GameType, boolean, boolean, boolean)
 
+    ServerboundPlayerActionPacket
+            .reqMethod("getPos")
+            .reqMethod("getDirection")
+            .reqMethod("getAction")
+    ServerboundPlayerActionPacketAction
+            .reqEnumField("START_DESTROY_BLOCK")
+            .reqEnumField("ABORT_DESTROY_BLOCK")
+            .reqEnumField("STOP_DESTROY_BLOCK")
+            .reqEnumField("DROP_ALL_ITEMS")
+            .reqEnumField("DROP_ITEM")
+            .reqEnumField("RELEASE_USE_ITEM")
+            .reqEnumField("SWAP_ITEM_WITH_OFFHAND")
+
     ServerPlayer
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile")
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ServerPlayerGameMode)
@@ -430,6 +444,14 @@ nmsGen {
             .reqMethod("getMaxBlockZ")
             .reqMethod("getBlockX", int)
             .reqMethod("getBlockZ", int)
+    Direction
+            .reqMethod("getName")
+            .reqEnumField("DOWN")
+            .reqEnumField("UP")
+            .reqEnumField("NORTH")
+            .reqEnumField("SOUTH")
+            .reqEnumField("WEST")
+            .reqEnumField("EAST")
     Rotations
             .reqConstructor(float, float, float)
             .reqMethod("getX")

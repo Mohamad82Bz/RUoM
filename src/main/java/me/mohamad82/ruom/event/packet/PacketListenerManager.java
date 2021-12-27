@@ -2,7 +2,12 @@ package me.mohamad82.ruom.event.packet;
 
 import io.netty.channel.*;
 import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.nmsaccessors.DirectionAccessor;
+import me.mohamad82.ruom.nmsaccessors.ServerboundPlayerActionPacketAccessor;
+import me.mohamad82.ruom.nmsaccessors.ServerboundPlayerActionPacket_i_ActionAccessor;
+import me.mohamad82.ruom.nmsaccessors.Vec3iAccessor;
 import me.mohamad82.ruom.utils.NMSUtils;
+import me.mohamad82.ruom.vector.Vector3;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,6 +28,7 @@ public class PacketListenerManager implements Listener {
     }
 
     private final Set<PacketEvent> packetEvents = new HashSet<>();
+    private final Set<PlayerDigEvent> digEvents = new HashSet<>();
 
     private PacketListenerManager() {
 
@@ -48,8 +54,16 @@ public class PacketListenerManager implements Listener {
         packetEvents.add(packetEvent);
     }
 
+    protected void register(PlayerDigEvent digEvent) {
+        digEvents.add(digEvent);
+    }
+
     protected void unregister(PacketEvent packetEvent) {
         packetEvents.remove(packetEvent);
+    }
+
+    protected void unregister(PlayerDigEvent digEvent) {
+        digEvents.remove(digEvent);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -81,6 +95,32 @@ public class PacketListenerManager implements Listener {
                     }
 
                     if (!isCancelled) {
+                        if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType())) {
+                            Ruom.runAsync(() -> {
+                                Ruom.run(() -> {
+                                    Object action = ServerboundPlayerActionPacketAccessor.getMethodGetAction1().invoke(packet);
+                                    Object nmsBlockPos = ServerboundPlayerActionPacketAccessor.getMethodGetPos1().invoke(packet);
+                                    Object nmsDirection = ServerboundPlayerActionPacketAccessor.getMethodGetDirection1().invoke(packet);
+
+                                    PlayerDigEvent.Direction direction = PlayerDigEvent.Direction.valueOf(((String) DirectionAccessor.getMethodGetName1().invoke(nmsDirection)).toUpperCase());
+                                    Vector3 blockPos = Vector3.at(
+                                            (int) Vec3iAccessor.getMethodGetX1().invoke(nmsBlockPos),
+                                            (int) Vec3iAccessor.getMethodGetY1().invoke(nmsBlockPos),
+                                            (int) Vec3iAccessor.getMethodGetZ1().invoke(nmsBlockPos)
+                                    );
+
+                                    if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldSTART_DESTROY_BLOCK())) {
+                                        for (PlayerDigEvent digEvent : digEvents) {
+                                            digEvent.onStartDig(player, blockPos, direction);
+                                        }
+                                    } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldSTOP_DESTROY_BLOCK()) || action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldABORT_DESTROY_BLOCK())) {
+                                        for (PlayerDigEvent digEvent : digEvents) {
+                                            digEvent.onStopDig(player, blockPos);
+                                        }
+                                    }
+                                });
+                            });
+                        }
                         try {
                             super.channelRead(context, packet);
                         } catch (Exception e) {
