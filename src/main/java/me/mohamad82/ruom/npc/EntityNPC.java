@@ -21,7 +21,6 @@ public abstract class EntityNPC extends NPC {
     private final NPCType npcType;
 
     protected EntityNPC(Object entity, Location location, NPCType npcType) {
-        initialize(entity);
         this.npcType = npcType;
 
         Ruom.run(() -> {

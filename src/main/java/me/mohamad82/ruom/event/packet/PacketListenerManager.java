@@ -1,11 +1,7 @@
-package me.mohamad82.ruom.events.packets;
+package me.mohamad82.ruom.event.packet;
 
 import io.netty.channel.*;
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.events.packets.clientbound.AsyncClientboundPacketEvent;
-import me.mohamad82.ruom.events.packets.clientbound.ClientboundPacketEvent;
-import me.mohamad82.ruom.events.packets.serverbound.AsyncServerboundPacketEvent;
-import me.mohamad82.ruom.events.packets.serverbound.ServerboundPacketEvent;
 import me.mohamad82.ruom.utils.NMSUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,12 +10,22 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class PacketListenerManager implements Listener {
 
     private static PacketListenerManager INSTANCE;
 
     protected static PacketListenerManager getInstance() {
+        if (INSTANCE == null) initialize();
         return INSTANCE;
+    }
+
+    private final Set<PacketEvent> packetEvents = new HashSet<>();
+
+    private PacketListenerManager() {
+
     }
 
     public static void initialize() {
@@ -38,6 +44,14 @@ public class PacketListenerManager implements Listener {
         }
     }
 
+    protected void register(PacketEvent packetEvent) {
+        packetEvents.add(packetEvent);
+    }
+
+    protected void unregister(PacketEvent packetEvent) {
+        packetEvents.remove(packetEvent);
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
         injectPlayer(event.getPlayer());
@@ -54,23 +68,23 @@ public class PacketListenerManager implements Listener {
             public void channelRead(ChannelHandlerContext context, Object packet) {
                 try {
                     PacketContainer packetContainer = new PacketContainer(packet);
-                    ServerboundPacketEvent serverBoundPacketEvent = new ServerboundPacketEvent(player, packetContainer);
-                    AsyncServerboundPacketEvent asyncServerBoundPacketEvent = new AsyncServerboundPacketEvent(player, packetContainer);
+                    boolean isCancelled = false;
 
-                    try {
-                        Ruom.runSync(() -> Ruom.getServer().getPluginManager().callEvent(serverBoundPacketEvent));
-                        Ruom.runAsync(() -> Ruom.getServer().getPluginManager().callEvent(asyncServerBoundPacketEvent));
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    for (PacketEvent packetEvent : packetEvents) {
+                        try {
+                            isCancelled = !packetEvent.onServerboundPacket(player, packetContainer);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Ruom.error("An error occured while handling (reading) a packet. Please report this error to the plugin's author(s): " +
+                                    Ruom.getPlugin().getDescription().getAuthors());
+                        }
                     }
 
-                    if (!serverBoundPacketEvent.isCancelled()) {
+                    if (!isCancelled) {
                         try {
                             super.channelRead(context, packet);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Ruom.error("An error occured while handling (read) a packet. Please report this error to the plugin's author(s): " +
-                                    Ruom.getPlugin().getDescription().getAuthors());
                         }
                     }
                 } catch (IllegalArgumentException ignored) {}
@@ -80,23 +94,23 @@ public class PacketListenerManager implements Listener {
             public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
                 try {
                     PacketContainer packetContainer = new PacketContainer(packet);
-                    ClientboundPacketEvent clientBoundPacketEvent = new ClientboundPacketEvent(player, packetContainer);
-                    AsyncClientboundPacketEvent asyncClientBoundPacketEvent = new AsyncClientboundPacketEvent(player, packetContainer);
+                    boolean isCancelled = false;
 
-                    try {
-                        Ruom.runSync(() -> Ruom.getServer().getPluginManager().callEvent(clientBoundPacketEvent));
-                        Ruom.runAsync(() -> Ruom.getServer().getPluginManager().callEvent(asyncClientBoundPacketEvent));
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    for (PacketEvent packetEvent : packetEvents) {
+                        try {
+                            isCancelled = !packetEvent.onClientboundPacket(player, packetContainer);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Ruom.error("An error occured while handling (writing) a packet. Please report this error to the plugin's author(s): " +
+                                    Ruom.getPlugin().getDescription().getAuthors());
+                        }
                     }
 
-                    if (!clientBoundPacketEvent.isCancelled()) {
+                    if (!isCancelled) {
                         try {
                             super.write(context, packet, channelPromise);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Ruom.error("An error occured while handling (write) a packet. Please report this error to the plugin's author(s): " +
-                                    Ruom.getPlugin().getDescription().getAuthors());
                         }
                     }
                 } catch (IllegalArgumentException ignored) {}

@@ -114,14 +114,14 @@ public class EntityMetadata {
             this.bitMask = (byte) bitMask;
         }
 
-        public byte getBitMask() {
+        public byte getMask() {
             return bitMask;
         }
 
         public static byte getBitMasks(PlayerSkin... playerSkins) {
             byte bytes = 0;
             for (PlayerSkin playerSkin : playerSkins) {
-                bytes += playerSkin.getBitMask();
+                bytes += playerSkin.getMask();
             }
             return bytes;
         }
@@ -129,7 +129,7 @@ public class EntityMetadata {
         public static byte getAllBitMasks() {
             byte bytes = 0;
             for (PlayerSkin playerSkin : PlayerSkin.values()) {
-                bytes += playerSkin.getBitMask();
+                bytes += playerSkin.getMask();
             }
             return bytes;
         }

@@ -5,6 +5,7 @@ import me.mohamad82.ruom.nmsaccessors.EntityTypeAccessor;
 import org.bukkit.entity.EntityType;
 
 public enum NPCType {
+    PLAYER,
     ARMOR_STAND,
     ARROW,
     BAT,

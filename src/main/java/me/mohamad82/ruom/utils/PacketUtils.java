@@ -6,7 +6,6 @@ import me.mohamad82.ruom.vector.Vector3;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -169,9 +168,8 @@ public class PacketUtils {
         }
     }
 
-    public static Object getEntityEquipmentPacket(int id, Object nmsEquipmentSlot, ItemStack item) {
+    public static Object getEntityEquipmentPacket(int id, Object nmsEquipmentSlot, Object nmsItem) {
         try {
-            Object nmsItem = NMSUtils.getNmsItemStack(item);
             Pair<Object, Object> pair = new Pair<>(nmsEquipmentSlot, nmsItem);
             List<Pair<Object, Object>> pairList = new ArrayList<>();
             pairList.add(pair);

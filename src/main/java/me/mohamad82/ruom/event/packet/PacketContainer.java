@@ -1,4 +1,4 @@
-package me.mohamad82.ruom.events.packets;
+package me.mohamad82.ruom.event.packet;
 
 public class PacketContainer {
 

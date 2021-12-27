@@ -3,7 +3,7 @@ package me.mohamad82.ruom;
 import me.mohamad82.ruom.adventure.Adventure;
 import me.mohamad82.ruom.areaselection.AreaSelectionListener;
 import me.mohamad82.ruom.areaselection.AreaSelectionManager;
-import me.mohamad82.ruom.events.packets.PacketListenerManager;
+import me.mohamad82.ruom.event.packet.PacketListenerManager;
 import me.mohamad82.ruom.gui.GUIListener;
 import me.mohamad82.ruom.translators.skin.SkinBuilder;
 import net.kyori.adventure.text.Component;

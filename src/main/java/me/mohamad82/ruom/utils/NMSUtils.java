@@ -12,6 +12,7 @@ import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -57,7 +58,16 @@ public class NMSUtils {
             return CRAFT_ITEM_STACK_AS_NMS_COPY.invoke(null, item);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Error(e);
+            return null;
+        }
+    }
+
+    public static Object getNmsEmptyItemStack() {
+        try {
+            return ItemStackAccessor.getFieldEMPTY().get(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -66,7 +76,7 @@ public class NMSUtils {
             return (ItemStack) CRAFT_ITEM_STACK_AS_BUKKIT_COPY.invoke(null, nmsItem);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Error(e);
+            return null;
         }
     }
 
@@ -78,7 +88,7 @@ public class NMSUtils {
             return (String) CompoundTagAccessor.getMethodToString1().invoke(compoundTag);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Error(e);
+            return null;
         }
     }
 
@@ -87,7 +97,7 @@ public class NMSUtils {
             return (ItemStack) ItemStackAccessor.getMethodOf1().invoke(TagParserAccessor.getMethodParseTag1().invoke(nbtJson));
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Error(e);
+            return null;
         }
     }
 
@@ -96,7 +106,19 @@ public class NMSUtils {
             return (String) CreativeModeTabAccessor.getFieldLangId().get(ItemAccessor.getMethodGetItemCategory1().invoke(ItemStackAccessor.getMethodGetItem1().invoke(getNmsItemStack(item))));
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Error(e);
+            return null;
+        }
+    }
+
+    @Nullable
+    public static ItemStack getPlayerUseItem(Player player) {
+        try {
+            Object useItem = LivingEntityAccessor.getMethodGetUseItem1().invoke(getServerPlayer(player));
+            if (useItem == null || useItem.equals(getNmsEmptyItemStack())) return null;
+            return getBukkitItemStack(useItem);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -105,7 +127,7 @@ public class NMSUtils {
             return (int) PotionUtilsAccessor.getMethodGetColor1().invoke(getNmsItemStack(potion));
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Error(e);
+            return 0;
         }
     }
 
@@ -123,7 +145,7 @@ public class NMSUtils {
             return CRAFT_WORLD_GET_HANDLE_METHOD.invoke(world);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Error(e);
+            return null;
         }
     }
 
@@ -141,7 +163,7 @@ public class NMSUtils {
             return CRAFT_SERVER_GET_SERVER_METHOD.invoke(Bukkit.getServer());
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Error(e);
+            return null;
         }
     }
 

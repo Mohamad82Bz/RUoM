@@ -17,14 +17,24 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class NPC extends Viewered {
 
+    protected final Map<EquipmentSlot, Object> equipments = new HashMap<>();
+
     protected Object entity;
     protected int id;
     protected Location location;
+
+    protected NPC() {
+        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+            equipments.put(equipmentSlot, NMSUtils.getNmsEmptyItemStack());
+        }
+    }
 
     protected void initialize(Object entity) {
         this.entity = entity;
@@ -95,7 +105,14 @@ public abstract class NPC extends Viewered {
     }
 
     public void setEquipment(EquipmentSlot slot, ItemStack item) {
-        NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, slot, item));
+        Object nmsItem;
+        if (item == null) {
+            nmsItem = NMSUtils.getNmsEmptyItemStack();
+        } else {
+            nmsItem = NMSUtils.getNmsItemStack(item);
+        }
+        equipments.put(slot, nmsItem);
+        NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, slot.nmsSlot, nmsItem));
     }
 
     public void setPose(Pose pose) {
@@ -252,6 +269,15 @@ public abstract class NPC extends Viewered {
         Ruom.run(() -> NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityDataPacket(entity)));
     }
 
+    protected Object getEntityData() {
+        try {
+            return EntityAccessor.getMethodGetEntityData1().invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     protected void setPosition(Vector3 position) {
         Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, position.getX(), position.getY(), position.getZ()));
     }
@@ -282,10 +308,6 @@ public abstract class NPC extends Viewered {
 
         EquipmentSlot(Object nmsSlot) {
             this.nmsSlot = nmsSlot;
-        }
-
-        public Object getNmsSlot() {
-            return nmsSlot;
         }
     }
 

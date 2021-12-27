@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.0.6'
+version = '3.1'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -114,11 +114,13 @@ nmsGen {
     var GameType = reqClass("net.minecraft.world.level.GameType")
     var Pose = reqClass("net.minecraft.world.entity.Pose")
     var Vec3 = reqClass("net.minecraft.world.phys.Vec3")
+    var Vec3i = reqClass("net.minecraft.core.Vec3i")
     var Rotations = reqClass("net.minecraft.core.Rotations")
     var Entity = reqClass("net.minecraft.world.entity.Entity")
     var LivingEntity = reqClass("net.minecraft.world.entity.LivingEntity")
     var EntityType = reqClass("net.minecraft.world.entity.EntityType")
     var EquipmentSlot = reqClass("net.minecraft.world.entity.EquipmentSlot")
+    var InteractionHand = reqClass("net.minecraft.world.InteractionHand")
     var BlockPos = reqClass("net.minecraft.core.BlockPos")
     var ChunkPos = reqClass("net.minecraft.world.level.ChunkPos")
     var BlockState = reqClass("net.minecraft.world.level.block.state.BlockState")
@@ -315,6 +317,7 @@ nmsGen {
             .reqMethod("setShoulderEntityLeft", CompoundTag)
             .reqMethod("getGameProfile")
             .reqField("containerMenu")
+            .reqField("DATA_PLAYER_MODE_CUSTOMISATION")
     ServerLevel
             .reqMethod("getSeed")
     ServerGamePacketListenerImpl
@@ -346,6 +349,10 @@ nmsGen {
             .reqMethod("x")
             .reqMethod("y")
             .reqMethod("z")
+    Vec3i
+            .reqMethod("getX")
+            .reqMethod("getY")
+            .reqMethod("getZ")
     Entity
             .reqConstructor(EntityType, Level)
             .reqMethod("getType")
@@ -385,6 +392,20 @@ nmsGen {
     LivingEntity
             .reqMethod("setArrowCount", int)
             .reqMethod("getArrowCount")
+            .reqMethod("setSleepingPos", BlockPos)
+            .reqMethod("getSleepingPos")
+            .reqMethod("removeEffectParticles")
+            .reqMethod("setStingerCount", int)
+            .reqMethod("getStingerCount")
+            .reqMethod("triggerItemUseEffects", ItemStack, int)
+            .reqMethod("startUsingItem", InteractionHand)
+            .reqMethod("stopUsingItem")
+            .reqMethod("getUseItem")
+            .reqMethod("getUseItemRemainingTicks")
+            .reqMethod("setLivingEntityFlag", int, boolean)
+            .reqField("useItem")
+            .reqField("DATA_EFFECT_COLOR_ID")
+            .reqField("DATA_EFFECT_AMBIENCE_ID")
     EquipmentSlot
             .reqEnumField("MAINHAND")
             .reqEnumField("OFFHAND")
@@ -392,6 +413,9 @@ nmsGen {
             .reqEnumField("LEGS")
             .reqEnumField("CHEST")
             .reqEnumField("HEAD")
+    InteractionHand
+            .reqEnumField("MAIN_HAND")
+            .reqEnumField("OFF_HAND")
     BlockPos
             .reqConstructor(int, int, int)
             .reqConstructor(double, double, double)
@@ -434,6 +458,7 @@ nmsGen {
             .reqMethod("setTag", CompoundTag)
             .reqMethod("getHoverName")
             .reqMethod("getItem")
+            .reqField("EMPTY")
     PotionUtils
             .reqMethod("getColor", ItemStack)
             .reqMethod("getPotion", ItemStack)
@@ -442,6 +467,8 @@ nmsGen {
     SynchedEntityData
             .reqConstructor(Entity)
             .reqMethod("define", EntityDataAccessor, Object)
+            .reqMethod("set", EntityDataAccessor, Object)
+            .reqMethod("get", EntityDataAccessor)
     CompoundTag
             .reqMethod("getString", String)
             .reqMethod("toString")

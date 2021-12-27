@@ -6,10 +6,11 @@ import me.mohamad82.ruom.adventure.Adventure;
 import me.mohamad82.ruom.adventure.ComponentUtils;
 import me.mohamad82.ruom.database.mysql.MySQLDatabase;
 import me.mohamad82.ruom.database.sqlite.SQLiteDatabase;
-import me.mohamad82.ruom.events.packets.PacketContainer;
-import me.mohamad82.ruom.events.packets.clientbound.ClientboundPacketEvent;
+import me.mohamad82.ruom.event.PlayerUseItemEvent;
 import me.mohamad82.ruom.gui.GUITitle;
 import me.mohamad82.ruom.hologram.*;
+import me.mohamad82.ruom.npc.NPC;
+import me.mohamad82.ruom.npc.PlayerNPC;
 import me.mohamad82.ruom.npc.entity.FallingBlockNPC;
 import me.mohamad82.ruom.npc.entity.ThrowableProjectileNPC;
 import me.mohamad82.ruom.toast.ToastMessage;
@@ -22,6 +23,7 @@ import me.mohamad82.ruom.utils.MilliCounter;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
 import me.mohamad82.ruom.vector.Vector3;
+import me.mohamad82.ruom.vector.Vector3Utils;
 import me.mohamad82.ruom.worldedit.Schematic;
 import me.mohamad82.ruom.worldedit.WorldEdit;
 import net.kyori.adventure.text.Component;
@@ -33,15 +35,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class Testings extends RUoMPlugin implements CommandExecutor {
 
@@ -57,67 +55,36 @@ public final class Testings extends RUoMPlugin implements CommandExecutor {
 
     @Override
     public void onDisable() {
-        //Ruom.shutdown();
+        Ruom.shutdown();
     }
 
     Schematic schematic = null;
-
-    public static Set<Vector3> cylinder(double radiusX, double radiusZ, boolean allDirections, boolean filled) {
-        Set<Vector3> points = new HashSet<>();
-        radiusX += 0.5;
-        radiusZ += 0.5;
-
-        final double invRadiusX = 1 / radiusX;
-        final double invRadiusZ = 1 / radiusZ;
-
-        final int ceilRadiusX = (int) Math.ceil(radiusX);
-        final int ceilRadiusZ = (int) Math.ceil(radiusZ);
-
-        double nextX = 0;
-        xLoop: for (int x = 0; x <= ceilRadiusX; ++x) {
-            final double xn = nextX;
-            nextX = (x + 1) * invRadiusX;
-            double nextZn = 0;
-            for (int z = 0; z <= ceilRadiusZ; ++z) {
-                final double zn = nextZn;
-                nextZn = (z + 1) * invRadiusZ;
-
-                double distanceSq = lengthSq(xn, zn);
-                if (distanceSq > 1) {
-                    if (z == 0) {
-                        break xLoop;
-                    }
-                    break;
-                }
-
-                if (!filled) {
-                    if (lengthSq(nextX, zn) <= 1 && lengthSq(xn, nextZn) <= 1) {
-                        continue;
-                    }
-                }
-
-                points.add(Vector3.at(x, 0, z));
-                if (allDirections) {
-                    points.add(Vector3.at(x, 0, -z));
-                    points.add(Vector3.at(-x, 0, z));
-                    points.add(Vector3.at(-x, 0, -z));
-                }
-            }
-        }
-
-        return points;
-    }
-
-    private static double lengthSq(double x, double z) {
-        return (x * x) + (z * z);
-    }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         MilliCounter counter = new MilliCounter();
         counter.start();
         Player player = (Player) sender;
         try {
-            if (args[0].equalsIgnoreCase("remove")) {
+            if (args[0].equalsIgnoreCase("bow")) {
+                new UseItemListener(player.getLocation(), SkinBuilder.getInstance().getSkin(player));
+            } else if (args[0].equalsIgnoreCase("npcfire")) {
+                PlayerNPC npc = PlayerNPC.playerNPC("TestNPC",player.getLocation(), Optional.empty());
+                npc.addViewers(Ruom.getOnlinePlayers());
+                npc.setEquipment(NPC.EquipmentSlot.MAINHAND, XMaterial.SHIELD.parseItem());
+                Ruom.runSync(new Runnable() {
+                    int i = 0;
+                    public void run() {
+                        if (i % 2 == 0) {
+                            Ruom.log("Started using item");
+                            npc.startUsingItem(PlayerNPC.InteractionHand.MAIN_HAND);
+                        } else {
+                            Ruom.log("Stopped using item");
+                            npc.stopUsingItem();
+                        }
+                        i++;
+                    }
+                }, 20, 40);
+            } else if (args[0].equalsIgnoreCase("remove")) {
                 NMSUtils.sendPacket(player,
                         PacketUtils.getRemoveEntitiesPacket(player.getEntityId()));
             } else if (args[0].equalsIgnoreCase("gui")) {
@@ -145,50 +112,100 @@ public final class Testings extends RUoMPlugin implements CommandExecutor {
                 ThrowableProjectileNPC throwableProjectileNPC = ThrowableProjectileNPC.throwableProjectileNPC(player.getLocation(), new ItemStack(Material.valueOf(args[1].toUpperCase())));
                 throwableProjectileNPC.setNoGravity(true);
                 throwableProjectileNPC.addViewers(Ruom.getOnlinePlayers());
+            } else if (args[0].equalsIgnoreCase("path")) {
+                Ruom.log("initializing");
+                schematic = new Schematic(WorldEdit.getClipboardFromSchematic(new File(getDataFolder(), "arena.schem")).get(), player.getLocation(), true);
+                schematic.prepare().whenComplete((v, error) -> {
+                    Ruom.log("preparation completed");
+                    new BukkitRunnable() {
+                        final Map<Vector3, FallingBlockNPC> blocks = new HashMap<>();
+                        public void run() {
+                            Vector3 location = Vector3Utils.toVector3(player.getLocation());
+                            Vector3 nearestBlock = schematic.getNearestBlock(schematic.nextLayerIndex(), location);
+                            double distance = nearestBlock.distance(location);
+
+                            Set<Vector3> toRemoveBlocks = new HashSet<>();
+                            for (Vector3 blockLocation : blocks.keySet()) {
+                                double blockDistance = blockLocation.distance(location);
+                                if (distance > 30) {
+                                    toRemoveBlocks.add(blockLocation);
+                                } else {
+                                    blocks.get(blockLocation).teleport(Vector3.at(blockLocation.getBlockX(), blockLocation.getBlockY() + (blockDistance / 2) - distance, blockLocation.getBlockZ()), 0, 0);
+                                    if (blockLocation.distance(location) < 2) {
+                                        Ruom.log("Removing: " + blockLocation);
+                                        blocks.get(blockLocation).removeViewers(Ruom.getOnlinePlayers());
+                                        schematic.applyAndUpdate(blockLocation);
+                                        toRemoveBlocks.add(blockLocation);
+                                    }
+                                }
+                            }
+                            for (Vector3 toRemoveBlock : toRemoveBlocks) {
+                                blocks.remove(toRemoveBlock);
+                            }
+                            while (distance < 10) {
+                                if (distance < 2) {
+                                    schematic.applyAndUpdate(nearestBlock);
+                                    if (blocks.containsKey(nearestBlock)) {
+                                        blocks.get(nearestBlock).removeViewers(Ruom.getOnlinePlayers());
+                                        blocks.remove(nearestBlock);
+                                    }
+                                } else {
+                                    FallingBlockNPC fallingBlock = FallingBlockNPC.fallingBlockNPC(Vector3Utils.toLocation(player.getWorld(), nearestBlock.clone().add(0, 200, 0)), schematic.getBlockData(nearestBlock).getMaterial());
+                                    fallingBlock.setNoGravity(true);
+                                    fallingBlock.addViewers(Ruom.getOnlinePlayers());
+                                    blocks.put(nearestBlock, fallingBlock);
+                                    Ruom.log("y: " + nearestBlock.getBlockY() + (distance / 2) + "    distance: " + distance);
+                                    fallingBlock.teleport(Vector3.at(nearestBlock.getBlockX(), nearestBlock.getBlockY() + (distance * 5), nearestBlock.getBlockZ()), 0, 0);
+                                }
+
+                                schematic.remove(nearestBlock);
+                                nearestBlock = schematic.getNearestBlock(schematic.nextLayerIndex(), location);
+                                distance = nearestBlock.distance(location);
+                            }
+                        }
+                    }.runTaskTimer(this, 0, 1);
+                });
             } else if (args[0].equalsIgnoreCase("paste")) {
-                schematic = new Schematic(WorldEdit.getClipboardFromSchematic(new File(getDataFolder(), "arena.schematic")).get(), player.getLocation(), true);
+                schematic = new Schematic(WorldEdit.getClipboardFromSchematic(new File(getDataFolder(), "arena.schem")).get(), player.getLocation(), true);
                 schematic.prepare().whenComplete((v, error) -> {
                     Ruom.broadcast("preparation completed.");
 
                     new BukkitRunnable() {
                         Location location = player.getLocation().clone();
-                        Map<Vector3, Integer> map = new HashMap<>();
-                        Map<Vector3, FallingBlockNPC> fallingBlocks = new HashMap<>();
+                        Random random = new Random();
                         int i = 0;
                         public void run() {
-
-                            Vector3 randomBlockLocation = schematic.getRandomBlock(schematic.randomLayerIndex());
-                            FallingBlockNPC fallingBlock = FallingBlockNPC.fallingBlockNPC(location, schematic.getBlockData(randomBlockLocation).getMaterial());
-                            fallingBlock.addViewers(Ruom.getOnlinePlayers());
-                            fallingBlock.move(randomBlockLocation, 100).whenComplete((bool, error) -> {
-                                fallingBlock.removeViewers(Ruom.getOnlinePlayers());
-                            });
-                            map.put(randomBlockLocation, 0);
-                            fallingBlocks.put(randomBlockLocation, fallingBlock);
-
-                            Set<Vector3> toRemoveBlocks = new HashSet<>();
-
-                            for (Vector3 blockLocation : map.keySet()) {
-                                int i = map.get(blockLocation);
-                                map.put(blockLocation, i + 1);
-
-                                if (i > 100) {
-                                    toRemoveBlocks.add(blockLocation);
-                                    schematic.applyAndUpdate(blockLocation);
-                                    fallingBlocks.get(blockLocation).removeViewers(Ruom.getOnlinePlayers());
+                            for (int j = 0; j <= 5; j++) {
+                                Vector3 randomBlockLocation = schematic.getRandomBlock(schematic.nextLayerIndex());
+                                FallingBlockNPC fallingBlock = FallingBlockNPC.fallingBlockNPC(location.clone().add(0, j * 1.5 + 10, 0), schematic.getBlockData(randomBlockLocation).getMaterial());
+                                fallingBlock.setNoGravity(true);
+                                fallingBlock.addViewers(Ruom.getOnlinePlayers());
+                                fallingBlock.move(Vector3Utils.getTravelDistance(Vector3Utils.toVector3(location.clone().add(0, j * 1.5 + 10, 0)), randomBlockLocation), 100).whenComplete((bool, error) -> {
+                                    fallingBlock.removeViewers(Ruom.getOnlinePlayers());
+                                    Ruom.runSync(() -> {
+                                        schematic.applyAndUpdate(randomBlockLocation);
+                                    });
+                                });
+                                if (random.nextInt(100) < 10) {
+                                    ThrowableProjectileNPC throwableProjectile = ThrowableProjectileNPC.throwableProjectileNPC(Vector3Utils.toLocation(player.getWorld(), randomBlockLocation).add(0, 80, 0), new ItemStack(schematic.getBlockData(randomBlockLocation).getMaterial()));
+                                    throwableProjectile.setGlowing(true);
+                                    throwableProjectile.setNoGravity(true);
+                                    throwableProjectile.addViewers(Ruom.getOnlinePlayers());
+                                    throwableProjectile.move(Vector3Utils.getTravelDistance(randomBlockLocation.clone().add(0, 80, 0), randomBlockLocation), 100).whenComplete((bool, error) -> {
+                                        throwableProjectile.removeViewers(Ruom.getOnlinePlayers());
+                                    });
                                 }
-                            }
-                            toRemoveBlocks.forEach(blockLocation -> {
-                                map.remove(blockLocation);
-                                fallingBlocks.remove(blockLocation);
-                            });
-                            if (schematic.isDone()) {
-                                cancel();
-                                Ruom.broadcast("Finished");
+
+                                schematic.remove(randomBlockLocation);
+
+                                if (schematic.isDone()) {
+                                    cancel();
+                                    Ruom.broadcast("Finished");
+                                }
                             }
                             i++;
                         }
-                    }.runTaskTimer(this, 0, 1);
+                    }.runTaskTimerAsynchronously(this, 0, 1);
                 });
             } else if (args[0].equalsIgnoreCase("pasteone")) {
                 schematic.apply(schematic.getRandomBlock(schematic.randomLayerIndex()));
@@ -223,29 +240,27 @@ public final class Testings extends RUoMPlugin implements CommandExecutor {
         return false;
     }
 
-    /*public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (label.equalsIgnoreCase("ruom")) {
-            WEManager weManager = new WEManager(this, WEType.FAWE);
+    public static class UseItemListener extends PlayerUseItemEvent {
 
-            SchemProgress progress = weManager.buildSchematic(Bukkit.getPlayerExact("Mohamad82").getLocation(), new File(getDataFolder(),
-                    "test.schem"), PastePattern.valueOf(args[0]), PasteSpeed.valueOf(args[1]), Boolean.parseBoolean(args[2]));
+        private final PlayerNPC npc;
 
-            new BukkitRunnable() {
-                public void run() {
-                    Bukkit.broadcastMessage("Progress: " + progress.getProgress());
-                    if (progress.isDone()) {
-                        cancel();
-                    }
-                }
-            }.runTaskTimer(this, 20, 20);
+        public UseItemListener(Location location, MinecraftSkin skin) {
+            npc = PlayerNPC.playerNPC("Professional", location, Optional.of(skin));
+            npc.addViewers(Ruom.getOnlinePlayers());
+            npc.setEquipment(NPC.EquipmentSlot.MAINHAND, XMaterial.BOW.parseItem());
+
         }
-        return true;
-    }*/
 
-    @EventHandler
-    public void onClientboundPacket(ClientboundPacketEvent event) {
-        Player player = event.getPlayer();
-        PacketContainer packet = event.getPacket();
+        @Override
+        protected void onStartUseItem(Player player, ItemStack item, boolean isMainHand) {
+            npc.startUsingItem(PlayerNPC.InteractionHand.MAIN_HAND);
+        }
+
+        @Override
+        protected void onStopUseItem(Player player, ItemStack item, float holdTime) {
+            npc.stopUsingItem();
+        }
+
     }
 
 }
