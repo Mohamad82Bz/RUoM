@@ -28,7 +28,7 @@ public class PacketListenerManager implements Listener {
     }
 
     private final Set<PacketEvent> packetEvents = new HashSet<>();
-    private final Set<PlayerDigEvent> digEvents = new HashSet<>();
+    private final Set<PlayerActionEvent> actionEvents = new HashSet<>();
 
     private PacketListenerManager() {
 
@@ -54,16 +54,16 @@ public class PacketListenerManager implements Listener {
         packetEvents.add(packetEvent);
     }
 
-    protected void register(PlayerDigEvent digEvent) {
-        digEvents.add(digEvent);
+    protected void register(PlayerActionEvent actionEvent) {
+        actionEvents.add(actionEvent);
     }
 
     protected void unregister(PacketEvent packetEvent) {
         packetEvents.remove(packetEvent);
     }
 
-    protected void unregister(PlayerDigEvent digEvent) {
-        digEvents.remove(digEvent);
+    protected void unregister(PlayerActionEvent actionEvent) {
+        actionEvents.remove(actionEvent);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -102,7 +102,7 @@ public class PacketListenerManager implements Listener {
                                     Object nmsBlockPos = ServerboundPlayerActionPacketAccessor.getMethodGetPos1().invoke(packet);
                                     Object nmsDirection = ServerboundPlayerActionPacketAccessor.getMethodGetDirection1().invoke(packet);
 
-                                    PlayerDigEvent.Direction direction = PlayerDigEvent.Direction.valueOf(((String) DirectionAccessor.getMethodGetName1().invoke(nmsDirection)).toUpperCase());
+                                    PlayerActionEvent.Direction direction = PlayerActionEvent.Direction.valueOf(((String) DirectionAccessor.getMethodGetName1().invoke(nmsDirection)).toUpperCase());
                                     Vector3 blockPos = Vector3.at(
                                             (int) Vec3iAccessor.getMethodGetX1().invoke(nmsBlockPos),
                                             (int) Vec3iAccessor.getMethodGetY1().invoke(nmsBlockPos),
@@ -110,12 +110,28 @@ public class PacketListenerManager implements Listener {
                                     );
 
                                     if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldSTART_DESTROY_BLOCK())) {
-                                        for (PlayerDigEvent digEvent : digEvents) {
-                                            digEvent.onStartDig(player, blockPos, direction);
+                                        for (PlayerActionEvent actionEvent : actionEvents) {
+                                            actionEvent.onStartDig(player, blockPos, direction);
                                         }
                                     } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldSTOP_DESTROY_BLOCK()) || action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldABORT_DESTROY_BLOCK())) {
-                                        for (PlayerDigEvent digEvent : digEvents) {
-                                            digEvent.onStopDig(player, blockPos);
+                                        for (PlayerActionEvent actionEvent : actionEvents) {
+                                            actionEvent.onStopDig(player, blockPos);
+                                        }
+                                    } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldDROP_ALL_ITEMS())) {
+                                        for (PlayerActionEvent actionEvent : actionEvents) {
+                                            actionEvent.onDropAllItems(player);
+                                        }
+                                    } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldDROP_ITEM())) {
+                                        for (PlayerActionEvent actionEvent : actionEvents) {
+                                            actionEvent.onDropAllItems(player);
+                                        }
+                                    } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldRELEASE_USE_ITEM())) {
+                                        for (PlayerActionEvent actionEvent : actionEvents) {
+                                            actionEvent.onUseItemRelease(player);
+                                        }
+                                    } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldSWAP_ITEM_WITH_OFFHAND())) {
+                                        for (PlayerActionEvent actionEvent : actionEvents) {
+                                            actionEvent.onSwapItemsWithOffHand(player);
                                         }
                                     }
                                 });
