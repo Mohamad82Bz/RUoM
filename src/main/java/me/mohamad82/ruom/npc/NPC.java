@@ -80,7 +80,10 @@ public abstract class NPC extends Viewered {
     public boolean moveAndLook(Vector3 vector3, float yaw, float pitch) {
         if (vector3.getX() > 8 || vector3.getY() > 8 || vector3.getZ() > 8) return false;
         setPosition(getPosition().add(vector3));
-        NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityPosRotPacket(id, vector3.getX(), vector3.getY(), vector3.getZ(), yaw, pitch, true));
+        NMSUtils.sendPacket(getViewers(),
+                PacketUtils.getEntityPosRotPacket(id, vector3.getX(), vector3.getY(), vector3.getZ(), yaw, pitch, true),
+                PacketUtils.getHeadRotatePacket(entity, yaw)
+        );
         return true;
     }
 
