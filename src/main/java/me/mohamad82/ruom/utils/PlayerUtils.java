@@ -3,6 +3,7 @@ package me.mohamad82.ruom.utils;
 import me.mohamad82.ruom.vector.Vector3;
 import me.mohamad82.ruom.vector.Vector3Utils;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,6 +26,33 @@ public class PlayerUtils {
             }
         }
         return true;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static boolean hasItemInMainHand(Player player, Material material) {
+        if (ServerVersion.supports(9)) {
+            return player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType() == material;
+        } else {
+            return player.getInventory().getItemInHand() != null && player.getInventory().getItemInHand().getType() == material;
+        }
+    }
+
+    public static boolean hasItemInOffHand(Player player, Material material) {
+        if (!ServerVersion.supports(9)) return false;
+        return player.getInventory().getItemInOffHand() != null && player.getInventory().getItemInOffHand().getType() == material;
+    }
+
+    public static boolean hasItemInHand(Player player, Material material) {
+        boolean hasInMainHand = hasItemInMainHand(player, material);
+        if (ServerVersion.supports(9)) {
+            boolean hasInOffHand = hasItemInOffHand(player, material);
+            if (!hasInOffHand)
+                return hasInMainHand;
+            else
+                return hasInOffHand;
+        } else {
+            return hasInMainHand;
+        }
     }
 
     public static void spawnFoodEatParticles(Location location, ItemStack foodItem) {
