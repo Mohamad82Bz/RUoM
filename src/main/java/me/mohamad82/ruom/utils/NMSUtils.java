@@ -8,6 +8,7 @@ import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
@@ -22,10 +23,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class NMSUtils {
 
-    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE;
+    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE;
 
     private static Method CRAFT_ITEM_STACK_AS_NMS_COPY, CRAFT_ITEM_STACK_AS_BUKKIT_COPY, CRAFT_PLAYER_GET_HANDLE_METHOD, CRAFT_WORLD_GET_HANDLE_METHOD,
-            CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD;
+            CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD2,
+            CRAFT_PARTICLE_TO_BUKKIT_METHOD;
 
     static {
         try {
@@ -35,6 +37,7 @@ public class NMSUtils {
                 CRAFT_WORLD = ReflectionUtils.getCraftClass("CraftWorld");
                 CRAFT_SERVER = ReflectionUtils.getCraftClass("CraftServer");
                 CRAFT_BLOCK_STATE = ReflectionUtils.getCraftClass("block.CraftBlockState");
+                CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
             }
             {
                 CRAFT_PLAYER_GET_HANDLE_METHOD = CRAFT_PLAYER.getMethod("getHandle");
@@ -43,6 +46,11 @@ public class NMSUtils {
                 CRAFT_WORLD_GET_HANDLE_METHOD = CRAFT_WORLD.getMethod("getHandle");
                 CRAFT_SERVER_GET_SERVER_METHOD = CRAFT_SERVER.getMethod("getServer");
                 CRAFT_BLOCK_STATE_GET_HANDLE_METHOD = CRAFT_BLOCK_STATE.getMethod("getHandle");
+                if (ServerVersion.supports(9)) {
+                    CRAFT_PARTICLE_TO_NMS_METHOD = CRAFT_PARTICLE.getMethod("toNMS", Particle.class);
+                    CRAFT_PARTICLE_TO_NMS_METHOD2 = CRAFT_PARTICLE.getMethod("toNMS", Particle.class, Object.class);
+                    CRAFT_PARTICLE_TO_BUKKIT_METHOD = CRAFT_PARTICLE.getMethod("toBukkit", ParticleOptionsAccessor.getType());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,12 +130,48 @@ public class NMSUtils {
         }
     }
 
+    public static Object getPotion(ItemStack potion) {
+        try {
+            return PotionUtilsAccessor.getMethodGetPotion1().invoke(null, getNmsItemStack(potion));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static int getPotionColor(ItemStack potion) {
         try {
             return (int) PotionUtilsAccessor.getMethodGetColor1().invoke(null, getNmsItemStack(potion));
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
+        }
+    }
+
+    public static Object getParticleOptions(Particle particle) {
+        try {
+            return CRAFT_PARTICLE_TO_NMS_METHOD.invoke(null, particle);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Object getParticleOptions(Particle particle, Object data) {
+        try {
+            return CRAFT_PARTICLE_TO_NMS_METHOD2.invoke(null, particle, data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Particle getBukkitParticle(Object particleOptions) {
+        try {
+            return (Particle) CRAFT_PARTICLE_TO_BUKKIT_METHOD.invoke(null, particleOptions);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
