@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.1.6'
+version = '3.1.7'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -153,6 +153,7 @@ nmsGen {
     var AbstractContainerMenu = reqClass("net.minecraft.world.inventory.AbstractContainerMenu")
     var MenuType = reqClass("net.minecraft.world.inventory.MenuType")
     var DimensionType = reqClass("net.minecraft.world.level.dimension.DimensionType")
+    var ParticleOptions = reqClass("net.minecraft.core.particles.ParticleOptions")
 
     var ArmorStand = reqClass("net.minecraft.world.entity.decoration.ArmorStand")
     var Arrow = reqClass("net.minecraft.world.entity.projectile.Arrow")
@@ -160,6 +161,7 @@ nmsGen {
     var ThrowableItemProjectile = reqClass("net.minecraft.world.entity.projectile.ThrowableItemProjectile")
     var ItemEntity = reqClass("net.minecraft.world.entity.item.ItemEntity")
     var FallingBlockEntity = reqClass("net.minecraft.world.entity.item.FallingBlockEntity")
+    var AreaEffectCloud = reqClass("net.minecraft.world.entity.AreaEffectCloud")
 
     ClientboundPlayerInfoPacket
             .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
@@ -608,6 +610,17 @@ nmsGen {
             .reqMethod("getBlockState")
             .reqMethod("getAddEntityPacket")
             .reqField("blockState")
+    AreaEffectCloud
+            .reqConstructor(Level, double, double, double)
+            .reqMethod("setRadius", float)
+            .reqMethod("getRadius")
+            .reqMethod("getColor")
+            .reqMethod("setFixedColor", int)
+            .reqMethod("getParticle")
+            .reqMethod("setParticle", ParticleOptions)
+            .reqMethod("setWaiting", boolean)
+            .reqMethod("isWaiting")
+            .reqMethod("getPotion")
 }
 
 publishing {

@@ -5,7 +5,7 @@ import me.mohamad82.ruom.nmsaccessors.EntityTypeAccessor;
 import org.bukkit.entity.EntityType;
 
 public enum NPCType {
-    PLAYER,
+    AREA_EFFECT_CLOUD,
     ARMOR_STAND,
     ARROW,
     BAT,
@@ -106,7 +106,8 @@ public enum NPCType {
     ZOMBIE,
     ZOMBIE_HORSE,
     ZOMBIE_VILLAGER,
-    ZOMBIFIED_PIGLIN;
+    ZOMBIFIED_PIGLIN,
+    PLAYER;
 
     private Object nmsEntityType;
 
