@@ -124,7 +124,7 @@ public class NMSUtils {
 
     public static int getPotionColor(ItemStack potion) {
         try {
-            return (int) PotionUtilsAccessor.getMethodGetColor1().invoke(getNmsItemStack(potion));
+            return (int) PotionUtilsAccessor.getMethodGetColor1().invoke(null, getNmsItemStack(potion));
         } catch (Exception e) {
             e.printStackTrace();
             return 0;

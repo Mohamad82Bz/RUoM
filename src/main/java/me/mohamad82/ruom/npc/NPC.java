@@ -43,7 +43,9 @@ public abstract class NPC extends Viewered {
 
     public void look(float yaw, float pitch) {
         Ruom.run(() -> EntityAccessor.getMethodSetRot1().invoke(entity, yaw, pitch));
-        NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityRotPacket(id, yaw, pitch));
+        NMSUtils.sendPacket(getViewers(),
+                PacketUtils.getEntityRotPacket(id, yaw, pitch),
+                PacketUtils.getHeadRotatePacket(entity, yaw));
     }
 
     public boolean move(Vector3 vector3) {
