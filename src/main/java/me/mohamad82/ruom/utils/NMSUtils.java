@@ -11,23 +11,29 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class NMSUtils {
 
-    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE;
+    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE, CRAFT_LIVING_ENTITY;
 
     private static Method CRAFT_ITEM_STACK_AS_NMS_COPY, CRAFT_ITEM_STACK_AS_BUKKIT_COPY, CRAFT_PLAYER_GET_HANDLE_METHOD, CRAFT_WORLD_GET_HANDLE_METHOD,
             CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD2,
-            CRAFT_PARTICLE_TO_BUKKIT_METHOD;
+            CRAFT_PARTICLE_TO_BUKKIT_METHOD, CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD;
+
+    private static Field LIVING_ENTITY_DROPS_FIELD;
 
     static {
         try {
@@ -38,6 +44,7 @@ public class NMSUtils {
                 CRAFT_SERVER = ReflectionUtils.getCraftClass("CraftServer");
                 CRAFT_BLOCK_STATE = ReflectionUtils.getCraftClass("block.CraftBlockState");
                 CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
+                CRAFT_LIVING_ENTITY = ReflectionUtils.getCraftClass("entity.CraftLivingEntity");
             }
             {
                 CRAFT_PLAYER_GET_HANDLE_METHOD = CRAFT_PLAYER.getMethod("getHandle");
@@ -51,6 +58,10 @@ public class NMSUtils {
                     CRAFT_PARTICLE_TO_NMS_METHOD2 = CRAFT_PARTICLE.getMethod("toNMS", Particle.class, Object.class);
                     CRAFT_PARTICLE_TO_BUKKIT_METHOD = CRAFT_PARTICLE.getMethod("toBukkit", ParticleOptionsAccessor.getType());
                 }
+                CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD = CRAFT_LIVING_ENTITY.getMethod("getHandle");
+            }
+            {
+                LIVING_ENTITY_DROPS_FIELD = LivingEntityAccessor.getType().getField("drops");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -169,6 +180,15 @@ public class NMSUtils {
     public static Particle getBukkitParticle(Object particleOptions) {
         try {
             return (Particle) CRAFT_PARTICLE_TO_BUKKIT_METHOD.invoke(null, particleOptions);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static List<ItemStack> getLivingEntityDrops(LivingEntity livingEntity) {
+        try {
+            return (List<ItemStack>) LIVING_ENTITY_DROPS_FIELD.get(CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD.invoke(livingEntity));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
