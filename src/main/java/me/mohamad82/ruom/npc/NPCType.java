@@ -112,7 +112,7 @@ public enum NPCType {
     private Object nmsEntityType;
 
     NPCType() {
-        Ruom.run(() -> nmsEntityType = EntityTypeAccessor.getType().getField(toString().toUpperCase()).get(null));
+        Ruom.run(() -> nmsEntityType = EntityTypeAccessor.class.getMethod("getField" + toString().toUpperCase()).invoke(null));
     }
 
     public Object getNmsEntityType() {
