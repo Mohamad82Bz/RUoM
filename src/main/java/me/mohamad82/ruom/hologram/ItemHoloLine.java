@@ -1,5 +1,6 @@
 package me.mohamad82.ruom.hologram;
 
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class ItemHoloLine extends HoloLine {
@@ -20,6 +21,8 @@ public abstract class ItemHoloLine extends HoloLine {
     public void setItem(ItemStack item) {
         this.item = item;
     }
+
+    public abstract void setItem(ItemStack item, Player player);
 
     public boolean isGlowing() {
         return glowing;

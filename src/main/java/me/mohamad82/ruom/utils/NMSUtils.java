@@ -11,7 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -27,11 +27,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class NMSUtils {
 
-    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE, CRAFT_LIVING_ENTITY;
+    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE, CRAFT_LIVING_ENTITY, CRAFT_ENTITY;
 
     private static Method CRAFT_ITEM_STACK_AS_NMS_COPY, CRAFT_ITEM_STACK_AS_BUKKIT_COPY, CRAFT_PLAYER_GET_HANDLE_METHOD, CRAFT_WORLD_GET_HANDLE_METHOD,
             CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD2,
-            CRAFT_PARTICLE_TO_BUKKIT_METHOD, CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD;
+            CRAFT_PARTICLE_TO_BUKKIT_METHOD, CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD, CRAFT_ENTITY_GET_HANDLE_METHOD, ENTITY_GET_BUKKIT_ENTITY_METHOD;
 
     private static Field LIVING_ENTITY_DROPS_FIELD;
 
@@ -45,6 +45,7 @@ public class NMSUtils {
                 CRAFT_BLOCK_STATE = ReflectionUtils.getCraftClass("block.CraftBlockState");
                 CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
                 CRAFT_LIVING_ENTITY = ReflectionUtils.getCraftClass("entity.CraftLivingEntity");
+                CRAFT_ENTITY = ReflectionUtils.getCraftClass("entity.CraftEntity");
             }
             {
                 CRAFT_PLAYER_GET_HANDLE_METHOD = CRAFT_PLAYER.getMethod("getHandle");
@@ -52,13 +53,18 @@ public class NMSUtils {
                 CRAFT_ITEM_STACK_AS_BUKKIT_COPY = CRAFT_ITEM_STACK.getMethod("asBukkitCopy", ItemStackAccessor.getType());
                 CRAFT_WORLD_GET_HANDLE_METHOD = CRAFT_WORLD.getMethod("getHandle");
                 CRAFT_SERVER_GET_SERVER_METHOD = CRAFT_SERVER.getMethod("getServer");
-                CRAFT_BLOCK_STATE_GET_HANDLE_METHOD = CRAFT_BLOCK_STATE.getMethod("getHandle");
+                if (ServerVersion.supports(13)) {
+                    //TODO: Find a way for 1.12 and below. EditSession won't work on 1.12 and below in this way.
+                    CRAFT_BLOCK_STATE_GET_HANDLE_METHOD = CRAFT_BLOCK_STATE.getMethod("getHandle");
+                }
                 if (ServerVersion.supports(9)) {
                     CRAFT_PARTICLE_TO_NMS_METHOD = CRAFT_PARTICLE.getMethod("toNMS", Particle.class);
                     CRAFT_PARTICLE_TO_NMS_METHOD2 = CRAFT_PARTICLE.getMethod("toNMS", Particle.class, Object.class);
                     CRAFT_PARTICLE_TO_BUKKIT_METHOD = CRAFT_PARTICLE.getMethod("toBukkit", ParticleOptionsAccessor.getType());
                 }
                 CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD = CRAFT_LIVING_ENTITY.getMethod("getHandle");
+                CRAFT_ENTITY_GET_HANDLE_METHOD = CRAFT_ENTITY.getMethod("getHandle");
+                ENTITY_GET_BUKKIT_ENTITY_METHOD = EntityAccessor.getType().getMethod("getBukkitEntity");
             }
             {
                 LIVING_ENTITY_DROPS_FIELD = LivingEntityAccessor.getType().getField("drops");
@@ -186,12 +192,57 @@ public class NMSUtils {
         }
     }
 
-    public static List<ItemStack> getLivingEntityDrops(LivingEntity livingEntity) {
+    public static Object getNmsLivingEntity(LivingEntity livingEntity) {
         try {
-            return (List<ItemStack>) LIVING_ENTITY_DROPS_FIELD.get(CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD.invoke(livingEntity));
+            return CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD.invoke(livingEntity);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static List<ItemStack> getLivingEntityDrops(LivingEntity livingEntity) {
+        try {
+            return (List<ItemStack>) LIVING_ENTITY_DROPS_FIELD.get(getNmsLivingEntity(livingEntity));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Object getNmsEntity(Entity entity) {
+        try {
+            return CRAFT_ENTITY_GET_HANDLE_METHOD.invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Entity getBukkitEntity(Object nmsEntity) {
+        try {
+            return (Entity) ENTITY_GET_BUKKIT_ENTITY_METHOD.invoke(nmsEntity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void setEntityCustomName(Entity entity, Component component) {
+        try {
+            EntityAccessor.getMethodSetCustomName1().invoke(getNmsEntity(entity), MinecraftComponentSerializer.get().serialize(component));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int getEntityDataAccessorId(Object entityDataAccessor) {
+        try {
+            if (!entityDataAccessor.getClass().equals(EntityDataAccessorAccessor.getType())) return -1;
+            return (int) EntityDataAccessorAccessor.getMethodGetId1().invoke(entityDataAccessor);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 

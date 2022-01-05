@@ -1,7 +1,13 @@
 package me.mohamad82.ruom.hologram;
 
+import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.nmsaccessors.EntityDataAccessorAccessor;
+import me.mohamad82.ruom.nmsaccessors.ItemEntityAccessor;
 import me.mohamad82.ruom.npc.entity.ItemNPC;
+import me.mohamad82.ruom.utils.NMSUtils;
+import me.mohamad82.ruom.utils.PacketUtils;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class Item3DHologramLine extends ItemHoloLine {
@@ -19,6 +25,17 @@ public class Item3DHologramLine extends ItemHoloLine {
         super.setItem(item);
         if (npc != null) {
             getItemNPC().setItem(item);
+        }
+    }
+
+    @Override
+    public void setItem(ItemStack item, Player player) {
+        if (npc != null) {
+            Ruom.run(() -> NMSUtils.sendPacket(player, PacketUtils.getEntityDataPacket(
+                    npc.getId(),
+                    (int) EntityDataAccessorAccessor.getMethodGetId1().invoke(ItemEntityAccessor.getFieldDATA_ITEM().get(null)),
+                    NMSUtils.getNmsItemStack(item)
+            )));
         }
     }
 
