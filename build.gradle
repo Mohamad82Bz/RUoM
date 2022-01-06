@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.2.1'
+version = '3.3'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -56,7 +56,7 @@ dependencies {
 }
 
 shadowJar {
-    minimize()
+    //minimize()
     relocate('net.kyori.adventure', 'me.mohamad82.ruom.adventure')
     relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
