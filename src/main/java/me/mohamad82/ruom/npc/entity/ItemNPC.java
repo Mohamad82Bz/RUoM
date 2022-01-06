@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemNPC extends EntityNPC {
 
-    private ItemNPC(Location location, ItemStack item) throws Exception {
+    protected ItemNPC(Location location, ItemStack item) throws Exception {
         super(
                 ItemEntityAccessor.getConstructor0().newInstance(NMSUtils.getServerLevel(location.getWorld()), location.getX(), location.getY(), location.getZ(), NMSUtils.getNmsItemStack(item)),
                 location,

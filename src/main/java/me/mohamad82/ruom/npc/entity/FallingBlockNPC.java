@@ -14,7 +14,7 @@ public class FallingBlockNPC extends EntityNPC {
 
     private final int data;
 
-    private FallingBlockNPC(Location location, Material material) throws Exception {
+    protected FallingBlockNPC(Location location, Material material) throws Exception {
         super(
                 FallingBlockEntityAccessor.getConstructor0().newInstance(NMSUtils.getServerLevel(location.getWorld()), location.getX(), location.getY(), location.getZ(), NMSUtils.getBlockState(material)),
                 location,

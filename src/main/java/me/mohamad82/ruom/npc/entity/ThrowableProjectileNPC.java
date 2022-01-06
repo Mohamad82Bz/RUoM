@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ThrowableProjectileNPC extends EntityNPC {
 
-    private ThrowableProjectileNPC(Location location, ItemStack item) throws Exception {
+    protected ThrowableProjectileNPC(Location location, ItemStack item) throws Exception {
         super(
                 ThrownPotionAccessor.getConstructor0().newInstance(NPCType.POTION.getNmsEntityType(), NMSUtils.getServerLevel(location.getWorld())),
                 location,

@@ -10,7 +10,7 @@ import org.bukkit.Particle;
 
 public class AreaEffectCloudNPC extends EntityNPC {
 
-    protected AreaEffectCloudNPC(Location location) throws Exception {
+    private AreaEffectCloudNPC(Location location) throws Exception {
         super(
                 AreaEffectCloudAccessor.getConstructor0().newInstance(NMSUtils.getServerLevel(location.getWorld()), location.getX(), location.getY(), location.getZ()),
                 location,

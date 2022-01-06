@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ArrowNPC extends EntityNPC {
 
-    private ArrowNPC(Location location) throws Exception {
+    protected ArrowNPC(Location location) throws Exception {
         super(
                 ArrowAccessor.getConstructor0().newInstance(NPCType.ARROW.getNmsEntityType(), NMSUtils.getServerLevel(location.getWorld())),
                 location,

@@ -11,7 +11,7 @@ import org.bukkit.Location;
 
 public class ArmorStandNPC extends EntityNPC {
 
-    private ArmorStandNPC(Location location) throws Exception {
+    protected ArmorStandNPC(Location location) throws Exception {
         super(
                 ArmorStandAccessor.getConstructor0().newInstance(NPCType.ARMOR_STAND.getNmsEntityType(), NMSUtils.getServerLevel(location.getWorld())),
                 location,

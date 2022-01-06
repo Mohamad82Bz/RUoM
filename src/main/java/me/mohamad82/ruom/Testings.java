@@ -7,6 +7,7 @@ import me.mohamad82.ruom.adventure.ComponentUtils;
 import me.mohamad82.ruom.database.mysql.MySQLDatabase;
 import me.mohamad82.ruom.database.sqlite.SQLiteDatabase;
 import me.mohamad82.ruom.event.PlayerUseItemEvent;
+import me.mohamad82.ruom.event.packet.PlayerActionEvent;
 import me.mohamad82.ruom.gui.GUITitle;
 import me.mohamad82.ruom.hologram.*;
 import me.mohamad82.ruom.npc.NPC;
@@ -29,6 +30,7 @@ import me.mohamad82.ruom.worldedit.WorldEdit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -247,7 +249,7 @@ public final class Testings extends RUoMPlugin implements CommandExecutor {
         public UseItemListener(Location location, MinecraftSkin skin) {
             npc = PlayerNPC.playerNPC("Professional", location, Optional.of(skin));
             npc.addViewers(Ruom.getOnlinePlayers());
-            npc.setEquipment(NPC.EquipmentSlot.MAINHAND, XMaterial.BOW.parseItem());
+            npc.setEquipment(NPC.EquipmentSlot.MAINHAND, XMaterial.CROSSBOW.parseItem());
 
         }
 
