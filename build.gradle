@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.3'
+version = '3.4'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -41,6 +41,7 @@ dependencies {
     implementation 'net.kyori:adventure-platform-bukkit:4.0.0'
     implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
     implementation 'com.zaxxer:HikariCP:4.0.3'
+    implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
 
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
@@ -52,7 +53,6 @@ dependencies {
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
     testCompileOnly 'org.spigotmc:spigot:1.18.1-R0.1-SNAPSHOT:remapped-mojang'
-    //testCompileOnly 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
 }
 
 shadowJar {
@@ -167,6 +167,8 @@ nmsGen {
     var DifficultyInstance = reqClass("net.minecraft.world.DifficultyInstance")
     var SpawnGroupData = reqClass("net.minecraft.world.entity.SpawnGroupData")
 
+    var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
+
     var ArmorStand = reqClass("net.minecraft.world.entity.decoration.ArmorStand")
     var Arrow = reqClass("net.minecraft.world.entity.projectile.Arrow")
     var ThrownPotion = reqClass("net.minecraft.world.entity.projectile.ThrownPotion")
@@ -175,6 +177,7 @@ nmsGen {
     var ItemEntity = reqClass("net.minecraft.world.entity.item.ItemEntity")
     var FallingBlockEntity = reqClass("net.minecraft.world.entity.item.FallingBlockEntity")
     var AreaEffectCloud = reqClass("net.minecraft.world.entity.AreaEffectCloud")
+    var FishingHook = reqClass("net.minecraft.world.entity.projectile.FishingHook")
 
     ClientboundPlayerInfoPacket
             .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
@@ -436,6 +439,7 @@ nmsGen {
             .reqMethod("setTicksFrozen", int) //1.17 and higher
             .reqMethod("getTicksFrozen") //1.17 and higher
             .reqMethod("setUUID", UUID)
+            .reqMethod("getUUID")
             .reqMethod("getEntityData")
             .reqMethod("setSharedFlag", int, boolean)
             .reqMethod("getSharedFlag", int)
@@ -498,6 +502,7 @@ nmsGen {
             .reqEnumField("EYE_OF_ENDER")
             .reqEnumField("FALLING_BLOCK")
             .reqEnumField("FIREWORK_ROCKET")
+            .reqEnumField("FISHING_BOBBER")
             .reqEnumField("FOX")
             .reqEnumField("GHAST")
             .reqEnumField("GIANT")
@@ -720,6 +725,15 @@ nmsGen {
             .reqField("DEFAULT_NETHER")
             .reqField("DEFAULT_END")
 
+    CrossbowItem
+            .reqMethod("isCharged", ItemStack)
+            .reqMethod("setCharged", ItemStack, boolean)
+            .reqMethod("getChargedProjectiles", ItemStack)
+            .reqMethod("clearChargedProjectiles", ItemStack)
+            .reqMethod("getChargeDuration", ItemStack)
+            .reqMethod("getStartSound", int)
+            .reqMethod("getPowerForTime", int, ItemStack)
+
     ArmorStand
             .reqConstructor(EntityType, Level)
             .reqMethod("setHeadPose", Rotations)
@@ -753,8 +767,10 @@ nmsGen {
     ThrownPotion
             .reqConstructor(EntityType, Level)
     ThrownTrident
+            .reqConstructor(EntityType, Level)
             .reqConstructor(Level, LivingEntity, ItemStack)
             .reqField("tridentItem")
+            .reqField("clientSideReturnTridentTickCount")
             .reqField("ID_LOYALTY")
             .reqField("ID_FOIL")
     ThrowableItemProjectile
@@ -783,6 +799,14 @@ nmsGen {
             .reqMethod("setWaiting", boolean)
             .reqMethod("isWaiting")
             .reqMethod("getPotion")
+    FishingHook
+            .reqConstructor(EntityType, Level) //1.17+
+            .reqConstructor(Player, Level, int, int) //1.14 - 1.16
+            .reqConstructor(Level, Player) //1.8 - 1.13
+            .reqMethod("setOwner", Entity)
+            .reqMethod("getAddEntityPacket")
+            .reqField("DATA_HOOKED_ENTITY")
+            .reqField("DATA_BITING")
 }
 
 publishing {

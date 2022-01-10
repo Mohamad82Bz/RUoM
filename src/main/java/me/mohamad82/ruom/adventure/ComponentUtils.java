@@ -12,7 +12,7 @@ public class ComponentUtils {
     }
 
     public static void send(Player player, Component component) {
-        Adventure.get().player(player).sendMessage(component);
+        AdventureApi.get().player(player).sendMessage(component);
     }
 
     public static void send(Component component, Player... players) {

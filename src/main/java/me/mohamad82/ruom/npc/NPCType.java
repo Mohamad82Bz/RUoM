@@ -31,6 +31,7 @@ public enum NPCType {
     EYE_OF_ENDER,
     FALLING_BLOCK,
     FIREWORK_ROCKET,
+    FISHING_BOBBER,
     FOX,
     GHAST,
     GIANT,
@@ -123,6 +124,7 @@ public enum NPCType {
         switch (entityType) {
             case SPLASH_POTION: return POTION;
             case DROPPED_ITEM: return ITEM;
+            case FISHING_HOOK: return FISHING_BOBBER;
             default: return valueOf(entityType.toString());
         }
     }

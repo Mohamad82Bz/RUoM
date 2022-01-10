@@ -1,19 +1,22 @@
 package me.mohamad82.ruom;
 
 import com.cryptomorin.xseries.XMaterial;
+import com.extollit.gaming.ai.path.HydrazinePathFinder;
+import com.extollit.gaming.ai.path.model.IPath;
 import com.google.gson.GsonBuilder;
-import me.mohamad82.ruom.adventure.Adventure;
+import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.adventure.ComponentUtils;
 import me.mohamad82.ruom.database.mysql.MySQLDatabase;
 import me.mohamad82.ruom.database.sqlite.SQLiteDatabase;
 import me.mohamad82.ruom.event.PlayerUseItemEvent;
-import me.mohamad82.ruom.event.packet.PlayerActionEvent;
 import me.mohamad82.ruom.gui.GUITitle;
 import me.mohamad82.ruom.hologram.*;
 import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
 import me.mohamad82.ruom.npc.entity.FallingBlockNPC;
 import me.mohamad82.ruom.npc.entity.ThrowableProjectileNPC;
+import me.mohamad82.ruom.pathfinding.AINPC;
+import me.mohamad82.ruom.pathfinding.Instance;
 import me.mohamad82.ruom.toast.ToastMessage;
 import me.mohamad82.ruom.translators.ItemReader;
 import me.mohamad82.ruom.translators.skin.MineSkinAPI;
@@ -30,9 +33,9 @@ import me.mohamad82.ruom.worldedit.WorldEdit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -44,6 +47,10 @@ import java.io.File;
 import java.util.*;
 
 public final class Testings extends RUoMPlugin implements CommandExecutor {
+
+    Instance instance;
+    AINPC aiNpc;
+    HydrazinePathFinder pathFinder;
 
     MySQLDatabase mysql;
     SQLiteDatabase sqlite;
@@ -67,7 +74,41 @@ public final class Testings extends RUoMPlugin implements CommandExecutor {
         counter.start();
         Player player = (Player) sender;
         try {
-            if (args[0].equalsIgnoreCase("bow")) {
+            if (args[0].equalsIgnoreCase("pathfinding")) {
+                Ruom.runAsync(() -> {
+                    instance = new Instance(player.getWorld());
+                    Ruom.broadcast("Completed!");
+                    instance.loadChunk(player.getLocation().getChunk());
+                });
+            } else if (args[0].equalsIgnoreCase("load")) {
+                instance.loadChunk(player.getLocation().getChunk());
+            } else if (args[0].equalsIgnoreCase("checkblock")) {
+                Block block = player.getTargetBlock(null, 6);
+                Ruom.broadcast("Block: " + instance.blockObjectAt(block.getX(), block.getY(), block.getZ()).getType());
+            } else if (args[0].equalsIgnoreCase("ainpc")) {
+                PlayerNPC npc = PlayerNPC.playerNPC("Bahoosh", player.getLocation().clone(), Optional.empty());
+                npc.addViewers(Ruom.getOnlinePlayers());
+                aiNpc = new AINPC(npc, Vector3Utils.toVector3(player.getLocation()));
+                pathFinder = new HydrazinePathFinder(aiNpc, instance);
+            } else if (args[0].equalsIgnoreCase("movehere")) {
+
+                new BukkitRunnable() {
+                    IPath path = pathFinder.initiatePathTo(player.getLocation().clone().getX(), 6, player.getLocation().clone().getZ());
+                    public void run() {
+                        if (path == null) {
+                            Ruom.broadcast("No fucking path");
+                            cancel();
+                        } else {
+                            Ruom.log("On the way: ");
+                            Ruom.log("Lenght: " + path.length() + "   cursor: " + path.cursor());
+                            path = pathFinder.updatePathFor(aiNpc);
+                            if (path.done()) {
+                                Ruom.broadcast("Arrived!");
+                            }
+                        }
+                    }
+                }.runTaskTimerAsynchronously(this, 0, 5);
+            } else if (args[0].equalsIgnoreCase("bow")) {
                 new UseItemListener(player.getLocation(), SkinBuilder.getInstance().getSkin(player));
             } else if (args[0].equalsIgnoreCase("npcfire")) {
                 PlayerNPC npc = PlayerNPC.playerNPC("TestNPC",player.getLocation(), Optional.empty());
@@ -219,11 +260,11 @@ public final class Testings extends RUoMPlugin implements CommandExecutor {
                 toastMessage.send((Player) sender);
             } else if (args[0].equalsIgnoreCase("esc")) {
                 Component component = ComponentUtils.parse(args[1]);
-                Adventure.get().player((Player) sender).sendMessage(component);
+                AdventureApi.get().player((Player) sender).sendMessage(component);
                 Bukkit.broadcastMessage(new GsonBuilder().setPrettyPrinting().create().toJson(GsonComponentSerializer.gson().serialize(component)));
             } else if (args[0].equalsIgnoreCase("esc2")) {
                 Component component = ComponentUtils.parse(args[1]);
-                Adventure.get().player((Player) sender).sendMessage(component);
+                AdventureApi.get().player((Player) sender).sendMessage(component);
                 Bukkit.broadcastMessage(new GsonBuilder().setPrettyPrinting().create().toJson(GsonComponentSerializer.gson().serialize(component)));
             } else if (args[0].equalsIgnoreCase("mojang")) {
                 MinecraftSkin skin = SkinBuilder.getInstance().getSkin(args[1], true);

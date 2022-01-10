@@ -1,6 +1,5 @@
 package me.mohamad82.ruom.npc.entity;
 
-import com.cryptomorin.xseries.XMaterial;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
 import me.mohamad82.ruom.nmsaccessors.SynchedEntityDataAccessor;
@@ -9,25 +8,25 @@ import me.mohamad82.ruom.npc.EntityNPC;
 import me.mohamad82.ruom.npc.NPCType;
 import me.mohamad82.ruom.utils.NMSUtils;
 import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
 
 public class TridentNPC extends EntityNPC {
     
-    protected TridentNPC(Location location, ItemStack tridentItem) throws Exception {
+    protected TridentNPC(Location location, byte loyalty, boolean enchanted) throws Exception {
         super(
-                ThrownTridentAccessor.getConstructor0().newInstance(NMSUtils.getServerLevel(location.getWorld()), null, NMSUtils.getNmsItemStack(tridentItem)),
+                ThrownTridentAccessor.getConstructor0().newInstance(NPCType.TRIDENT.getNmsEntityType(), NMSUtils.getServerLevel(location.getWorld())),
                 location,
                 NPCType.TRIDENT
         );
-        Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ()));
+        Ruom.run(() -> {
+            SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), ThrownTridentAccessor.getFieldID_LOYALTY().get(null), loyalty);
+            setFoil(enchanted);
+            EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
+        });
     }
 
-    public static TridentNPC tridentNPC(Location location, ItemStack tridentItem) {
-        if (tridentItem.getType() != XMaterial.TRIDENT.parseMaterial()) {
-            throw new IllegalArgumentException("ItemStack must be a trident.");
-        }
+    public static TridentNPC tridentNPC(Location location, byte loyalty, boolean enchanted) {
         try {
-            return new TridentNPC(location, tridentItem);
+            return new TridentNPC(location, loyalty, enchanted);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -46,6 +45,10 @@ public class TridentNPC extends EntityNPC {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void collect(int collectorEntityId) {
+        super.collect(id, collectorEntityId, 1);
     }
     
 }

@@ -159,6 +159,7 @@ public class PacketUtils {
     public static Object getBlockDestructionPacket(Vector3 location, int stage) {
         try {
             return ClientboundBlockDestructionPacketAccessor.getConstructor0().newInstance(
+                    location.hashCode(),
                     BlockPosAccessor.getConstructor0().newInstance(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
                     stage
             );

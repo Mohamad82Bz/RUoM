@@ -56,4 +56,8 @@ public class ArrowNPC extends EntityNPC {
         }
     }
 
+    public void collect(int collectorEntityId) {
+        super.collect(id, collectorEntityId, 1);
+    }
+
 }

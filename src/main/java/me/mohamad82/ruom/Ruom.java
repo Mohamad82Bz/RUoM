@@ -1,6 +1,6 @@
 package me.mohamad82.ruom;
 
-import me.mohamad82.ruom.adventure.Adventure;
+import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.areaselection.AreaSelectionListener;
 import me.mohamad82.ruom.areaselection.AreaSelectionManager;
 import me.mohamad82.ruom.event.packet.PacketListenerManager;
@@ -62,7 +62,7 @@ public class Ruom {
     }
 
     public static void initializeAdventure() {
-        Adventure.initialize();
+        AdventureApi.initialize();
     }
 
     public static void initializeGUI() {
@@ -87,7 +87,7 @@ public class Ruom {
     }
 
     public static void broadcast(Component message) {
-        Adventure.get().players().sendMessage(message);
+        AdventureApi.get().players().sendMessage(message);
     }
 
     public static void log(String message) {
@@ -148,8 +148,8 @@ public class Ruom {
         recordedHasPluginSet.clear();
         try {
             Class.forName("net.kyori.adventure.platform.bukkit.BukkitAudiences");
-            if (Adventure.get() != null) {
-                Adventure.get().close();
+            if (AdventureApi.get() != null) {
+                AdventureApi.get().close();
             }
         } catch (ClassNotFoundException ignore) {}
         PacketListenerManager.shutdown();

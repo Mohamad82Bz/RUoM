@@ -5,7 +5,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 
 import java.util.regex.Pattern;
 
-public class Adventure {
+public class AdventureApi {
 
     public static final Pattern escapeTokenPattern = Pattern.compile("((?<start><)(?<token>[^<>]+(:(?<inner>['\"]?([^'\"](\\\\['\"])?)+['\"]?))*)(?<end>>))+?");
 

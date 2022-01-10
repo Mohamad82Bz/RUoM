@@ -89,6 +89,15 @@ public abstract class NPC extends Viewered {
         return true;
     }
 
+    public void teleport() {
+        NMSUtils.sendPacket(getViewers(), PacketUtils.getTeleportEntityPacket(entity));
+    }
+
+    public void teleport(Vector3 vector3) {
+        Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, vector3.getX(), vector3.getY(), vector3.getZ()));
+        NMSUtils.sendPacket(getViewers(), PacketUtils.getTeleportEntityPacket(entity));
+    }
+
     public void teleport(Vector3 vector3, float yaw, float pitch) {
         Ruom.run(() -> {
             EntityAccessor.getMethodSetPos1().invoke(entity, vector3.getX(), vector3.getY(), vector3.getZ());
@@ -266,8 +275,21 @@ public abstract class NPC extends Viewered {
         sendEntityData();
     }
 
+    public UUID getUuid() {
+        try {
+            return (UUID) EntityAccessor.getMethodGetUUID1().invoke(entity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public int getId() {
         return id;
+    }
+
+    public Object getEntity() {
+        return entity;
     }
 
     protected void sendEntityData() {
@@ -287,7 +309,7 @@ public abstract class NPC extends Viewered {
         Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, position.getX(), position.getY(), position.getZ()));
     }
 
-    protected Vector3 getPosition() {
+    public Vector3 getPosition() {
         try {
             Object vec3 = EntityAccessor.getFieldPosition().get(entity);
             return Vector3.at(

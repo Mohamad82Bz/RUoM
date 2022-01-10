@@ -9,15 +9,6 @@ import org.bukkit.entity.Player;
 
 public abstract class EntityNPC extends NPC {
 
-    public static Object createEntityObject(Class<?> accessor, Object... parameters) {
-        try {
-            return accessor.getMethod("getConstructor0").invoke(null, parameters);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private final NPCType npcType;
 
     protected EntityNPC(Object entity, Location location, NPCType npcType) {

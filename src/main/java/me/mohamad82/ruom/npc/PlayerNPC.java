@@ -31,7 +31,7 @@ public class PlayerNPC extends LivingEntityNPC {
             setModelParts(ModelPart.values());
     }
 
-    private static Object createServerPlayerObject(String name, World world, Optional<MinecraftSkin> skin) {
+    public static Object createServerPlayerObject(String name, World world, Optional<MinecraftSkin> skin) {
         try {
             GameProfile profile = new GameProfile(UUID.randomUUID(), name);
             Object entity;

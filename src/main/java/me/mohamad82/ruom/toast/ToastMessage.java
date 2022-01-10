@@ -3,7 +3,7 @@ package me.mohamad82.ruom.toast;
 import com.cryptomorin.xseries.XMaterial;
 import com.google.gson.*;
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.adventure.Adventure;
+import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.adventure.ComponentUtils;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.utils.GsonUtils;
@@ -141,7 +141,7 @@ public class ToastMessage {
     @SuppressWarnings("SuspiciousRegexArgument")
     private String replaceTokensWithIgnoreChar(final String richMessage) {
         final StringBuilder sb = new StringBuilder();
-        final Matcher matcher = Adventure.escapeTokenPattern.matcher(richMessage);
+        final Matcher matcher = AdventureApi.escapeTokenPattern.matcher(richMessage);
         int lastEnd = 0;
         while (matcher.find()) {
             final int startIndex = matcher.start();
