@@ -24,9 +24,9 @@ public class CrossbowUtils {
         }
     }
 
-    public static void setCharged(ItemStack item) {
+    public static void setCharged(ItemStack item, boolean charged) {
         validate(item);
-        Ruom.run(() -> CrossbowItemAccessor.getMethodSetCharged1().invoke(null, NMSUtils.getNmsItemStack(item)));
+        Ruom.run(() -> CrossbowItemAccessor.getMethodSetCharged1().invoke(null, NMSUtils.getNmsItemStack(item), charged));
     }
 
     public static List<ItemStack> getChargedProjectiles(ItemStack item) {

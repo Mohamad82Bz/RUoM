@@ -38,7 +38,7 @@ public class MinecraftSkin {
                 Object gameMode = GameTypeAccessor.getType().getField(player.getGameMode().toString().toUpperCase()).get(null);
 
                 NMSUtils.sendPacket(Ruom.getOnlinePlayers(),
-                        PacketUtils.getPlayerInfoPacket(serverPlayer, "ADD_PLAYER"),
+                        PacketUtils.getPlayerInfoPacket(serverPlayer, PacketUtils.PlayerInfoAction.ADD_PLAYER),
                         PacketUtils.getAddEntityPacket(serverPlayer));
                 NMSUtils.sendPacket(player,
                         PacketUtils.getRespawnPacket(NMSUtils.getServerLevel(player.getWorld()), gameMode, gameMode, false, false));

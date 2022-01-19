@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.4'
+version = '3.5'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -97,6 +97,7 @@ nmsGen {
     var ClientboundLightUpdatePacket = reqClass("net.minecraft.network.protocol.game.ClientboundLightUpdatePacket")
     var ClientboundOpenScreenPacket = reqClass("net.minecraft.network.protocol.game.ClientboundOpenScreenPacket")
     var ClientboundRespawnPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRespawnPacket")
+    var ClientboundEntityEventPacket = reqClass("net.minecraft.network.protocol.game.ClientboundEntityEventPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -178,6 +179,7 @@ nmsGen {
     var FallingBlockEntity = reqClass("net.minecraft.world.entity.item.FallingBlockEntity")
     var AreaEffectCloud = reqClass("net.minecraft.world.entity.AreaEffectCloud")
     var FishingHook = reqClass("net.minecraft.world.entity.projectile.FishingHook")
+    var FireworkRocketEntity = reqClass("net.minecraft.world.entity.projectile.FireworkRocketEntity")
 
     ClientboundPlayerInfoPacket
             .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
@@ -305,6 +307,8 @@ nmsGen {
             .reqConstructor(int, String, Component, int)
     ClientboundRespawnPacket
             .reqConstructor(DimensionType, ResourceKey, long, GameType, GameType, boolean, boolean, boolean)
+    ClientboundEntityEventPacket
+            .reqConstructor(Entity, byte)
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -325,6 +329,7 @@ nmsGen {
             .reqMethod("setCamera", Entity)
             .reqMethod("refreshContainer", AbstractContainerMenu)
             .reqField("connection")
+            .reqField("latency")
     ServerPlayerGameMode
             .reqConstructor(ServerLevel)
     Level
@@ -807,6 +812,13 @@ nmsGen {
             .reqMethod("getAddEntityPacket")
             .reqField("DATA_HOOKED_ENTITY")
             .reqField("DATA_BITING")
+    FireworkRocketEntity
+            .reqConstructor(EntityType, Level)
+            .reqMethod("hasExplosion")
+            .reqMethod("isAttachedToEntity")
+            .reqField("DATA_ID_FIREWORKS_ITEM")
+            .reqField("DATA_ATTACHED_TO_TARGET")
+            .reqField("DATA_SHOT_AT_ANGLE")
 }
 
 publishing {

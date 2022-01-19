@@ -37,13 +37,12 @@ public class PacketUtils {
         }
     }
 
-    public static Object getPlayerInfoPacket(Object serverPlayer, String action) {
+    public static Object getPlayerInfoPacket(Object serverPlayer, PlayerInfoAction action) {
         try {
-            Object playerInfoAction = ClientboundPlayerInfoPacket_i_ActionAccessor.getType().getField(action.toUpperCase()).get(null);
             Object serverPlayerArray = Array.newInstance(ServerPlayerAccessor.getType(), 1);
             Array.set(serverPlayerArray, 0, serverPlayer);
 
-            return ClientboundPlayerInfoPacketAccessor.getConstructor0().newInstance(playerInfoAction, serverPlayerArray);
+            return ClientboundPlayerInfoPacketAccessor.getConstructor0().newInstance(action, serverPlayerArray);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
@@ -220,6 +219,15 @@ public class PacketUtils {
         }
     }
 
+    public static Object getEntityEventPacket(Object entity, byte eventId) {
+        try {
+            return ClientboundEntityEventPacketAccessor.getConstructor0().newInstance(entity, eventId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
     public static Object getEntityDataPacket(Object entity) {
         try {
             return ClientboundSetEntityDataPacketAccessor.getConstructor0().newInstance(
@@ -276,6 +284,20 @@ public class PacketUtils {
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
+        }
+    }
+
+    public enum PlayerInfoAction {
+        ADD_PLAYER(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldADD_PLAYER()),
+        UPDATE_GAME_MODE(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_GAME_MODE()),
+        UPDATE_LATENCY(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_LATENCY()),
+        UPDATE_DISPLAY_NAME(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_DISPLAY_NAME()),
+        REMOVE_PLAYER(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldREMOVE_PLAYER());
+
+        private final Object nmsObject;
+
+        PlayerInfoAction(Object nmsObject) {
+            this.nmsObject = nmsObject;
         }
     }
 

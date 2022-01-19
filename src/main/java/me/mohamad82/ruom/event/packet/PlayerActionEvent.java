@@ -34,7 +34,7 @@ public abstract class PlayerActionEvent {
         WEST(DirectionAccessor.getFieldWEST()),
         EAST(DirectionAccessor.getFieldEAST());
 
-        protected final Object nmsObject;
+        private final Object nmsObject;
 
         Direction(Object nmsObject) {
             this.nmsObject = nmsObject;

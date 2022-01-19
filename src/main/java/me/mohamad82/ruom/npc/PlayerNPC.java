@@ -70,18 +70,18 @@ public class PlayerNPC extends LivingEntityNPC {
 
     public void setTabList(@Nullable Component component) {
         NMSUtils.sendPacket(getViewers(),
-                PacketUtils.getPlayerInfoPacket(entity, "REMOVE_PLAYER"));
+                PacketUtils.getPlayerInfoPacket(entity, PacketUtils.PlayerInfoAction.REMOVE_PLAYER));
         if (component != null) {
             Ruom.run(() -> listNameField.set(entity, MinecraftComponentSerializer.get().serialize(component)));
             NMSUtils.sendPacket(getViewers(),
-                    PacketUtils.getPlayerInfoPacket(entity, "ADD_PLAYER"));
+                    PacketUtils.getPlayerInfoPacket(entity, PacketUtils.PlayerInfoAction.ADD_PLAYER));
         }
     }
 
     @Override
     protected void addViewer(Player player) {
         NMSUtils.sendPacket(player,
-                PacketUtils.getPlayerInfoPacket(entity, "ADD_PLAYER"),
+                PacketUtils.getPlayerInfoPacket(entity, PacketUtils.PlayerInfoAction.ADD_PLAYER),
                 PacketUtils.getAddPlayerPacket(entity),
                 PacketUtils.getHeadRotatePacket(entity, this.yaw));
     }
@@ -89,7 +89,7 @@ public class PlayerNPC extends LivingEntityNPC {
     @Override
     protected void removeViewer(Player player) {
         NMSUtils.sendPacket(player,
-                PacketUtils.getPlayerInfoPacket(entity, "REMOVE_PLAYER"),
+                PacketUtils.getPlayerInfoPacket(entity, PacketUtils.PlayerInfoAction.REMOVE_PLAYER),
                 PacketUtils.getRemoveEntitiesPacket(id));
     }
 

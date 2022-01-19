@@ -300,7 +300,7 @@ public final class Testings extends RUoMPlugin implements CommandExecutor {
         }
 
         @Override
-        protected void onStopUseItem(Player player, ItemStack item, float holdTime) {
+        protected void onStopUseItem(Player player, ItemStack item, int holdTime) {
             npc.stopUsingItem();
         }
 

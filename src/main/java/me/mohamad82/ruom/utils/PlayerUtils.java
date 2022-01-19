@@ -8,6 +8,7 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
@@ -55,7 +56,26 @@ public class PlayerUtils {
         }
     }
 
-    public static void spawnFoodEatParticles(Location location, ItemStack foodItem) {
+    @Nullable
+    public static ItemStack getInteractableItemInHand(Player player, Material material) {
+        if (ServerVersion.supports(9)) {
+            if (!hasItemInHand(player, material)) return null;
+            Material handMaterial = player.getInventory().getItemInMainHand() != null ? player.getInventory().getItemInMainHand().getType() : null;
+            Material offHandMaterial = player.getInventory().getItemInOffHand() != null ? player.getInventory().getItemInOffHand().getType() : null;
+            boolean hasInOffHand = offHandMaterial == material;
+
+            if (hasInOffHand) {
+                if (handMaterial != null && handMaterial.isInteractable()) return player.getInventory().getItemInMainHand();
+                else return player.getInventory().getItemInOffHand();
+            } else {
+                return player.getInventory().getItemInMainHand();
+            }
+        } else {
+            return hasItemInMainHand(player, material) ? player.getInventory().getItemInHand() : null;
+        }
+    }
+
+    public static void spawnFoodEatParticles(Location location, Material foodMaterial) {
         final Random random = new Random();
         final Location rightSide = getRightHandLocation(location).add(0, -0.25, 0);
         for (int i = 0; i < 11; i++) {
@@ -66,7 +86,7 @@ public class PlayerUtils {
 
             location.getWorld().spawnParticle(Particle.ITEM_CRACK, rightSide,
                     0, 0 + a1, 1, 0 + a2, 0.23 + a3,
-                    foodItem);
+                    new ItemStack(foodMaterial));
         }
     }
 

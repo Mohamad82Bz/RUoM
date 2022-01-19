@@ -246,6 +246,15 @@ public class NMSUtils {
         }
     }
 
+    public static int getPing(Player player) {
+        try {
+            return (int) ServerPlayerAccessor.getFieldLatency().get(getServerPlayer(player));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
     public static Object getServerPlayer(Player player) {
         try {
             return CRAFT_PLAYER_GET_HANDLE_METHOD.invoke(player);

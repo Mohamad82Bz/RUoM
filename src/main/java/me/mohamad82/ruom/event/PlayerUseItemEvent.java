@@ -1,7 +1,6 @@
 package me.mohamad82.ruom.event;
 
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.utils.MilliCounter;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
 import org.bukkit.entity.Player;
@@ -20,16 +19,18 @@ public abstract class PlayerUseItemEvent {
     public PlayerUseItemEvent() {
         worker = new BukkitRunnable() {
             final Map<Player, ItemStack> currentHolds = new HashMap<>();
-            final Map<UUID, MilliCounter> currentHoldsTimes = new HashMap<>();
+            final Map<UUID, Integer> currentHoldsTimes = new HashMap<>();
             public void run() {
                 for (Player player : Ruom.getOnlinePlayers()) {
+                    if (currentHoldsTimes.containsKey(player.getUniqueId())) {
+                        currentHoldsTimes.put(player.getUniqueId(), currentHoldsTimes.get(player.getUniqueId()) + 1);
+                    }
                     ItemStack item = NMSUtils.getPlayerUseItem(player);
                     if (item == null) {
                         if (currentHolds.containsKey(player) && currentHoldsTimes.containsKey(player.getUniqueId())) {
-                            MilliCounter counter = currentHoldsTimes.get(player.getUniqueId());
-                            counter.stop();
+                            int time = currentHoldsTimes.get(player.getUniqueId());
 
-                            onStopUseItem(player, item, counter.get());
+                            onStopUseItem(player, item, time);
 
                             currentHolds.remove(player);
                             currentHoldsTimes.remove(player.getUniqueId());
@@ -49,9 +50,7 @@ public abstract class PlayerUseItemEvent {
                             onStartUseItem(player, item, isMainHand);
                             
                             currentHolds.put(player, item);
-                            MilliCounter counter = new MilliCounter();
-                            counter.start();
-                            currentHoldsTimes.put(player.getUniqueId(), counter);
+                            currentHoldsTimes.put(player.getUniqueId(), 1);
                         }
                     }
                 }
@@ -61,7 +60,7 @@ public abstract class PlayerUseItemEvent {
 
     protected abstract void onStartUseItem(Player player, ItemStack item, boolean isMainHand);
 
-    protected abstract void onStopUseItem(Player player, ItemStack item, float holdTime);
+    protected abstract void onStopUseItem(Player player, ItemStack item, int holdTime);
 
     public void unregister() {
         worker.cancel();

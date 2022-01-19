@@ -97,7 +97,7 @@ public class PacketListenerManager implements Listener {
                     if (!isCancelled) {
                         if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType())) {
                             Ruom.runAsync(() -> {
-                                Ruom.run(() -> {
+                                try {
                                     Object action = ServerboundPlayerActionPacketAccessor.getMethodGetAction1().invoke(packet);
                                     Object nmsBlockPos = ServerboundPlayerActionPacketAccessor.getMethodGetPos1().invoke(packet);
                                     Object nmsDirection = ServerboundPlayerActionPacketAccessor.getMethodGetDirection1().invoke(packet);
@@ -134,7 +134,9 @@ public class PacketListenerManager implements Listener {
                                             actionEvent.onSwapItemsWithOffHand(player);
                                         }
                                     }
-                                });
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             });
                         }
                         try {
