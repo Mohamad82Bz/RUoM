@@ -1,6 +1,7 @@
 package me.mohamad82.ruom.utils;
 
 import com.cryptomorin.xseries.ReflectionUtils;
+import com.cryptomorin.xseries.XMaterial;
 import io.netty.channel.Channel;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.vector.Vector3;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -23,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class NMSUtils {
@@ -117,9 +120,9 @@ public class NMSUtils {
         }
     }
 
-    public static ItemStack getItemStackFromNBTJson(String nbtJson) {
+    public static ItemStack setItemStackNBTJson(ItemStack item, String nbtJson) {
         try {
-            return (ItemStack) ItemStackAccessor.getMethodOf1().invoke(TagParserAccessor.getMethodParseTag1().invoke(nbtJson));
+            return (ItemStack) ItemStackAccessor.getMethodSetTag1().invoke(getNmsItemStack(item), TagParserAccessor.getMethodParseTag1().invoke(nbtJson));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -363,6 +366,10 @@ public class NMSUtils {
         }
     }
 
+    public static void sendActionBar(Player player, Component message) {
+        sendPacket(player, PacketUtils.getChatPacket(message, PacketUtils.ChatType.GAME_INFO, UUID.randomUUID()));
+    }
+
     /**
      * Returns the player's netty channel.
      * @param player The player.
@@ -397,6 +404,7 @@ public class NMSUtils {
      * @param flag Declear that if socket channel should be EpollSocketChannel or NioSocketChannel.
      * @return The created connection in the new server.
      */
+    @ApiStatus.Experimental
     public static Object connectToServer(Player player, InetSocketAddress inetSocketAddress, boolean flag) {
         try {
             return ConnectionAccessor.getMethodConnectToServer1().invoke(getConnection(player), inetSocketAddress, flag);
@@ -412,6 +420,7 @@ public class NMSUtils {
      * @param socketAddress The address of the local destination server.
      * @return The created connection in the new server.
      */
+    @ApiStatus.Experimental
     public static Object connectToLocalServer(Player player, SocketAddress socketAddress) {
         try {
             return ConnectionAccessor.getMethodConnectToLocalServer1().invoke(getConnection(player), socketAddress);
@@ -453,8 +462,7 @@ public class NMSUtils {
     public static void sendChestAnimation(Set<Player> viewers, Vector3 blockLocation, Material blockMaterial, boolean open) {
         Object chestAnimationPacket = PacketUtils.getBlockEventPacket(blockLocation, blockMaterial, 1, open ? 1 : 0);
 
-        sendPacket(viewers,
-                chestAnimationPacket);
+        sendPacket(viewers, chestAnimationPacket);
     }
 
     /**

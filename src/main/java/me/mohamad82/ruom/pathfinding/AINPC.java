@@ -4,7 +4,6 @@ import com.extollit.gaming.ai.path.model.Gravitation;
 import com.extollit.gaming.ai.path.model.IPathingEntity;
 import com.extollit.gaming.ai.path.model.Passibility;
 import com.extollit.linalg.immutable.Vec3d;
-import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.vector.Vector3;
 import me.mohamad82.ruom.vector.Vector3Utils;
@@ -45,7 +44,6 @@ public class AINPC implements IPathingEntity, IPathingEntity.Capabilities {
 
     @Override
     public void moveTo(Vec3d newPosition, Passibility passibility, Gravitation gravitation) {
-        Ruom.log("Moving to: " + newPosition.toString());
         Vector3 travelDistance = Vector3Utils.getTravelDistance(Vector3.at(position.x, position.y, position.z), Vector3.at(newPosition.x, newPosition.y, newPosition.z));
         npc.move(travelDistance);
         this.position.set(newPosition);

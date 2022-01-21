@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.5'
+version = '3.5.4'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -98,6 +98,7 @@ nmsGen {
     var ClientboundOpenScreenPacket = reqClass("net.minecraft.network.protocol.game.ClientboundOpenScreenPacket")
     var ClientboundRespawnPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRespawnPacket")
     var ClientboundEntityEventPacket = reqClass("net.minecraft.network.protocol.game.ClientboundEntityEventPacket")
+    var ClientboundChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -167,6 +168,7 @@ nmsGen {
     var ParticleOptions = reqClass("net.minecraft.core.particles.ParticleOptions")
     var DifficultyInstance = reqClass("net.minecraft.world.DifficultyInstance")
     var SpawnGroupData = reqClass("net.minecraft.world.entity.SpawnGroupData")
+    var ChatType = reqClass("net.minecraft.network.chat.ChatType")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -309,6 +311,12 @@ nmsGen {
             .reqConstructor(DimensionType, ResourceKey, long, GameType, GameType, boolean, boolean, boolean)
     ClientboundEntityEventPacket
             .reqConstructor(Entity, byte)
+    ClientboundChatPacket
+            .reqConstructor(Component, ChatType, UUID)
+            .reqConstructor(Component, ChatType)
+            .reqMethod("getMessage")
+            .reqMethod("getType")
+            .reqMethod("getSender")
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -729,6 +737,10 @@ nmsGen {
             .reqField("DEFAULT_OVERWORLD")
             .reqField("DEFAULT_NETHER")
             .reqField("DEFAULT_END")
+    ChatType
+            .reqEnumField("CHAT")
+            .reqEnumField("SYSTEM")
+            .reqEnumField("GAME_INFO")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)

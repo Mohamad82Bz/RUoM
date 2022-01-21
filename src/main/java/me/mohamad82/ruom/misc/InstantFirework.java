@@ -10,6 +10,9 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+/**
+ * @deprecated Use FireworkNPC, Much better, faster and well-coded
+ */
 @Deprecated
 public class InstantFirework {
 

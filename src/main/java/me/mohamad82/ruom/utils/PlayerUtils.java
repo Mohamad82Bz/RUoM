@@ -2,6 +2,7 @@ package me.mohamad82.ruom.utils;
 
 import me.mohamad82.ruom.vector.Vector3;
 import me.mohamad82.ruom.vector.Vector3Utils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -17,6 +18,12 @@ public class PlayerUtils {
     public static void sendMessage(String message, Player... players) {
         for (Player player : players) {
             player.sendMessage(message);
+        }
+    }
+
+    public static void sendActionBar(Component message, Player... players) {
+        for (Player player : players) {
+            NMSUtils.sendActionBar(player, message);
         }
     }
 

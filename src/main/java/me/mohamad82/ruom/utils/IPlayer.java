@@ -25,6 +25,10 @@ public class IPlayer implements Audience {
         return player;
     }
 
+    public void sendActionBar(Component message) {
+        NMSUtils.sendActionBar(player, message);
+    }
+
     public Location getRightHandLocation() {
         return PlayerUtils.getRightHandLocation(player.getLocation());
     }
@@ -39,14 +43,6 @@ public class IPlayer implements Audience {
 
     public Object getNmsPlayer() {
         return NMSUtils.getServerPlayer(player);
-    }
-
-    public Object connect(InetSocketAddress inetSocketAddress, boolean flag) {
-        return NMSUtils.connectToServer(player, inetSocketAddress, flag);
-    }
-
-    public Object connectLocal(SocketAddress socketAddress) {
-        return NMSUtils.connectToLocalServer(player, socketAddress);
     }
 
     public void disconnect(Component message) {

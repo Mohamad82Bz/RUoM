@@ -6,10 +6,12 @@ import me.mohamad82.ruom.vector.Vector3;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PacketUtils {
 
@@ -42,7 +44,7 @@ public class PacketUtils {
             Object serverPlayerArray = Array.newInstance(ServerPlayerAccessor.getType(), 1);
             Array.set(serverPlayerArray, 0, serverPlayer);
 
-            return ClientboundPlayerInfoPacketAccessor.getConstructor0().newInstance(action, serverPlayerArray);
+            return ClientboundPlayerInfoPacketAccessor.getConstructor0().newInstance(action.nmsObject, serverPlayerArray);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
@@ -219,6 +221,19 @@ public class PacketUtils {
         }
     }
 
+    public static Object getChatPacket(Component message, ChatType type, @Nullable UUID sender) {
+        try {
+            if (ServerVersion.supports(16)) {
+                return ClientboundChatPacketAccessor.getConstructor0().newInstance(MinecraftComponentSerializer.get().serialize(message), type.nmsObject, sender == null ? UUID.randomUUID() : sender);
+            } else {
+                return ClientboundChatPacketAccessor.getConstructor1().newInstance(MinecraftComponentSerializer.get().serialize(message), type.nmsObject);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
     public static Object getEntityEventPacket(Object entity, byte eventId) {
         try {
             return ClientboundEntityEventPacketAccessor.getConstructor0().newInstance(entity, eventId);
@@ -297,6 +312,18 @@ public class PacketUtils {
         private final Object nmsObject;
 
         PlayerInfoAction(Object nmsObject) {
+            this.nmsObject = nmsObject;
+        }
+    }
+
+    public enum ChatType {
+        CHAT(ChatTypeAccessor.getFieldCHAT()),
+        SYSTEM(ChatTypeAccessor.getFieldSYSTEM()),
+        GAME_INFO(ChatTypeAccessor.getFieldGAME_INFO());
+
+        private final Object nmsObject;
+
+        ChatType(Object nmsObject) {
             this.nmsObject = nmsObject;
         }
     }
