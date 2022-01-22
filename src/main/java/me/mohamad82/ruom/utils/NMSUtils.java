@@ -1,7 +1,6 @@
 package me.mohamad82.ruom.utils;
 
 import com.cryptomorin.xseries.ReflectionUtils;
-import com.cryptomorin.xseries.XMaterial;
 import io.netty.channel.Channel;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.vector.Vector3;
@@ -110,19 +109,23 @@ public class NMSUtils {
 
     public static String getItemStackNBTJson(ItemStack item) {
         try {
-            Object nmsItem = getNmsItemStack(item);
-            Object compoundTag = ItemStackAccessor.getMethodGetOrCreateTag1().invoke(nmsItem);
-
-            return (String) CompoundTagAccessor.getMethodToString1().invoke(compoundTag);
+            return ItemStackAccessor.getMethodSave1().invoke(getNmsItemStack(item), CompoundTagAccessor.getConstructor0().newInstance()).toString();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static ItemStack setItemStackNBTJson(ItemStack item, String nbtJson) {
+    public static ItemStack getItemStackFromNBTJson(String nbtJson) {
         try {
-            return (ItemStack) ItemStackAccessor.getMethodSetTag1().invoke(getNmsItemStack(item), TagParserAccessor.getMethodParseTag1().invoke(nbtJson));
+            Object compoundTag = TagParserAccessor.getMethodParseTag1().invoke(null, nbtJson);
+            if (ServerVersion.supports(13)) {
+                return getBukkitItemStack(ItemStackAccessor.getMethodOf1().invoke(null, compoundTag));
+            } else if (ServerVersion.supports(11)) {
+                return getBukkitItemStack(ItemStackAccessor.getConstructor0().newInstance(compoundTag));
+            } else {
+                return getBukkitItemStack(ItemStackAccessor.getMethodCreateStack1().invoke(null, compoundTag));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;

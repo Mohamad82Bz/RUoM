@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.5.4'
+version = '3.5.7'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
@@ -647,12 +647,15 @@ nmsGen {
     Item
             .reqMethod("getItemCategory")
     ItemStack
+            .reqConstructor(CompoundTag)
             .reqMethod("of", CompoundTag)
+            .reqMethod("spigot:createStack:1.10.2", CompoundTag)
             .reqMethod("getTag")
             .reqMethod("getOrCreateTag")
             .reqMethod("setTag", CompoundTag)
             .reqMethod("getHoverName")
             .reqMethod("getItem")
+            .reqMethod("save", CompoundTag)
             .reqField("EMPTY")
     PotionUtils
             .reqMethod("getColor", ItemStack)
@@ -665,8 +668,8 @@ nmsGen {
             .reqMethod("set", EntityDataAccessor, Object)
             .reqMethod("get", EntityDataAccessor)
     CompoundTag
+            .reqConstructor()
             .reqMethod("getString", String)
-            .reqMethod("toString")
     TagParser
             .reqMethod("parseTag", String)
     EntityDataSerializer
