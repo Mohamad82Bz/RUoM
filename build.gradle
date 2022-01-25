@@ -8,9 +8,8 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.5.7'
+version = '3.6'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
-java.sourceCompatibility = JavaVersion.VERSION_11
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -36,9 +35,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.cryptomorin:XSeries:8.5.0.1'
+    implementation 'com.github.cryptomorin:XSeries:8.6.0'
     implementation 'net.kyori:adventure-api:4.9.3'
-    implementation 'net.kyori:adventure-platform-bukkit:4.0.0'
+    implementation 'net.kyori:adventure-platform-bukkit:4.0.1'
     implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
     implementation 'com.zaxxer:HikariCP:4.0.3'
     implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
@@ -63,11 +62,22 @@ shadowJar {
     relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
 }
 
+def targetJavaVersion = 8
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
 sourceSets.main.java.srcDirs = ['src/generated/java', 'src/main/java']
 
 nmsGen {
     basePackage = 'me.mohamad82.ruom.nmsaccessors'
     sourceSet = 'src/generated/java'
+    minMinecraftVersion = '1.8.8'
     cleanOnRebuild = true
 
     var ClientboundPlayerInfoPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket")
@@ -182,6 +192,7 @@ nmsGen {
     var AreaEffectCloud = reqClass("net.minecraft.world.entity.AreaEffectCloud")
     var FishingHook = reqClass("net.minecraft.world.entity.projectile.FishingHook")
     var FireworkRocketEntity = reqClass("net.minecraft.world.entity.projectile.FireworkRocketEntity")
+    var LightningBolt = reqClass("net.minecraft.world.entity.LightningBolt")
 
     ClientboundPlayerInfoPacket
             .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
@@ -654,6 +665,7 @@ nmsGen {
             .reqMethod("getOrCreateTag")
             .reqMethod("setTag", CompoundTag)
             .reqMethod("getHoverName")
+            .reqMethod("getDisplayName")
             .reqMethod("getItem")
             .reqMethod("save", CompoundTag)
             .reqField("EMPTY")
@@ -834,6 +846,8 @@ nmsGen {
             .reqField("DATA_ID_FIREWORKS_ITEM")
             .reqField("DATA_ATTACHED_TO_TARGET")
             .reqField("DATA_SHOT_AT_ANGLE")
+    LightningBolt
+            .reqConstructor(EntityType, Level)
 }
 
 publishing {

@@ -1,15 +1,13 @@
 package me.mohamad82.ruom.utils;
 
 import com.cryptomorin.xseries.ReflectionUtils;
+import com.cryptomorin.xseries.XSound;
 import io.netty.channel.Channel;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.vector.Vector3;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -22,9 +20,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class NMSUtils {
@@ -104,6 +100,15 @@ public class NMSUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static Component getItemStackComponent(ItemStack item) {
+        try {
+            return MinecraftComponentSerializer.get().deserialize(ItemStackAccessor.getMethodGetDisplayName1().invoke(getNmsItemStack(item)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Component.empty();
         }
     }
 
@@ -466,6 +471,24 @@ public class NMSUtils {
         Object chestAnimationPacket = PacketUtils.getBlockEventPacket(blockLocation, blockMaterial, 1, open ? 1 : 0);
 
         sendPacket(viewers, chestAnimationPacket);
+    }
+
+    public static void spawnLightning(Set<Player> players, Location location, boolean sound) {
+        try {
+            sendPacket(players,
+                    PacketUtils.getAddEntityPacket(LightningBoltAccessor.getConstructor0().newInstance(EntityTypeAccessor.getFieldLIGHTNING_BOLT(), getServerLevel(location.getWorld()))));
+            if (sound) SoundContainer.soundContainer(XSound.ENTITY_LIGHTNING_BOLT_THUNDER).play(location, players);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void spawnLightning(Player player, Location location, boolean sound) {
+        spawnLightning(Collections.singleton(player), location, sound);
+    }
+
+    public static void spawnLightning(Location location, boolean sound) {
+        spawnLightning(new HashSet<>(location.getWorld().getPlayers()), location, sound);
     }
 
     /**
