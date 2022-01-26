@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'me.mohamad82'
-version = '3.6'
+version = '3.6.1'
 description = 'The ultimate all-in-one utils for Minecraft-Spigot.'
 compileJava.options.encoding = "UTF-8"
 
@@ -112,6 +112,11 @@ nmsGen {
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
+    var ServerboundInteractPacket = reqClass("net.minecraft.network.protocol.game.ServerboundInteractPacket")
+    var ServerboundInteractPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$Action')
+    var ServerboundInteractPacketActionType = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$ActionType')
+    var ServerboundInteractPacketActionInteractAt = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAtLocationAction')
+    var ServerboundInteractPacketActionInteract = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAction')
 
     var ServerPlayer = reqClass("net.minecraft.server.level.ServerPlayer")
     var Player = reqClass("net.minecraft.world.entity.player.Player")
@@ -341,6 +346,23 @@ nmsGen {
             .reqEnumField("DROP_ITEM")
             .reqEnumField("RELEASE_USE_ITEM")
             .reqEnumField("SWAP_ITEM_WITH_OFFHAND")
+    ServerboundInteractPacket
+            .reqField("entityId")
+            .reqField("action")
+            .reqField("usingSecondaryAction")
+            .reqField("location")
+            .reqField("hand")
+    ServerboundInteractPacketAction
+            .reqMethod("getType")
+    ServerboundInteractPacketActionType
+            .reqEnumField("INTERACT")
+            .reqEnumField("ATTACK")
+            .reqEnumField("INTERACT_AT")
+    ServerboundInteractPacketActionInteractAt
+            .reqField("hand")
+            .reqField("location")
+    ServerboundInteractPacketActionInteract
+            .reqField("hand")
 
     ServerPlayer
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile")

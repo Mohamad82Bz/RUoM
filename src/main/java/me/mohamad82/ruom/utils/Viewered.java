@@ -14,7 +14,16 @@ public abstract class Viewered {
 
     protected abstract void removeViewer(Player player);
 
+    public void onAddViewers(Player... players) {
+        //Optional event that can be overriden
+    }
+
+    public void onRemoveViewers(Player... players) {
+        //Optional event that can be overriden
+    }
+
     public void addViewers(Player... players) {
+        onAddViewers(players);
         for (Player player : players) {
             addViewer(player);
             viewers.add(player);
@@ -26,6 +35,7 @@ public abstract class Viewered {
     }
 
     public void removeViewers(Player... players) {
+        onRemoveViewers(players);
         for (Player player : players) {
             removeViewer(player);
             viewers.remove(player);

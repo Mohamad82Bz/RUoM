@@ -10,11 +10,14 @@ import me.mohamad82.ruom.utils.PacketUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
 import me.mohamad82.ruom.utils.Viewered;
 import me.mohamad82.ruom.vector.Vector3;
+import me.mohamad82.ruom.vector.Vector3Utils;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -28,7 +31,7 @@ public abstract class NPC extends Viewered {
 
     protected Object entity;
     protected int id;
-    protected Location location;
+    protected boolean discarded = false;
 
     protected NPC() {
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
@@ -48,14 +51,20 @@ public abstract class NPC extends Viewered {
                 PacketUtils.getHeadRotatePacket(entity, yaw));
     }
 
-    public boolean move(Vector3 vector3) {
-        if (vector3.getX() > 8 || vector3.getY() > 8 || vector3.getZ() > 8) return false;
-        setPosition(getPosition().add(vector3));
-        NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityPosPacket(id, vector3.getX(), vector3.getY(), vector3.getZ()));
+    public void lookAt(Vector3 location) {
+        Location dirLocation = Vector3Utils.toLocation(null, getPosition());
+        dirLocation.setDirection(new Vector(location.getX(), location.getY(), location.getZ()));
+        look(dirLocation.getYaw(), dirLocation.getPitch());
+    }
+
+    public boolean move(Vector3 vector) {
+        if (vector.getX() > 8 || vector.getY() > 8 || vector.getZ() > 8) return false;
+        setPosition(getPosition().add(vector));
+        NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityPosPacket(id, vector.getX(), vector.getY(), vector.getZ()));
         return true;
     }
 
-    public CompletableFuture<Boolean> move(Vector3 vector3, final int inTicks) {
+    public CompletableFuture<Boolean> move(Vector3 vector, final int inTicks) {
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
         new BukkitRunnable() {
             int i = 0;
@@ -66,9 +75,9 @@ public abstract class NPC extends Viewered {
                     return;
                 }
                 if (!move(Vector3.at(
-                        vector3.getX() / inTicks,
-                        vector3.getY() / inTicks,
-                        vector3.getZ() / inTicks
+                        vector.getX() / inTicks,
+                        vector.getY() / inTicks,
+                        vector.getZ() / inTicks
                 ))) {
                     completableFuture.complete(false);
                     cancel();
@@ -79,11 +88,11 @@ public abstract class NPC extends Viewered {
         return completableFuture;
     }
 
-    public boolean moveAndLook(Vector3 vector3, float yaw, float pitch) {
-        if (vector3.getX() > 8 || vector3.getY() > 8 || vector3.getZ() > 8) return false;
-        setPosition(getPosition().add(vector3));
+    public boolean moveAndLook(Vector3 vector, float yaw, float pitch) {
+        if (vector.getX() > 8 || vector.getY() > 8 || vector.getZ() > 8) return false;
+        setPosition(getPosition().add(vector));
         NMSUtils.sendPacket(getViewers(),
-                PacketUtils.getEntityPosRotPacket(id, vector3.getX(), vector3.getY(), vector3.getZ(), yaw, pitch, true),
+                PacketUtils.getEntityPosRotPacket(id, vector.getX(), vector.getY(), vector.getZ(), yaw, pitch, true),
                 PacketUtils.getHeadRotatePacket(entity, yaw)
         );
         return true;
@@ -93,14 +102,14 @@ public abstract class NPC extends Viewered {
         NMSUtils.sendPacket(getViewers(), PacketUtils.getTeleportEntityPacket(entity));
     }
 
-    public void teleport(Vector3 vector3) {
-        Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, vector3.getX(), vector3.getY(), vector3.getZ()));
+    public void teleport(Vector3 location) {
+        setPosition(location);
         NMSUtils.sendPacket(getViewers(), PacketUtils.getTeleportEntityPacket(entity));
     }
 
-    public void teleport(Vector3 vector3, float yaw, float pitch) {
+    public void teleport(Vector3 location, float yaw, float pitch) {
         Ruom.run(() -> {
-            EntityAccessor.getMethodSetPos1().invoke(entity, vector3.getX(), vector3.getY(), vector3.getZ());
+            setPosition(location);
             EntityAccessor.getMethodSetRot1().invoke(entity, yaw, pitch);
         });
         NMSUtils.sendPacket(getViewers(), PacketUtils.getTeleportEntityPacket(entity));
@@ -321,6 +330,19 @@ public abstract class NPC extends Viewered {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void discard() {
+        discarded = true;
+        removeViewers(getViewers());
+        equipments.clear();
+        entity = null;
+    }
+
+    @Override
+    public void onAddViewers(Player... players) {
+        if (discarded)
+            throw new IllegalStateException("Cannot add viewers to a discarded npc.");
     }
 
     public enum EquipmentSlot {

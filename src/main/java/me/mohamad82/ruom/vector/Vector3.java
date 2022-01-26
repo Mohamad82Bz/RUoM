@@ -4,6 +4,12 @@ import org.bukkit.util.NumberConversions;
 
 public class Vector3 implements Cloneable {
 
+    private static final Vector3 ZERO = Vector3.at(0, 0, 0);
+
+    public static Vector3 getZero() {
+        return ZERO.clone();
+    }
+
     private double x;
     private double y;
     private double z;
@@ -63,11 +69,19 @@ public class Vector3 implements Cloneable {
     }
 
     public Vector3 add(Vector3 other) {
-        x += other.getX();
-        y += other.getY();
-        z += other.getZ();
+        return add(other.x, other.y, other.z);
+    }
+
+    public Vector3 subtract(double x, double y, double z) {
+        this.x -= x;
+        this.y -= y;
+        this.z -= z;
 
         return this;
+    }
+
+    public Vector3 subtract(Vector3 other) {
+        return subtract(other.x, other.y, other.z);
     }
 
     public double distance(Vector3 other) {

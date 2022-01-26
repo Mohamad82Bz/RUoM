@@ -2,11 +2,10 @@ package me.mohamad82.ruom.event.packet;
 
 import io.netty.channel.*;
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.nmsaccessors.DirectionAccessor;
-import me.mohamad82.ruom.nmsaccessors.ServerboundPlayerActionPacketAccessor;
-import me.mohamad82.ruom.nmsaccessors.ServerboundPlayerActionPacket_i_ActionAccessor;
-import me.mohamad82.ruom.nmsaccessors.Vec3iAccessor;
+import me.mohamad82.ruom.nmsaccessors.*;
+import me.mohamad82.ruom.npc.LivingEntityNPC;
 import me.mohamad82.ruom.utils.NMSUtils;
+import me.mohamad82.ruom.utils.ServerVersion;
 import me.mohamad82.ruom.vector.Vector3;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,6 +28,7 @@ public class PacketListenerManager implements Listener {
 
     private final Set<PacketEvent> packetEvents = new HashSet<>();
     private final Set<PlayerActionEvent> actionEvents = new HashSet<>();
+    private final Set<PlayerInteractAtEntityEvent> interactEvents = new HashSet<>();
 
     private PacketListenerManager() {
 
@@ -58,12 +58,20 @@ public class PacketListenerManager implements Listener {
         actionEvents.add(actionEvent);
     }
 
+    protected void register(PlayerInteractAtEntityEvent interactEvent) {
+        interactEvents.add(interactEvent);
+    }
+
     protected void unregister(PacketEvent packetEvent) {
         packetEvents.remove(packetEvent);
     }
 
     protected void unregister(PlayerActionEvent actionEvent) {
         actionEvents.remove(actionEvent);
+    }
+
+    protected void unregister(PlayerInteractAtEntityEvent interactEvent) {
+        interactEvents.remove(interactEvent);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -95,7 +103,7 @@ public class PacketListenerManager implements Listener {
                     }
 
                     if (!isCancelled) {
-                        if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType())) {
+                        if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType()) && !actionEvents.isEmpty()) {
                             Ruom.runAsync(() -> {
                                 try {
                                     Object action = ServerboundPlayerActionPacketAccessor.getMethodGetAction1().invoke(packet);
@@ -110,28 +118,67 @@ public class PacketListenerManager implements Listener {
                                     );
 
                                     if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldSTART_DESTROY_BLOCK())) {
-                                        for (PlayerActionEvent actionEvent : actionEvents) {
-                                            actionEvent.onStartDig(player, blockPos, direction);
-                                        }
+                                        actionEvents.forEach(actionEvent -> actionEvent.onStartDig(player, blockPos, direction));
                                     } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldSTOP_DESTROY_BLOCK()) || action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldABORT_DESTROY_BLOCK())) {
-                                        for (PlayerActionEvent actionEvent : actionEvents) {
-                                            actionEvent.onStopDig(player, blockPos);
-                                        }
+                                        actionEvents.forEach(actionEvent -> actionEvent.onStopDig(player, blockPos));
                                     } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldDROP_ALL_ITEMS())) {
-                                        for (PlayerActionEvent actionEvent : actionEvents) {
-                                            actionEvent.onDropAllItems(player);
-                                        }
+                                        actionEvents.forEach(actionEvent -> actionEvent.onDropAllItems(player));
                                     } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldDROP_ITEM())) {
-                                        for (PlayerActionEvent actionEvent : actionEvents) {
-                                            actionEvent.onDropAllItems(player);
-                                        }
+                                        actionEvents.forEach(actionEvent -> actionEvent.onDropItem(player));
                                     } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldRELEASE_USE_ITEM())) {
-                                        for (PlayerActionEvent actionEvent : actionEvents) {
-                                            actionEvent.onUseItemRelease(player);
-                                        }
+                                        actionEvents.forEach(actionEvent -> actionEvent.onUseItemRelease(player));
                                     } else if (action.equals(ServerboundPlayerActionPacket_i_ActionAccessor.getFieldSWAP_ITEM_WITH_OFFHAND())) {
-                                        for (PlayerActionEvent actionEvent : actionEvents) {
-                                            actionEvent.onSwapItemsWithOffHand(player);
+                                        actionEvents.forEach(actionEvent -> actionEvent.onSwapItemsWithOffHand(player));
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
+                        else if (packet.getClass().equals(ServerboundInteractPacketAccessor.getType()) && !interactEvents.isEmpty()) {
+                            Ruom.runAsync(() -> {
+                                try {
+                                    int entityId = (int) ServerboundInteractPacketAccessor.getFieldEntityId().get(packet);
+                                    Object action = ServerboundInteractPacketAccessor.getFieldAction().get(packet);
+                                    int actionId = -1;
+                                    LivingEntityNPC.InteractionHand hand = null;
+                                    Vector3 location = null;
+
+                                    if (ServerVersion.supports(17)) {
+                                        Object actionType = ServerboundInteractPacket_i_ActionAccessor.getMethodGetType1().invoke(action);
+                                        if (actionType.equals(ServerboundInteractPacket_i_ActionTypeAccessor.getFieldATTACK())) {
+                                            actionId = 0;
+                                        } else if (actionType.equals(ServerboundInteractPacket_i_ActionTypeAccessor.getFieldINTERACT())) {
+                                            actionId = 1;
+                                            hand = LivingEntityNPC.InteractionHand.fromNmsObject(ServerboundInteractPacket_i_InteractionActionAccessor.getFieldHand().get(action));
+                                        } else if (actionType.equals(ServerboundInteractPacket_i_ActionTypeAccessor.getFieldINTERACT_AT())) {
+                                            actionId = 2;
+                                            hand = LivingEntityNPC.InteractionHand.fromNmsObject(ServerboundInteractPacket_i_InteractionAtLocationActionAccessor.getFieldHand().get(action));
+                                            Object vec3 = ServerboundInteractPacket_i_InteractionAtLocationActionAccessor.getFieldLocation().get(action);
+                                            location = Vector3.at(
+                                                    (double) Vec3Accessor.getMethodX1().invoke(vec3),
+                                                    (double) Vec3Accessor.getMethodY1().invoke(vec3),
+                                                    (double) Vec3Accessor.getMethodZ1().invoke(vec3)
+                                            );
+                                        }
+                                    }
+
+                                    switch (actionId) {
+                                        case 0: {
+                                            interactEvents.forEach(interactEvent -> interactEvent.onAttack(player, entityId));
+                                            break;
+                                        }
+                                        case 1: {
+                                            for (PlayerInteractAtEntityEvent interactEvent : interactEvents) {
+                                                interactEvent.onInteract(player, hand, entityId);
+                                            }
+                                            break;
+                                        }
+                                        case 2: {
+                                            for (PlayerInteractAtEntityEvent interactEvent : interactEvents) {
+                                                interactEvent.onInteractAt(player, hand, location, entityId);
+                                            }
+                                            break;
                                         }
                                     }
                                 } catch (Exception e) {

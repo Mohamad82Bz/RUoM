@@ -135,6 +135,16 @@ public abstract class LivingEntityNPC extends EntityNPC {
         InteractionHand(Object nmsInteractionHand) {
             this.nmsObject = nmsInteractionHand;
         }
+
+        public static InteractionHand fromNmsObject(Object nmsInteractionHand) {
+            if (nmsInteractionHand.equals(InteractionHandAccessor.getFieldMAIN_HAND())) {
+                return MAIN_HAND;
+            } else if (nmsInteractionHand.equals(InteractionHandAccessor.getFieldOFF_HAND())) {
+                return OFF_HAND;
+            } else {
+                return null;
+            }
+        }
     }
 
 }
