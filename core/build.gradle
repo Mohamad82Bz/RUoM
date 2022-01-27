@@ -1,0 +1,11 @@
+version = '4.0'
+compileJava.options.encoding = "UTF-8"
+
+dependencies {
+    implementation 'com.zaxxer:HikariCP:4.0.3'
+    compileOnly 'com.google.code.gson:gson:2.8.9'
+}
+
+shadowJar {
+    relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
+}

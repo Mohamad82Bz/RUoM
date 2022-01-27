@@ -8,4 +8,9 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'RUoM'
+rootProject.name = 'ruom'
+
+include 'core'
+include 'bukkit'
+include 'velocity'
+include 'bungeecord'

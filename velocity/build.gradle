@@ -1,0 +1,28 @@
+version = '4.0'
+compileJava.options.encoding = "UTF-8"
+
+repositories {
+    maven {
+        url = uri('https://repo.velocitypowered.com/releases/')
+    }
+    maven {
+        url = uri('https://repo.spongepowered.org/maven')
+    }
+}
+
+dependencies {
+    implementation project(path: ':core', configuration: 'shadow')
+
+    implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
+
+    compileOnly 'com.velocitypowered:velocity-api:3.0.0'
+
+    //:core dependencies
+    compileOnly 'com.zaxxer:HikariCP:4.0.3'
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency('net.kyori:.*:.*'))
+    }
+}
