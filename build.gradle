@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
     id 'com.github.johnrengelman.shadow' version '7.1.0' apply false
     id 'org.screamingsandals.nms-mapper' version '1.1.1' apply false
 }
@@ -20,14 +21,26 @@ java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
+    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+}
+
+compileJava {
+    sourceCompatibility = '1.' + targetJavaVersion
+    targetCompatibility = '1.' + targetJavaVersion
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.' + targetJavaVersion
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '1.' + targetJavaVersion
 }
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
+    apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'com.github.johnrengelman.shadow'
 
     repositories {
@@ -56,6 +69,14 @@ subprojects {
                 }
             }
         }
+    }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = '1.8'
+    }
+
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = '1.8'
     }
 }
 
@@ -105,8 +126,4 @@ project ('bungeecord') {
             }
         }
     }
-}
-
-dependencies {
-
 }

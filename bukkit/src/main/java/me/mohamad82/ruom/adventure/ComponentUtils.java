@@ -9,6 +9,7 @@ public class ComponentUtils {
 
     static {
         Ruom.initializeAdventure();
+
     }
 
     public static void send(Player player, Component component) {
