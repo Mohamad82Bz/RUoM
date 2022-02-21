@@ -11,6 +11,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 
 fun Player.sendMessage(message: Component) {
     AdventureApi.get().player(this).sendMessage(message)
@@ -38,6 +39,18 @@ fun Player.disconnect(message: Component) {
 
 fun Player.sendPacket(packet: Any) {
     NMSUtils.sendPacket(this, packet)
+}
+
+fun Player.getTotalItemAmount(item: ItemStack): Int {
+    return PlayerUtils.getTotalItemAmount(this, item)
+}
+
+fun Player.hasEmptySpaceFor(item: ItemStack): Boolean {
+    return PlayerUtils.hasEmptySpaceFor(this, item)
+}
+
+fun Player.removeItem(item: ItemStack, amount: Int) {
+    PlayerUtils.removeItem(this, item, amount)
 }
 
 fun Player.hasItemInMainHand(material: Material): Boolean {

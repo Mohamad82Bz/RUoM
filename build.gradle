@@ -18,9 +18,6 @@ repositories {
 
 def targetJavaVersion = 8
 java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
     toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
 }
 
@@ -52,6 +49,10 @@ subprojects {
         maven {
             url = uri('https://repo.maven.apache.org/maven2/')
         }
+    }
+
+    dependencies {
+        compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10'
     }
 
     shadowJar {

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-public class Ruom {
+public class BRuom {
 
     private static boolean debug = false;
 
@@ -39,7 +39,7 @@ public class Ruom {
     }
 
     public static void setDebug(boolean debug) {
-        Ruom.debug = debug;
+        BRuom.debug = debug;
     }
 
     public static void log(String message) {

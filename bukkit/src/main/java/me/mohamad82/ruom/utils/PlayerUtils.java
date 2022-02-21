@@ -36,6 +36,45 @@ public class PlayerUtils {
         return true;
     }
 
+    public static int getTotalItemAmount(Player player, ItemStack item) {
+        int amount = 0;
+        for (ItemStack invItem : player.getInventory().getContents()) {
+            if (invItem == null) continue;
+            if (invItem.isSimilar(item)) {
+                amount += invItem.getAmount();
+            }
+        }
+        return amount;
+    }
+
+    public static boolean hasEmptySpaceFor(Player player, ItemStack item) {
+        if (player.getInventory().firstEmpty() != -1) return true;
+        int emptySpaces = 0;
+        for (ItemStack invItem : player.getInventory().getContents()) {
+            if (invItem == null) continue;
+            if (invItem.isSimilar(item) && invItem.getAmount() != invItem.getType().getMaxStackSize()) {
+                emptySpaces += invItem.getMaxStackSize() - invItem.getAmount();
+            }
+        }
+        return emptySpaces >= item.getAmount();
+    }
+
+    public static void removeItem(Player player, ItemStack item, int amount) {
+        for (ItemStack invItem : player.getInventory().getContents()) {
+            if (invItem == null) continue;
+            if (invItem.isSimilar(item)) {
+                if (amount > invItem.getAmount()) {
+                    amount -= invItem.getAmount();
+                    invItem.setAmount(0);
+                } else {
+                    invItem.setAmount(invItem.getAmount() - amount);
+                    amount = 0;
+                }
+            }
+            if (amount == 0) break;
+        }
+    }
+
     @SuppressWarnings("deprecation")
     public static boolean hasItemInMainHand(Player player, Material material) {
         if (ServerVersion.supports(9)) {

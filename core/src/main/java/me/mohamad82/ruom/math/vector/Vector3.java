@@ -23,27 +23,33 @@ public class Vector3 implements Cloneable {
     }
 
     public int getBlockX() {
-        return (int) x;
+        if (x > 0) return (int) x;
+        if (x < 0) return (int) Math.floor(x);
+        return 0;
     }
 
     public int getBlockY() {
-        return (int) y;
+        if (y > 0) return (int) y;
+        if (y < 0) return (int) Math.floor(y);
+        return 0;
     }
 
     public int getBlockZ() {
-        return (int) z;
+        if (z > 0) return (int) z;
+        if (z < 0) return (int) Math.floor(z);
+        return 0;
     }
 
     public double getCenterX() {
-        return ((int) x) + 0.5;
+        return getBlockX() + 0.5;
     }
 
     public double getCenterY() {
-        return getBlockY();
+        return getBlockY() + 0.5;
     }
 
     public double getCenterZ() {
-        return ((int) z) + 0.5;
+        return getBlockZ() + 0.5;
     }
 
     public double getX() {

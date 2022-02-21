@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-public class Ruom {
+public class VRuom {
 
     private static Object MAIN_INSTANCE;
     private static ProxyServer proxyServer;
@@ -19,7 +19,7 @@ public class Ruom {
     public static void initialize(Object plugin, ProxyServer server, Logger logger) {
         MAIN_INSTANCE = plugin;
         proxyServer = server;
-        Ruom.logger = logger;
+        VRuom.logger = logger;
     }
 
     public static Object getPlugin() {
@@ -48,7 +48,7 @@ public class Ruom {
     }
 
     public static void setDebug(boolean debug) {
-        Ruom.debug = debug;
+        VRuom.debug = debug;
     }
 
     public static void log(String message) {

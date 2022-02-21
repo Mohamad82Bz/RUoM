@@ -22,7 +22,7 @@ public class FireworkNPC extends EntityNPC {
                 location,
                 NPCType.FIREWORK_ROCKET
         );
-        Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ()));
+        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
         fireworkItem.ifPresent(this::setFirework);
     }
 

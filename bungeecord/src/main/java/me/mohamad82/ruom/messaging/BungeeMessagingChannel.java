@@ -1,7 +1,7 @@
 package me.mohamad82.ruom.messaging;
 
 import com.google.gson.JsonObject;
-import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.BRuom;
 import me.mohamad82.ruom.utils.GsonUtils;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -18,7 +18,7 @@ public class BungeeMessagingChannel implements Listener {
 
     public BungeeMessagingChannel(String namespace, String name) {
         this.name = namespace + ":" + name;
-        Ruom.getServer().registerChannel(this.name);
+        BRuom.getServer().registerChannel(this.name);
     }
 
     public void register(BungeeMessagingEvent messagingEvent) {
@@ -39,6 +39,10 @@ public class BungeeMessagingChannel implements Listener {
                 messagingEvent.onPluginMessageReceived(event.getReceiver(), message);
             }
         }
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

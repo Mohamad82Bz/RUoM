@@ -18,7 +18,7 @@ public class PacketUtils {
     public static Object getOpenScreenPacket(int containerId, int inventorySize, Component component) {
         try {
             if (ServerVersion.supports(13)) {
-                return ClientboundOpenScreenPacketAccessor.getConstructor0().newInstance(containerId, MenuTypeAccessor.getType().getField("GENERIC_9X" + (inventorySize / 9)).get(null), MinecraftComponentSerializer.get().serialize(component));
+                return ClientboundOpenScreenPacketAccessor.getConstructor0().newInstance(containerId, MenuTypeAccessor.class.getMethod("getFieldGENERIC_9x" + (inventorySize / 9)).invoke(null), MinecraftComponentSerializer.get().serialize(component));
             } else {
                 return ClientboundOpenScreenPacketAccessor.getConstructor1().newInstance(containerId, "minecraft:chest", component, inventorySize);
             }

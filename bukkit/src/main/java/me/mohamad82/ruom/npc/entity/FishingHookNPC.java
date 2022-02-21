@@ -25,7 +25,7 @@ public class FishingHookNPC extends EntityNPC {
                 location,
                 NPCType.FISHING_BOBBER
         );
-        Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ()));
+        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
         this.ownerEntityId = ownerEntityId;
     }
 

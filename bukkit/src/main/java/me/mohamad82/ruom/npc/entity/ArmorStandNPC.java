@@ -17,7 +17,7 @@ public class ArmorStandNPC extends EntityNPC {
                 location,
                 NPCType.ARMOR_STAND
         );
-        Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ()));
+        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
     }
 
     public static ArmorStandNPC armorStandNPC(Location location) {

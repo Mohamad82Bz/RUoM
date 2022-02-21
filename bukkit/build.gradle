@@ -3,7 +3,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.1'
+version = '4.1.19'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -162,6 +162,9 @@ nmsGen {
     var DifficultyInstance = reqClass("net.minecraft.world.DifficultyInstance")
     var SpawnGroupData = reqClass("net.minecraft.world.entity.SpawnGroupData")
     var ChatType = reqClass("net.minecraft.network.chat.ChatType")
+    var VillagerData = reqClass("net.minecraft.world.entity.npc.VillagerData")
+    var VillagerType = reqClass("net.minecraft.world.entity.npc.VillagerType")
+    var VillagerProfession = reqClass("net.minecraft.world.entity.npc.VillagerProfession")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -176,6 +179,8 @@ nmsGen {
     var FishingHook = reqClass("net.minecraft.world.entity.projectile.FishingHook")
     var FireworkRocketEntity = reqClass("net.minecraft.world.entity.projectile.FireworkRocketEntity")
     var LightningBolt = reqClass("net.minecraft.world.entity.LightningBolt")
+    var SignBlockEntity = reqClass("net.minecraft.world.level.block.entity.SignBlockEntity")
+    var Villager = reqClass("net.minecraft.world.entity.npc.Villager")
 
     ClientboundPlayerInfoPacket
             .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
@@ -748,6 +753,13 @@ nmsGen {
     AbstractContainerMenu
             .reqMethod("sendAllDataToRemote")
             .reqField("containerId")
+    MenuType
+            .reqEnumField("GENERIC_9x1")
+            .reqEnumField("GENERIC_9x2")
+            .reqEnumField("GENERIC_9x3")
+            .reqEnumField("GENERIC_9x4")
+            .reqEnumField("GENERIC_9x5")
+            .reqEnumField("GENERIC_9x6")
     DimensionType
             .reqField("DEFAULT_OVERWORLD")
             .reqField("DEFAULT_NETHER")
@@ -756,6 +768,34 @@ nmsGen {
             .reqEnumField("CHAT")
             .reqEnumField("SYSTEM")
             .reqEnumField("GAME_INFO")
+    VillagerData
+            .reqConstructor(VillagerType, VillagerProfession, int)
+            .reqMethod("getType")
+            .reqMethod("getProfession")
+    VillagerType
+            .reqField("DESERT")
+            .reqField("JUNGLE")
+            .reqField("PLAINS")
+            .reqField("SAVANNA")
+            .reqField("SNOW")
+            .reqField("SWAMP")
+            .reqField("TAIGA")
+    VillagerProfession
+            .reqField("NONE")
+            .reqField("ARMORER")
+            .reqField("BUTCHER")
+            .reqField("CARTOGRAPHER")
+            .reqField("CLERIC")
+            .reqField("FARMER")
+            .reqField("FISHERMAN")
+            .reqField("FLETCHER")
+            .reqField("LEATHERWORKER")
+            .reqField("LIBRARIAN")
+            .reqField("MASON")
+            .reqField("NITWIT")
+            .reqField("SHEPHERD")
+            .reqField("TOOLSMITH")
+            .reqField("WEAPONSMITH")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
@@ -848,4 +888,17 @@ nmsGen {
             .reqField("DATA_SHOT_AT_ANGLE")
     LightningBolt
             .reqConstructor(EntityType, Level)
+    SignBlockEntity
+            .reqConstructor(BlockPos, BlockState)
+            .reqMethod("getMessage", int, boolean)
+            .reqMethod("setMessage", int, Component, Component)
+            .reqMethod("setMessage", int, Component)
+            .reqMethod("getUpdatePacket")
+            .reqMethod("hasGlowingText")
+            .reqMethod("setHasGlowingText", boolean)
+            .reqMethod("markUpdated")
+            .reqField("messages")
+    Villager
+            .reqConstructor(EntityType, Level)
+            .reqField("DATA_VILLAGER_DATA")
 }

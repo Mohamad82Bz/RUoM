@@ -9,6 +9,7 @@ import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -25,11 +26,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class NMSUtils {
 
-    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE, CRAFT_LIVING_ENTITY, CRAFT_ENTITY;
+    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE, CRAFT_LIVING_ENTITY, CRAFT_ENTITY, CRAFT_BLOCK_ENTITY_STATE;
 
     private static Method CRAFT_ITEM_STACK_AS_NMS_COPY, CRAFT_ITEM_STACK_AS_BUKKIT_COPY, CRAFT_PLAYER_GET_HANDLE_METHOD, CRAFT_WORLD_GET_HANDLE_METHOD,
             CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD2,
-            CRAFT_PARTICLE_TO_BUKKIT_METHOD, CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD, CRAFT_ENTITY_GET_HANDLE_METHOD, ENTITY_GET_BUKKIT_ENTITY_METHOD;
+            CRAFT_PARTICLE_TO_BUKKIT_METHOD, CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD, CRAFT_ENTITY_GET_HANDLE_METHOD, ENTITY_GET_BUKKIT_ENTITY_METHOD,
+            CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD;
 
     private static Field LIVING_ENTITY_DROPS_FIELD;
 
@@ -44,6 +46,7 @@ public class NMSUtils {
                 CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
                 CRAFT_LIVING_ENTITY = ReflectionUtils.getCraftClass("entity.CraftLivingEntity");
                 CRAFT_ENTITY = ReflectionUtils.getCraftClass("entity.CraftEntity");
+                CRAFT_BLOCK_ENTITY_STATE = ReflectionUtils.getCraftClass("block.CraftBlockEntityState");
             }
             {
                 CRAFT_PLAYER_GET_HANDLE_METHOD = CRAFT_PLAYER.getMethod("getHandle");
@@ -63,6 +66,8 @@ public class NMSUtils {
                 CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD = CRAFT_LIVING_ENTITY.getMethod("getHandle");
                 CRAFT_ENTITY_GET_HANDLE_METHOD = CRAFT_ENTITY.getMethod("getHandle");
                 ENTITY_GET_BUKKIT_ENTITY_METHOD = EntityAccessor.getType().getMethod("getBukkitEntity");
+                CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
+                CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
             }
             {
                 LIVING_ENTITY_DROPS_FIELD = LivingEntityAccessor.getType().getField("drops");
@@ -254,6 +259,66 @@ public class NMSUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
+        }
+    }
+
+    public static void setSignLine(Sign sign, int line, Component component) {
+        try {
+            Object nmsComponent = MinecraftComponentSerializer.get().serialize(component);
+            Object nmsSign = getNmsSign(sign);
+            if (ServerVersion.supports(13)) {
+                SignBlockEntityAccessor.getMethodSetMessage2().invoke(nmsSign, line - 1, nmsComponent);
+            } else {
+                Object[] lines = (Object[]) SignBlockEntityAccessor.getFieldMessages().get(nmsSign);
+                lines[line - 1] = nmsComponent;
+                SignBlockEntityAccessor.getFieldMessages().set(nmsSign, lines);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Component getSignLine(Sign sign, int line) {
+        try {
+            Object[] lines = (Object[]) SignBlockEntityAccessor.getFieldMessages().get(getNmsSign(sign));
+            return MinecraftComponentSerializer.get().deserialize(lines[line - 1]);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static List<Component> getSignLines(Sign sign) {
+        List<Component> list = new ArrayList<>();
+        try {
+            for (Object nmsComponent : (Object[]) SignBlockEntityAccessor.getFieldMessages().get(getNmsSign(sign))) {
+                list.add(MinecraftComponentSerializer.get().deserialize(nmsComponent));
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return list;
+        }
+    }
+
+    public static void updateSign(Sign sign) {
+        try {
+            if (ServerVersion.supports(17)) {
+                SignBlockEntityAccessor.getMethodMarkUpdated1().invoke(getNmsSign(sign));
+            } else {
+                sendPacket(sign.getBlock().getLocation().getWorld().getPlayers(), SignBlockEntityAccessor.getMethodGetUpdatePacket1().invoke(getNmsSign(sign)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Object getNmsSign(Sign sign) {
+        try {
+            return CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.invoke(sign);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -513,7 +578,7 @@ public class NMSUtils {
      * @param players The players that are going to receive the packet(s).
      * @param packets The packet(s) that are going to be sent to the player(s).
      */
-    public static void sendPacketSync(Set<Player> players, Object... packets) {
+    public static void sendPacketSync(Collection<Player> players, Object... packets) {
         for (Player player : players) {
             sendPacketSync(player, packets);
         }
@@ -538,7 +603,7 @@ public class NMSUtils {
      * @param players The players that are going to receive the packet(s).
      * @param packets The packet(s) that are going to be sent to the player(s).
      */
-    public static CompletableFuture<Void> sendPacket(Set<Player> players, Object... packets) {
+    public static CompletableFuture<Void> sendPacket(Collection<Player> players, Object... packets) {
         return CompletableFuture.runAsync(() -> {
             sendPacketSync(players, packets);
         }).exceptionally(e -> {

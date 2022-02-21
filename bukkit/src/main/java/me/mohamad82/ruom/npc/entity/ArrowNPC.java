@@ -18,7 +18,7 @@ public class ArrowNPC extends EntityNPC {
                 location,
                 NPCType.ARROW
         );
-        Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ()));
+        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
     }
 
     public static ArrowNPC arrowNPC(Location location) {

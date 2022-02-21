@@ -18,7 +18,7 @@ public class ThrowableProjectileNPC extends EntityNPC {
                 location,
                 NPCType.POTION
         );
-        Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ()));
+        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
         setItem(item);
     }
 

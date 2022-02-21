@@ -17,11 +17,9 @@ public class TridentNPC extends EntityNPC {
                 location,
                 NPCType.TRIDENT
         );
-        Ruom.run(() -> {
-            SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), ThrownTridentAccessor.getFieldID_LOYALTY().get(null), loyalty);
-            setFoil(enchanted);
-            EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
-        });
+        SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), ThrownTridentAccessor.getFieldID_LOYALTY().get(null), loyalty);
+        setFoil(enchanted);
+        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
     }
 
     public static TridentNPC tridentNPC(Location location, byte loyalty, boolean enchanted) {

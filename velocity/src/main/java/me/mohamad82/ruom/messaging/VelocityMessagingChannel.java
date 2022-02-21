@@ -10,7 +10,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
-import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.VRuom;
 import me.mohamad82.ruom.utils.GsonUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -24,7 +24,7 @@ public class VelocityMessagingChannel {
 
     public VelocityMessagingChannel(String namespace, String name) {
         this.name = MinecraftChannelIdentifier.create(namespace, name);
-        Ruom.getServer().getChannelRegistrar().register(this.name);
+        VRuom.getServer().getChannelRegistrar().register(this.name);
     }
 
     public void register(VelocityMessagingEvent messagingEvent) {
