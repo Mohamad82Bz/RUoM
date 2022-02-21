@@ -1,0 +1,32 @@
+version = '4.0.4'
+compileJava.options.encoding = "UTF-8"
+
+repositories {
+    maven {
+        url = uri('https://oss.sonatype.org/content/repositories/snapshots')
+    }
+    maven {
+        url = uri('https://maven.enginehub.org/repo/')
+    }
+    maven {
+        url = uri('https://oss.sonatype.org/content/groups/public/')
+    }
+}
+
+dependencies {
+    implementation project(path: ':core', configuration: 'shadow')
+
+    implementation 'net.kyori:adventure-api:4.9.3'
+    implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
+    implementation 'net.kyori:adventure-platform-bungeecord:4.0.1'
+
+    compileOnly 'net.md-5:bungeecord-api:1.16-R0.5-SNAPSHOT'
+
+    //:core dependencies
+    compileOnly 'com.zaxxer:HikariCP:4.0.3'
+}
+
+shadowJar {
+    relocate('net.kyori.adventure', 'me.mohamad82.ruom.adventure')
+    relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
+}
