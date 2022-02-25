@@ -3,7 +3,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.1.19'
+version = '4.1.20'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -28,6 +28,7 @@ dependencies {
     implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
     implementation 'net.kyori:adventure-platform-bukkit:4.0.1'
     implementation 'com.github.cryptomorin:XSeries:8.6.1'
+    implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
 
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
@@ -87,6 +88,7 @@ nmsGen {
     var ClientboundRespawnPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRespawnPacket")
     var ClientboundEntityEventPacket = reqClass("net.minecraft.network.protocol.game.ClientboundEntityEventPacket")
     var ClientboundChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPacket")
+    var ClientboundSetPlayerTeamPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -165,6 +167,7 @@ nmsGen {
     var VillagerData = reqClass("net.minecraft.world.entity.npc.VillagerData")
     var VillagerType = reqClass("net.minecraft.world.entity.npc.VillagerType")
     var VillagerProfession = reqClass("net.minecraft.world.entity.npc.VillagerProfession")
+    var ChatFormatting = reqClass("net.minecraft.ChatFormatting")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -316,6 +319,19 @@ nmsGen {
             .reqMethod("getMessage")
             .reqMethod("getType")
             .reqMethod("getSender")
+    ClientboundSetPlayerTeamPacket
+            .reqConstructor(String, int, java.util.Optional, Collection)
+            .reqConstructor()
+            .reqField("name")
+            .reqField("displayName")
+            .reqField("playerPrefix")
+            .reqField("playerSuffix")
+            .reqField("nametagVisibility")
+            .reqField("collisionRule")
+            .reqField("color")
+            .reqField("players")
+            .reqField("method")
+            .reqField("options")
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -796,6 +812,29 @@ nmsGen {
             .reqField("SHEPHERD")
             .reqField("TOOLSMITH")
             .reqField("WEAPONSMITH")
+    ChatFormatting
+            .reqEnumField("BLACK")
+            .reqEnumField("DARK_BLUE")
+            .reqEnumField("DARK_GREEN")
+            .reqEnumField("DARK_AQUA")
+            .reqEnumField("DARK_RED")
+            .reqEnumField("DARK_PURPLE")
+            .reqEnumField("GOLD")
+            .reqEnumField("GRAY")
+            .reqEnumField("DARK_GRAY")
+            .reqEnumField("BLUE")
+            .reqEnumField("GREEN")
+            .reqEnumField("AQUA")
+            .reqEnumField("RED")
+            .reqEnumField("LIGHT_PURPLE")
+            .reqEnumField("YELLOW")
+            .reqEnumField("WHITE")
+            .reqEnumField("OBFUSCATED")
+            .reqEnumField("BOLD")
+            .reqEnumField("STRIKETHROUGH")
+            .reqEnumField("UNDERLINE")
+            .reqEnumField("ITALIC")
+            .reqEnumField("RESET")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
