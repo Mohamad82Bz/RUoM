@@ -2,6 +2,7 @@ package me.mohamad82.ruom.world;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.math.BlockVector3;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
@@ -13,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class Schematic {
 
-    private final Map<Integer, Set<Vector3>> layerBlocks = new HashMap<>();
+    public final Map<Integer, Set<Vector3>> layerBlocks = new HashMap<>();
     private final Map<Vector3, BlockData> blockData = new HashMap<>();
     private final Clipboard clipboard;
     private final Location location;
@@ -43,6 +44,7 @@ public class Schematic {
             );
             Vector3 clipboardCenter = Vector3UtilsBukkit.getCenter(minPoint, maxPoint);
 
+
             for (int y = minPoint.getBlockY(); y <= maxPoint.getBlockY(); y++) {
                 for (int x = minPoint.getBlockX(); x <= maxPoint.getBlockX(); x++) {
                     for (int z = minPoint.getBlockZ(); z <= maxPoint.getBlockZ(); z++) {
@@ -56,7 +58,7 @@ public class Schematic {
                         Vector3 intendedLocation = startLocation.clone().add(Vector3UtilsBukkit.getTravelDistance(clipboardCenter, blockLocation));
 
                         layerBlocks.get(y).add(intendedLocation);
-                        blockData.put(intendedLocation, BukkitAdapter.adapt(clipboard.getBlock(x, y, z)));
+                        blockData.put(intendedLocation, BukkitAdapter.adapt(clipboard.getBlock(BlockVector3.at(x, y, z))));
                     }
                 }
             }
@@ -127,12 +129,15 @@ public class Schematic {
 
     public int randomLayerIndex() {
         List<Integer> layers = new ArrayList<>(layerBlocks.keySet());
+        Ruom.broadcast(layers.size() + "");
         return layers.get(random.nextInt(layers.size()));
     }
 
     public void update() {
-        Ruom.runSync(editSession::apply);
-        Ruom.runAsync(editSession::update);
+        Ruom.runSync(() -> {
+            editSession.apply();
+            Ruom.runAsync(editSession::update);
+        });
     }
 
     public BlockData getBlockData(Vector3 blockLocation) {

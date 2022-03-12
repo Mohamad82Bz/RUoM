@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class EditSession {
 
@@ -82,6 +83,7 @@ public class EditSession {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new Error(e);
         }
     }
 
@@ -119,6 +121,14 @@ public class EditSession {
                         0,
                         (float) (chunkMinZ + chunkMaxZ) / 2
                 );
+
+                /*Set<Player> nearbyPlayers = Ruom.getOnlinePlayers().stream().filter(player ->
+                        player.getLocation().distance(location) * 16 < Bukkit.getViewDistance()).collect(Collectors.toSet());
+
+                NMSUtils.sendPacket(nearbyPlayers, chunkLoadPacket);
+                if (lightUpdatePacket != null) {
+                    NMSUtils.sendPacket(nearbyPlayers, lightUpdatePacket);
+                }*/
 
                 getNearbyPlayers(location).whenComplete((nearbyPlayers, error) -> {
                     NMSUtils.sendPacket(nearbyPlayers, chunkLoadPacket);

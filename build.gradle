@@ -18,10 +18,11 @@ repositories {
 
 def targetJavaVersion = 8
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
 }
 
 compileJava {
+    options.release = 8
     sourceCompatibility = '1.' + targetJavaVersion
     targetCompatibility = '1.' + targetJavaVersion
 }
