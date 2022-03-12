@@ -24,6 +24,7 @@ public class VelocityMessagingChannel {
 
     public VelocityMessagingChannel(String namespace, String name) {
         this.name = MinecraftChannelIdentifier.create(namespace, name);
+        VRuom.getServer().getEventManager().register(VRuom.getPlugin(), this);
         VRuom.getServer().getChannelRegistrar().register(this.name);
     }
 

@@ -1,17 +1,18 @@
 package me.mohamad82.ruom.utils;
 
 import com.mojang.datafixers.util.Pair;
-import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.math.vector.Vector3;
+import me.mohamad82.ruom.nmsaccessors.*;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PacketUtils {
 
@@ -234,6 +235,62 @@ public class PacketUtils {
         }
     }
 
+    public static Object getPlayerTeamPacket(String name, @Nullable Component playerPrefix, @Nullable Component playerSuffix, NameTagVisibility nameTagVisibility, CollisionRule collisionRule, ChatColor color, Collection<Player> players, boolean canSeeFriendlyInvisible, int method) {
+        try {
+            Object packet;
+            if (ServerVersion.supports(17)) {
+                //TODO
+                packet = null;
+            } else {
+                packet = ClientboundSetPlayerTeamPacketAccessor.getConstructor1().newInstance();
+
+                ClientboundSetPlayerTeamPacketAccessor.getFieldName().set(packet, name);
+                ClientboundSetPlayerTeamPacketAccessor.getFieldNametagVisibility().set(packet, nameTagVisibility.nmsName);
+                ClientboundSetPlayerTeamPacketAccessor.getFieldColor().set(packet, ChatFormattingAccessor.class.getMethod("getField" + color.name()).invoke(null));
+                ClientboundSetPlayerTeamPacketAccessor.getFieldPlayers().set(packet, players.stream().map(Player::getName).collect(Collectors.toCollection(ArrayList::new)));
+                ClientboundSetPlayerTeamPacketAccessor.getFieldMethod().set(packet, method);
+                int options = 0;
+                if (canSeeFriendlyInvisible) {
+                    options |= 2;
+                }
+                ClientboundSetPlayerTeamPacketAccessor.getFieldOptions().set(packet, options);
+                if (ServerVersion.supports(13)) {
+                    ClientboundSetPlayerTeamPacketAccessor.getFieldDisplayName().set(packet, MinecraftComponentSerializer.get().serialize(Component.empty()));
+                    ClientboundSetPlayerTeamPacketAccessor.getFieldPlayerPrefix().set(packet, MinecraftComponentSerializer.get().serialize(playerPrefix == null ? Component.empty() : playerPrefix));
+                    ClientboundSetPlayerTeamPacketAccessor.getFieldPlayerSuffix().set(packet, MinecraftComponentSerializer.get().serialize(playerSuffix == null ? Component.empty() : playerSuffix));
+                }
+                if (ServerVersion.supports(9)) {
+                    ClientboundSetPlayerTeamPacketAccessor.getFieldCollisionRule().set(packet, collisionRule.nmsName);
+                }
+            }
+
+            return packet;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
+    public static Object getTeamCreatePacket(String name, @Nullable Component playerPrefix, @Nullable Component playerSuffix, NameTagVisibility nameTagVisibility, CollisionRule collisionRule, ChatColor color, Collection<Player> players, boolean canSeeFriendlyInvisible) {
+        return getPlayerTeamPacket(name, playerPrefix, playerSuffix, nameTagVisibility, collisionRule, color, players, canSeeFriendlyInvisible, 0);
+    }
+
+    public static Object getTeamRemovePacket(String name) {
+        return getPlayerTeamPacket(name, null, null, NameTagVisibility.ALWAYS, CollisionRule.ALWAYS, ChatColor.RESET, Collections.emptyList(), false, 1);
+    }
+
+    public static Object getTeamModifyPacket(String name, @Nullable Component playerPrefix, @Nullable Component playerSuffix, NameTagVisibility nameTagVisibility, CollisionRule collisionRule, ChatColor color, boolean canSeeFriendlyInvisible) {
+        return getPlayerTeamPacket(name, playerPrefix, playerSuffix, nameTagVisibility, collisionRule, color, Collections.emptyList(), canSeeFriendlyInvisible, 2);
+    }
+
+    public static Object getTeamAddPlayerPacket(String name, Collection<Player> players) {
+        return getPlayerTeamPacket(name, null, null, NameTagVisibility.ALWAYS, CollisionRule.ALWAYS, ChatColor.RESET, players, false, 3);
+    }
+
+    public static Object getTeamRemovePlayerPacket(String name, Collection<Player> players) {
+        return getPlayerTeamPacket(name, null, null, NameTagVisibility.ALWAYS, CollisionRule.ALWAYS, ChatColor.RESET, players, false, 4);
+    }
+
     public static Object getEntityEventPacket(Object entity, byte eventId) {
         try {
             return ClientboundEntityEventPacketAccessor.getConstructor0().newInstance(entity, eventId);
@@ -325,6 +382,32 @@ public class PacketUtils {
 
         ChatType(Object nmsObject) {
             this.nmsObject = nmsObject;
+        }
+    }
+
+    public enum NameTagVisibility {
+        ALWAYS("always"),
+        HIDE_FOR_OTHER_TEAMS("hideForOtherTeams"),
+        HIDE_FOR_OWN_TEAM("hideForOwnTeam"),
+        NEVER("never");
+
+        private final String nmsName;
+
+        NameTagVisibility(String nmsName) {
+            this.nmsName = nmsName;
+        }
+    }
+
+    public enum CollisionRule {
+        ALWAYS("always"),
+        PUSH_OTHER_TEAMS("pushOtherTeams"),
+        PUSH_OWN_TEAM("pushOwnTeam"),
+        NEVER("never");
+
+        private final String nmsName;
+
+        CollisionRule(String nmsName) {
+            this.nmsName = nmsName;
         }
     }
 

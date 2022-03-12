@@ -58,7 +58,7 @@ public abstract class NPC extends Viewered {
     }
 
     public boolean move(Vector3 vector) {
-        if (vector.getX() > 8 || vector.getY() > 8 || vector.getZ() > 8) return false;
+        if (Math.sqrt((vector.getX() * vector.getX()) + (vector.getY() * vector.getY()) + (vector.getZ() * vector.getZ())) >= 8) return false;
         setPosition(getPosition().add(vector));
         NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityPosPacket(id, vector.getX(), vector.getY(), vector.getZ()));
         return true;
@@ -89,7 +89,7 @@ public abstract class NPC extends Viewered {
     }
 
     public boolean moveAndLook(Vector3 vector, float yaw, float pitch) {
-        if (vector.getX() > 8 || vector.getY() > 8 || vector.getZ() > 8) return false;
+        if (Math.sqrt((vector.getX() * vector.getX()) + (vector.getY() * vector.getY()) + (vector.getZ() * vector.getZ())) >= 8) return false;
         setPosition(getPosition().add(vector));
         NMSUtils.sendPacket(getViewers(),
                 PacketUtils.getEntityPosRotPacket(id, vector.getX(), vector.getY(), vector.getZ(), yaw, pitch, true),

@@ -2,13 +2,30 @@ package me.mohamad82.ruom.math;
 
 import me.mohamad82.ruom.math.vector.Vector3;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class MathUtils {
 
     public static float getCenterAngle(float a1, float a2) {
         return (360 + a2 + (((a1 - a2 + 180 + 360) % 360) - 180) / 2) % 360;
+    }
+
+    public static List<Vector3> circle(float radius, int points, boolean onFloor) {
+        List<Vector3> locations = new ArrayList<>();
+        int teta = 360 / points;
+        for (int i = 1; i <= points; i++) {
+            double sin = Math.sin(i * teta) * radius;
+            double cos = Math.cos(i * teta) * radius;
+            if (onFloor) {
+                locations.add(Vector3.at(cos, 0, sin));
+            } else {
+                locations.add(Vector3.at(cos, sin, 0));
+            }
+        }
+        return locations;
     }
 
     public static Set<Vector3> cylinder(double radiusX, double radiusZ, boolean allDirections, boolean filled) {
