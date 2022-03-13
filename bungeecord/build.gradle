@@ -1,4 +1,4 @@
-version = '4.1.0'
+version = '4.1.1'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -16,9 +16,9 @@ repositories {
 dependencies {
     implementation project(path: ':core', configuration: 'shadow')
 
-    implementation 'net.kyori:adventure-api:4.9.3'
-    implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
-    implementation 'net.kyori:adventure-platform-bungeecord:4.0.1'
+    implementation 'net.kyori:adventure-api:4.10.1'
+    implementation 'net.kyori:adventure-text-minimessage:4.10.1'
+    implementation 'net.kyori:adventure-platform-bungeecord:4.1.0'
 
     compileOnly 'net.md-5:bungeecord-api:1.16-R0.5-SNAPSHOT'
 
