@@ -1,7 +1,9 @@
 package me.mohamad82.ruom.toast;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.adventure.ComponentUtils;
@@ -93,7 +95,7 @@ public class ToastMessage {
 
     public void send(Player... players) {
         awardCriteria();
-        Set<Player> playersSet = new HashSet<>(List.of(players));
+        Set<Player> playersSet = new HashSet<>(Arrays.asList(players));
 
         NMSUtils.sendPacket(playersSet, addPacket).whenComplete((v, error) -> Ruom.runAsync(() -> {
             revokeCriteria();

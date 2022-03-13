@@ -10,7 +10,7 @@ public class ProgressBar {
     }
 
     private static String repeat(String string, int number) {
-        return string.repeat(Math.max(0, number));
+        return new String(new char[Math.max(0, number)]).replace("\0", string);
     }
 
 }

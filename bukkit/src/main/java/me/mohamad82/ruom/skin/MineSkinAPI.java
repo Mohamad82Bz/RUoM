@@ -40,7 +40,7 @@ public class MineSkinAPI {
                 String skinVariant = skinType != null && (skinType.equals(SkinType.NORMAL) || skinType.equals(SkinType.SLIM)) ? "&variant=" + skinType : "";
 
                 try {
-                    final String output = queryURL("url=" + URLEncoder.encode(url, StandardCharsets.UTF_8) + skinVariant);
+                    final String output = queryURL("url=" + URLEncoder.encode(url, "UTF-8") + skinVariant);
                     if (output.isEmpty()) //api time out
                         throw new MineSkinAPIException();
 

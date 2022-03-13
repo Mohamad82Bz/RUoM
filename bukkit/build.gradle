@@ -3,7 +3,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.3.0'
+version = '4.4.0'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -28,6 +28,7 @@ dependencies {
     implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
     implementation 'net.kyori:adventure-platform-bukkit:4.0.1'
     implementation 'com.github.cryptomorin:XSeries:8.6.1'
+    implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
 
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
@@ -48,6 +49,10 @@ shadowJar {
     relocate('net.kyori.adventure', 'me.mohamad82.ruom.adventure')
     relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
+    relocate('com.extollit', 'me.mohamad82.hydrazine')
+
+    //:core relocations
+    relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
 }
 
 sourceSets.main.java.srcDirs = ['src/generated/java', 'src/main/java']
