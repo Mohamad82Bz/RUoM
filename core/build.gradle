@@ -1,4 +1,4 @@
-version = '4.0.2'
+version = '4.1.0'
 compileJava.options.encoding = "UTF-8"
 
 dependencies {
@@ -7,5 +7,5 @@ dependencies {
 }
 
 shadowJar {
-    relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
+    //relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
 }
