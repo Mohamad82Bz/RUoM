@@ -60,7 +60,9 @@ public class NMSUtils {
                 }
                 if (ServerVersion.supports(9)) {
                     CRAFT_PARTICLE_TO_NMS_METHOD = CRAFT_PARTICLE.getMethod("toNMS", Particle.class);
-                    CRAFT_PARTICLE_TO_NMS_METHOD2 = CRAFT_PARTICLE.getMethod("toNMS", Particle.class, Object.class);
+                    if (ServerVersion.supports(13)) {
+                        CRAFT_PARTICLE_TO_NMS_METHOD2 = CRAFT_PARTICLE.getMethod("toNMS", Particle.class, Object.class);
+                    }
                     CRAFT_PARTICLE_TO_BUKKIT_METHOD = CRAFT_PARTICLE.getMethod("toBukkit", ParticleOptionsAccessor.getType());
                 }
                 CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD = CRAFT_LIVING_ENTITY.getMethod("getHandle");
@@ -190,6 +192,12 @@ public class NMSUtils {
         }
     }
 
+    /**
+     * @apiNote Does NOT work on 1.12.2 and below.
+     * @param particle
+     * @param data
+     * @return
+     */
     public static Object getParticleOptions(Particle particle, Object data) {
         try {
             return CRAFT_PARTICLE_TO_NMS_METHOD2.invoke(null, particle, data);

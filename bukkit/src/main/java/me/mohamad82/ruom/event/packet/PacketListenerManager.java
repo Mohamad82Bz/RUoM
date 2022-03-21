@@ -134,8 +134,7 @@ public class PacketListenerManager implements Listener {
                                     e.printStackTrace();
                                 }
                             });
-                        }
-                        else if (packet.getClass().equals(ServerboundInteractPacketAccessor.getType()) && !interactEvents.isEmpty()) {
+                        } else if (packet.getClass().equals(ServerboundInteractPacketAccessor.getType()) && !interactEvents.isEmpty()) {
                             Ruom.runAsync(() -> {
                                 try {
                                     int entityId = (int) ServerboundInteractPacketAccessor.getFieldEntityId().get(packet);
@@ -160,6 +159,22 @@ public class PacketListenerManager implements Listener {
                                                     (double) Vec3Accessor.getMethodY1().invoke(vec3),
                                                     (double) Vec3Accessor.getMethodZ1().invoke(vec3)
                                             );
+                                        }
+                                    } else {
+                                        if (action.equals(ServerboundInteractPacket_i_ActionAccessor.getFieldINTERACT().get(null))) {
+                                            actionId = 1;
+                                            hand = LivingEntityNPC.InteractionHand.fromNmsObject(ServerboundInteractPacketAccessor.getFieldHand().get(packet));
+                                        } else if (action.equals(ServerboundInteractPacket_i_ActionAccessor.getFieldINTERACT_AT().get(null))) {
+                                            actionId = 2;
+                                            Object vec3 = ServerboundInteractPacketAccessor.getFieldLocation().get(packet);
+                                            hand = LivingEntityNPC.InteractionHand.fromNmsObject(ServerboundInteractPacketAccessor.getFieldHand().get(packet));
+                                            location = Vector3.at(
+                                                    (double) Vec3Accessor.getMethodX1().invoke(vec3),
+                                                    (double) Vec3Accessor.getMethodY1().invoke(vec3),
+                                                    (double) Vec3Accessor.getMethodZ1().invoke(vec3)
+                                            );
+                                        } else if (action.equals(ServerboundInteractPacket_i_ActionAccessor.getFieldATTACK().get(null))) {
+                                            actionId = 0;
                                         }
                                     }
 

@@ -15,10 +15,10 @@ public class MathUtils {
 
     public static List<Vector3> circle(float radius, int points, boolean onFloor) {
         List<Vector3> locations = new ArrayList<>();
-        int teta = 360 / points;
         for (int i = 1; i <= points; i++) {
-            double sin = Math.sin(i * teta) * radius;
-            double cos = Math.cos(i * teta) * radius;
+            double teta = 2 * Math.PI * i / points;
+            double sin = Math.sin(teta) * radius;
+            double cos = Math.cos(teta) * radius;
             if (onFloor) {
                 locations.add(Vector3.at(cos, 0, sin));
             } else {

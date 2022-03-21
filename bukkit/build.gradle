@@ -3,7 +3,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.4.1'
+version = '4.5.0'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -92,6 +92,7 @@ nmsGen {
     var ClientboundRespawnPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRespawnPacket")
     var ClientboundEntityEventPacket = reqClass("net.minecraft.network.protocol.game.ClientboundEntityEventPacket")
     var ClientboundChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPacket")
+    var ClientboundSetPlayerTeamPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -170,6 +171,8 @@ nmsGen {
     var VillagerData = reqClass("net.minecraft.world.entity.npc.VillagerData")
     var VillagerType = reqClass("net.minecraft.world.entity.npc.VillagerType")
     var VillagerProfession = reqClass("net.minecraft.world.entity.npc.VillagerProfession")
+    var ChatFormatting = reqClass("net.minecraft.ChatFormatting")
+    var BoatType = reqClass('net.minecraft.world.entity.vehicle.Boat$Type')
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -186,6 +189,7 @@ nmsGen {
     var LightningBolt = reqClass("net.minecraft.world.entity.LightningBolt")
     var SignBlockEntity = reqClass("net.minecraft.world.level.block.entity.SignBlockEntity")
     var Villager = reqClass("net.minecraft.world.entity.npc.Villager")
+    var Boat = reqClass("net.minecraft.world.entity.vehicle.Boat")
 
     ClientboundPlayerInfoPacket
             .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
@@ -321,6 +325,19 @@ nmsGen {
             .reqMethod("getMessage")
             .reqMethod("getType")
             .reqMethod("getSender")
+    ClientboundSetPlayerTeamPacket
+            .reqConstructor(String, int, java.util.Optional, Collection)
+            .reqConstructor()
+            .reqField("name")
+            .reqField("displayName")
+            .reqField("playerPrefix")
+            .reqField("playerSuffix")
+            .reqField("nametagVisibility")
+            .reqField("collisionRule")
+            .reqField("color")
+            .reqField("players")
+            .reqField("method")
+            .reqField("options")
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -342,6 +359,9 @@ nmsGen {
             .reqField("hand")
     ServerboundInteractPacketAction
             .reqMethod("getType")
+            .reqField("INTERACT")
+            .reqField("ATTACK")
+            .reqField("INTERACT_AT")
     ServerboundInteractPacketActionType
             .reqEnumField("INTERACT")
             .reqEnumField("ATTACK")
@@ -801,6 +821,36 @@ nmsGen {
             .reqField("SHEPHERD")
             .reqField("TOOLSMITH")
             .reqField("WEAPONSMITH")
+    ChatFormatting
+            .reqEnumField("BLACK")
+            .reqEnumField("DARK_BLUE")
+            .reqEnumField("DARK_GREEN")
+            .reqEnumField("DARK_AQUA")
+            .reqEnumField("DARK_RED")
+            .reqEnumField("DARK_PURPLE")
+            .reqEnumField("GOLD")
+            .reqEnumField("GRAY")
+            .reqEnumField("DARK_GRAY")
+            .reqEnumField("BLUE")
+            .reqEnumField("GREEN")
+            .reqEnumField("AQUA")
+            .reqEnumField("RED")
+            .reqEnumField("LIGHT_PURPLE")
+            .reqEnumField("YELLOW")
+            .reqEnumField("WHITE")
+            .reqEnumField("OBFUSCATED")
+            .reqEnumField("BOLD")
+            .reqEnumField("STRIKETHROUGH")
+            .reqEnumField("UNDERLINE")
+            .reqEnumField("ITALIC")
+            .reqEnumField("RESET")
+    BoatType
+            .reqEnumField("OAK")
+            .reqEnumField("SPRUCE")
+            .reqEnumField("BIRCH")
+            .reqEnumField("JUNGLE")
+            .reqEnumField("ACACIA")
+            .reqEnumField("DARK_OAK")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
@@ -906,4 +956,18 @@ nmsGen {
     Villager
             .reqConstructor(EntityType, Level)
             .reqField("DATA_VILLAGER_DATA")
+    Boat
+            .reqConstructor(EntityType, Level)
+            .reqMethod("setDamage", float)
+            .reqMethod("getDamage")
+            .reqMethod("setHurtTime", int)
+            .reqMethod("getHurtTime")
+            .reqMethod("setBubbleTime", int)
+            .reqMethod("getBubbleTime")
+            .reqMethod("setHurtDir", int)
+            .reqMethod("getHurtDir")
+            .reqMethod("setType", BoatType)
+            .reqMethod("getBoatType")
+            .reqField("DATA_ID_PADDLE_LEFT")
+            .reqField("DATA_ID_PADDLE_RIGHT")
 }

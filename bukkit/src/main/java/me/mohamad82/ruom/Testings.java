@@ -7,8 +7,12 @@ import com.extollit.gaming.ai.path.model.IPath;
 import com.extollit.linalg.immutable.Vec3d;
 import com.extollit.linalg.immutable.Vec3i;
 import me.mohamad82.ruom.adventure.ComponentUtils;
+import me.mohamad82.ruom.event.packet.PlayerInteractAtEntityEvent;
+import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
+import me.mohamad82.ruom.npc.LivingEntityNPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
+import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
 import me.mohamad82.ruom.pathfinding.AINPC;
 import me.mohamad82.ruom.pathfinding.Instance;
 import me.mohamad82.ruom.utils.NMSUtils;
@@ -40,7 +44,10 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("ruom")) {
             Player player = (Player) sender;
-            if (args[0].equalsIgnoreCase("pathfinding")) {
+            if (args[0].equalsIgnoreCase("inter")) {
+                Ruom.initializePacketListener();
+                new InteractListener();
+            } else if (args[0].equalsIgnoreCase("pathfinding")) {
                 Ruom.runAsync(() -> {
                     instance = new Instance(player.getWorld());
                     for (byte chunkX = -3; chunkX < 3; chunkX++) {
@@ -123,6 +130,24 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
             return true;
         }
         return false;
+    }
+
+    public static class InteractListener extends PlayerInteractAtEntityEvent {
+
+        @Override
+        protected void onInteract(Player player, LivingEntityNPC.InteractionHand hand, int entityId) {
+            Ruom.broadcast("1");
+        }
+
+        @Override
+        protected void onInteractAt(Player player, LivingEntityNPC.InteractionHand hand, Vector3 location, int entityId) {
+            Ruom.broadcast("2");
+        }
+
+        @Override
+        protected void onAttack(Player player, int entityId) {
+            Ruom.broadcast("3");
+        }
     }
 
 }

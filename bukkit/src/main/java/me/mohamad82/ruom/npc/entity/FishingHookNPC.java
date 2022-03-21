@@ -1,6 +1,7 @@
 package me.mohamad82.ruom.npc.entity;
 
 import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.nmsaccessors.BoatAccessor;
 import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
 import me.mohamad82.ruom.nmsaccessors.FishingHookAccessor;
 import me.mohamad82.ruom.nmsaccessors.SynchedEntityDataAccessor;
@@ -41,6 +42,15 @@ public class FishingHookNPC extends EntityNPC {
     public void setHookedEntity(int entityId) {
         Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), FishingHookAccessor.getFieldDATA_HOOKED_ENTITY().get(null), entityId));
         sendEntityData();
+    }
+
+    public int getHookedEntity() {
+        try {
+            return (int) SynchedEntityDataAccessor.getMethodGet1().invoke(getEntityData(), FishingHookAccessor.getFieldDATA_HOOKED_ENTITY().get(null));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     @Override
