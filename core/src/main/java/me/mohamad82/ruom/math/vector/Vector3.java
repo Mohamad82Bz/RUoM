@@ -22,6 +22,10 @@ public class Vector3 implements Cloneable {
         return new Vector3(x, y, z);
     }
 
+    public static Vector3 at(int x, int y, int z) {
+        return new Vector3(x, y, z);
+    }
+
     public int getBlockX() {
         if (x > 0) return (int) x;
         if (x < 0) return (int) Math.floor(x);
