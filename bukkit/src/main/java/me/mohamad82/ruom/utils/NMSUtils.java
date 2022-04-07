@@ -55,15 +55,15 @@ public class NMSUtils {
                 CRAFT_WORLD_GET_HANDLE_METHOD = CRAFT_WORLD.getMethod("getHandle");
                 CRAFT_SERVER_GET_SERVER_METHOD = CRAFT_SERVER.getMethod("getServer");
                 if (ServerVersion.supports(13)) {
-                    //TODO: Find a way for 1.12 and below. EditSession won't work on 1.12 and below in this way.
+                    //TODO: Find a way for 1.12 and below. LegacyVanillaEditSession won't work on 1.12 and below in this way.
                     CRAFT_BLOCK_STATE_GET_HANDLE_METHOD = CRAFT_BLOCK_STATE.getMethod("getHandle");
                 }
                 if (ServerVersion.supports(9)) {
                     CRAFT_PARTICLE_TO_NMS_METHOD = CRAFT_PARTICLE.getMethod("toNMS", Particle.class);
                     if (ServerVersion.supports(13)) {
                         CRAFT_PARTICLE_TO_NMS_METHOD2 = CRAFT_PARTICLE.getMethod("toNMS", Particle.class, Object.class);
+                        CRAFT_PARTICLE_TO_BUKKIT_METHOD = CRAFT_PARTICLE.getMethod("toBukkit", ParticleOptionsAccessor.getType());
                     }
-                    CRAFT_PARTICLE_TO_BUKKIT_METHOD = CRAFT_PARTICLE.getMethod("toBukkit", ParticleOptionsAccessor.getType());
                 }
                 CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD = CRAFT_LIVING_ENTITY.getMethod("getHandle");
                 CRAFT_ENTITY_GET_HANDLE_METHOD = CRAFT_ENTITY.getMethod("getHandle");
@@ -72,7 +72,9 @@ public class NMSUtils {
                 CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
             }
             {
-                LIVING_ENTITY_DROPS_FIELD = LivingEntityAccessor.getType().getField("drops");
+                if (ServerVersion.supports(13)) {
+                    LIVING_ENTITY_DROPS_FIELD = LivingEntityAccessor.getType().getField("drops");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -193,10 +195,10 @@ public class NMSUtils {
     }
 
     /**
-     * @apiNote Does NOT work on 1.12.2 and below.
-     * @param particle
-     * @param data
-     * @return
+     * @apiNote > 1.13
+     * @param particle The bukkit particle
+     * @param data Data of the bukkit particle
+     * @return Nms particle
      */
     public static Object getParticleOptions(Particle particle, Object data) {
         try {
@@ -207,6 +209,11 @@ public class NMSUtils {
         }
     }
 
+    /**
+     * @apiNote > 1.13
+     * @param particleOptions The nms particle
+     * @return Bukkit particle
+     */
     public static Particle getBukkitParticle(Object particleOptions) {
         try {
             return (Particle) CRAFT_PARTICLE_TO_BUKKIT_METHOD.invoke(null, particleOptions);
@@ -225,6 +232,11 @@ public class NMSUtils {
         }
     }
 
+    /**
+     * @apiNote > 1.13
+     * @param livingEntity The bukkit living entity
+     * @return List of bukkit itemstack
+     */
     public static List<ItemStack> getLivingEntityDrops(LivingEntity livingEntity) {
         try {
             return (List<ItemStack>) LIVING_ENTITY_DROPS_FIELD.get(getNmsLivingEntity(livingEntity));
