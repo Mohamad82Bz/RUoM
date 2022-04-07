@@ -151,7 +151,7 @@ public class Ruom {
         try {
             getServer().getMessenger().unregisterOutgoingPluginChannel(getPlugin());
             getServer().getMessenger().unregisterIncomingPluginChannel(getPlugin());
-        } catch (Exception e) {}
+        } catch (Exception ignore) {}
     }
 
 }

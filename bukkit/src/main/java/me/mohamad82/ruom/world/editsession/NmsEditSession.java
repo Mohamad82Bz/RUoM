@@ -1,8 +1,7 @@
-package me.mohamad82.ruom.world;
+package me.mohamad82.ruom.world.editsession;
 
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
-import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
@@ -21,9 +20,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
-public class EditSession {
+public class NmsEditSession implements UpdateRequiredEditSession {
 
     private final Map<Vector3, Object> blockStateModifications = new HashMap<>();
     private final Map<Vector3, BlockData> blockDataModifications = new HashMap<>();
@@ -32,30 +30,25 @@ public class EditSession {
     private final Object serverLevel;
     private final Object lightEngine;
 
-    public EditSession(World world) {
+    public NmsEditSession(World world) {
         this.world = world;
         serverLevel = NMSUtils.getServerLevel(world);
         lightEngine = NMSUtils.getLightEngine(world);
     }
 
-    public void setBlockAndUpdate(Vector3 blockLocation, BlockData blockData) {
-        Vector3UtilsBukkit.toLocation(world, blockLocation).getBlock().setBlockData(blockData);
-    }
-
-    public void setBlock(Vector3 blockLocation, BlockState blockState) {
-        blockStateModifications.put(blockLocation, NMSUtils.getBlockState(blockState));
-    }
-
+    @Override
     public void setBlock(Vector3 blockLocation, Material material) {
         blockStateModifications.put(blockLocation, NMSUtils.getBlockState(material));
     }
 
+    @Override
     public void setBlock(Vector3 blockLocation, BlockData blockData) {
         setBlock(blockLocation, blockData.getMaterial());
         if (!blockData.matches(blockData.getMaterial().createBlockData()))
             blockDataModifications.put(blockLocation, blockData);
     }
 
+    @Override
     public void apply() {
         try {
             for (Map.Entry<Vector3, BlockData> entry : blockDataModifications.entrySet()) {
@@ -87,6 +80,7 @@ public class EditSession {
         }
     }
 
+    @Override
     public void update() {
         try {
             for (Object chunk : modifiedChunks) {
@@ -121,14 +115,6 @@ public class EditSession {
                         0,
                         (float) (chunkMinZ + chunkMaxZ) / 2
                 );
-
-                /*Set<Player> nearbyPlayers = Ruom.getOnlinePlayers().stream().filter(player ->
-                        player.getLocation().distance(location) * 16 < Bukkit.getViewDistance()).collect(Collectors.toSet());
-
-                NMSUtils.sendPacket(nearbyPlayers, chunkLoadPacket);
-                if (lightUpdatePacket != null) {
-                    NMSUtils.sendPacket(nearbyPlayers, lightUpdatePacket);
-                }*/
 
                 getNearbyPlayers(location).whenComplete((nearbyPlayers, error) -> {
                     NMSUtils.sendPacket(nearbyPlayers, chunkLoadPacket);

@@ -6,8 +6,11 @@ import com.sk89q.worldedit.math.BlockVector3;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
+import me.mohamad82.ruom.world.editsession.EditSession;
+import me.mohamad82.ruom.world.editsession.UpdateRequiredEditSession;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -22,10 +25,10 @@ public class Schematic {
     private final Random random = new Random();
     private final boolean ignoreAir;
 
-    public Schematic(Clipboard clipboard, Location location, boolean ignoreAir) {
+    public Schematic(EditSession editSession, Clipboard clipboard, Location location, boolean ignoreAir) {
+        this.editSession = editSession;
         this.clipboard = clipboard;
         this.location = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());;
-        this.editSession = new EditSession(location.getWorld());
         this.ignoreAir = ignoreAir;
     }
 
@@ -87,13 +90,6 @@ public class Schematic {
         }
     }
 
-    public void applyAndUpdate(Vector3 blockLocation) {
-        if (blockData.containsKey(blockLocation)) {
-            editSession.setBlockAndUpdate(blockLocation, blockData.get(blockLocation));
-            remove(blockLocation);
-        }
-    }
-
     public void applyAll() {
         for (Map.Entry<Integer, Set<Vector3>> entry : layerBlocks.entrySet()) {
             for (Vector3 blockLocation : entry.getValue()) {
@@ -102,14 +98,41 @@ public class Schematic {
         }
         layerBlocks.clear();
         blockData.clear();
+        updateIfRequired();
     }
 
-    public Vector3 getRandomBlock(int layerIndex) {
+    public CompletableFuture<Boolean> applyAll(int maxBlocksPerTick) {
+        CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
+        CompletableFuture<Boolean> updateFuture = new CompletableFuture<>();
+        new BukkitRunnable() {
+            public void run() {
+                for (int applied = 0; applied < maxBlocksPerTick; applied++) {
+                    if (blockData.isEmpty()) {
+                        updateFuture.complete(true);
+                        completableFuture.complete(true);
+                        cancel();
+                        return;
+                    }
+                    Vector3 blockLocation = blockData.keySet().iterator().next();
+                    editSession.setBlock(blockLocation, blockData.get(blockLocation));
+                    blockData.remove(blockLocation);
+                }
+            }
+        }.runTaskTimer(Ruom.getPlugin(), 0, 1);
+
+        updateFuture.whenComplete((bool, err) -> {
+            updateIfRequired();
+        });
+
+        return completableFuture;
+    }
+
+    public Vector3 nextBlock(int layerIndex) {
         if (!layerBlocks.containsKey(layerIndex)) return null;
         return layerBlocks.get(layerIndex).iterator().next();
     }
 
-    public Vector3 getNearestBlock(int layerIndex, Vector3 location) {
+    public Vector3 nearestBlock(int layerIndex, Vector3 location) {
         if (!layerBlocks.containsKey(layerIndex)) return null;
         double lowestDistance = Integer.MAX_VALUE;
         Vector3 nearestBlock = null;
@@ -129,15 +152,16 @@ public class Schematic {
 
     public int randomLayerIndex() {
         List<Integer> layers = new ArrayList<>(layerBlocks.keySet());
-        Ruom.broadcast(layers.size() + "");
         return layers.get(random.nextInt(layers.size()));
     }
 
-    public void update() {
-        Ruom.runSync(() -> {
-            editSession.apply();
-            Ruom.runAsync(editSession::update);
-        });
+    public void updateIfRequired() {
+        if (editSession instanceof UpdateRequiredEditSession) {
+            Ruom.runSync(() -> {
+                ((UpdateRequiredEditSession) editSession).apply();
+                Ruom.runAsync(((UpdateRequiredEditSession) editSession)::update);
+            });
+        }
     }
 
     public BlockData getBlockData(Vector3 blockLocation) {

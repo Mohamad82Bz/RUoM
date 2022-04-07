@@ -36,24 +36,28 @@ public class PlayerNPC extends LivingEntityNPC {
 
     public static Object createServerPlayerObject(String name, World world, Optional<MinecraftSkin> skin) {
         try {
+            Object serverLevel = NMSUtils.getServerLevel(world);
             GameProfile profile = new GameProfile(UUID.randomUUID(), name);
             Object entity;
             if (ServerVersion.supports(17)) {
                 entity = ServerPlayerAccessor.getConstructor0().newInstance(
                         NMSUtils.getDedicatedServer(),
-                        NMSUtils.getServerLevel(world),
+                        serverLevel,
                         profile
                 );
             } else {
                 entity = ServerPlayerAccessor.getConstructor1().newInstance(
                         NMSUtils.getDedicatedServer(),
-                        NMSUtils.getServerLevel(world),
+                        serverLevel,
                         profile,
-                        ServerPlayerGameModeAccessor.getConstructor0().newInstance(NMSUtils.getServerLevel(world))
+                        ServerVersion.supports(13) ?
+                                ServerPlayerGameModeAccessor.getConstructor0().newInstance(serverLevel) :
+                                ServerPlayerGameModeAccessor.getConstructor1().newInstance(serverLevel)
                 );
             }
-            if (skin.isPresent())
+            if (skin.isPresent()) {
                 skin.get().apply(entity);
+            }
 
             return entity;
         } catch (Exception e) {
