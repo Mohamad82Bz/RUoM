@@ -44,7 +44,9 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("ruom")) {
             Player player = (Player) sender;
-            if (args[0].equalsIgnoreCase("inter")) {
+            if (args[0].equalsIgnoreCase("itemcategory")) {
+                Ruom.broadcast(NMSUtils.getItemCategory(player.getInventory().getItemInMainHand()));
+            } else if (args[0].equalsIgnoreCase("inter")) {
                 Ruom.initializePacketListener();
                 new InteractListener();
             } else if (args[0].equalsIgnoreCase("pathfinding")) {

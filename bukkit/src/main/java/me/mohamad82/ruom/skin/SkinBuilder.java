@@ -105,9 +105,17 @@ public class SkinBuilder {
         }
     }
 
+    /**
+     * Gets the skin of the player.
+     * @param player The player.
+     * @return The skin of the player. Null if the player has no skin (has default skin).
+     */
     public MinecraftSkin getSkin(Player player) {
         try {
             GameProfile gameProfile = (GameProfile) PlayerAccessor.getMethodGetGameProfile1().invoke(NMSUtils.getServerPlayer(player));
+            if (!gameProfile.getProperties().containsKey("textures")) {
+                return null;
+            }
             Property property = gameProfile.getProperties().get("textures").iterator().next();
 
             return new MinecraftSkin(property.getValue(), property.getSignature());
