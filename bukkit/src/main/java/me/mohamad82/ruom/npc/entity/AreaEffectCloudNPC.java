@@ -8,6 +8,9 @@ import me.mohamad82.ruom.utils.NMSUtils;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 
+/**
+ * @apiNote > 1.9
+ */
 public class AreaEffectCloudNPC extends EntityNPC {
 
     private AreaEffectCloudNPC(Location location) throws Exception {
@@ -55,11 +58,17 @@ public class AreaEffectCloudNPC extends EntityNPC {
         }
     }
 
+    /**
+     * @apiNote > 1.13
+     */
     public void setParticle(Particle particle) {
         Ruom.run(() -> AreaEffectCloudAccessor.getMethodSetParticle1().invoke(entity, NMSUtils.getParticleOptions(particle)));
         sendEntityData();
     }
 
+    /**
+     * @apiNote > 1.13
+     */
     public Particle getParticle() {
         try {
             return NMSUtils.getBukkitParticle(AreaEffectCloudAccessor.getMethodGetParticle1().invoke(entity));

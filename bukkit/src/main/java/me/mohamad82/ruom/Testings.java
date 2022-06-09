@@ -11,21 +11,24 @@ import me.mohamad82.ruom.event.packet.PlayerInteractAtEntityEvent;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
 import me.mohamad82.ruom.npc.LivingEntityNPC;
+import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
-import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
+import me.mohamad82.ruom.npc.entity.ArrowNPC;
 import me.mohamad82.ruom.pathfinding.AINPC;
 import me.mohamad82.ruom.pathfinding.Instance;
 import me.mohamad82.ruom.utils.NMSUtils;
+import me.mohamad82.ruom.utils.ResourceKey;
+import me.mohamad82.ruom.world.biome.BiomeEffects;
+import me.mohamad82.ruom.world.biome.BiomeUtils;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Optional;
@@ -40,10 +43,45 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
     Instance instance;
     AINPC aiNpc;
     HydrazinePathFinder pathFinder;
+    ResourceKey biomeKey = new ResourceKey("custombiome", "koobs");
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("ruom")) {
+            if (args[0].equalsIgnoreCase("debug")) {
+                PlayerNPC npc = PlayerNPC.playerNPC("test", new Location(Bukkit.getWorld("world"), 0, 0, 0), Optional.empty());
+                Ruom.log(NMSUtils.getItemCategory(new ItemStack(Material.DIAMOND)));
+                return true;
+            }
             Player player = (Player) sender;
+            if (args[0].equalsIgnoreCase("arrow")) {
+                Ruom.broadcast("Spawned");
+                ArrowNPC npc = ArrowNPC.arrowNPC(player.getLocation());
+                npc.addViewers(Ruom.getOnlinePlayers());
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("npc")) {
+                PlayerNPC npc = PlayerNPC.playerNPC("test", player.getLocation(), Optional.empty());
+                npc.addViewers(player);
+                npc.setPose(NPC.Pose.CROUCHING, true);
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("biome")) {
+                BiomeEffects biomeEffects = new BiomeEffects();
+                biomeKey = new ResourceKey(args[1], args[2]);
+
+                BiomeUtils.createCustomBiome(biomeKey, biomeEffects);
+                for (int x = player.getLocation().getBlockX() - 8; x < player.getLocation().getBlockX() + 8; x++) {
+                    for (int z = player.getLocation().getBlockZ() - 8; z < player.getLocation().getBlockZ() + 8; z++) {
+                        for (int y = player.getLocation().getBlockY() - 8; y < player.getLocation().getBlockY() + 8; y++) {
+                            Block block = player.getWorld().getBlockAt(x, y, z);
+                            if (block.getType() != Material.AIR) {
+                                BiomeUtils.setBiome(biomeKey, block.getLocation());
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
             if (args[0].equalsIgnoreCase("itemcategory")) {
                 Ruom.broadcast(NMSUtils.getItemCategory(player.getInventory().getItemInMainHand()));
             } else if (args[0].equalsIgnoreCase("inter")) {

@@ -3,6 +3,7 @@ package me.mohamad82.ruom.hologram;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
 import me.mohamad82.ruom.nmsaccessors.EntityDataAccessorAccessor;
+import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
@@ -52,7 +53,7 @@ public class HologramLine extends HoloLine {
     @Override
     protected void initializeNpc(Location location) {
         npc = ArmorStandNPC.armorStandNPC(location);
-        npc.setInvisible(true);
+        npc.setPose(NPC.Pose.INVISIBLE, true);
         npc.setCustomNameVisible(true);
         npc.setCustomName(component);
         getArmorStand().setNoBasePlate(true);

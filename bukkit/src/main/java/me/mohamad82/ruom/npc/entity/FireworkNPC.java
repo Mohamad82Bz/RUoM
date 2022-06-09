@@ -8,6 +8,7 @@ import me.mohamad82.ruom.npc.EntityNPC;
 import me.mohamad82.ruom.npc.NPCType;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
+import me.mohamad82.ruom.utils.ServerVersion;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -16,14 +17,16 @@ import java.util.OptionalInt;
 
 public class FireworkNPC extends EntityNPC {
 
+    private ItemStack item;
+
     protected FireworkNPC(Location location, Optional<ItemStack> fireworkItem) throws Exception {
         super(
                 FireworkRocketEntityAccessor.getConstructor0().newInstance(NPCType.FIREWORK_ROCKET.getNmsEntityType(), NMSUtils.getServerLevel(location.getWorld())),
                 location,
                 NPCType.FIREWORK_ROCKET
         );
-        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
         fireworkItem.ifPresent(this::setFirework);
+        this.item = fireworkItem.orElse(null);
     }
 
     public static FireworkNPC fireworkNPC(Location location, Optional<ItemStack> fireworkItem) {
@@ -36,25 +39,30 @@ public class FireworkNPC extends EntityNPC {
     }
 
     public void setFirework(ItemStack firework) {
-        Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), FireworkRocketEntityAccessor.getFieldDATA_ID_FIREWORKS_ITEM().get(null), NMSUtils.getNmsItemStack(firework)));
-        sendEntityData();
-    }
-
-    public Optional<ItemStack> getFirework() {
-        try {
-            Object nmsItem = NMSUtils.getBukkitItemStack(SynchedEntityDataAccessor.getMethodGet1().invoke(getEntityData(), FireworkRocketEntityAccessor.getFieldDATA_ID_FIREWORKS_ITEM().get(null)));
-            return nmsItem == null ? Optional.empty() : Optional.of(NMSUtils.getBukkitItemStack(nmsItem));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Optional.empty();
+        this.item = firework;
+        if (ServerVersion.supports(9)) {
+            Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), FireworkRocketEntityAccessor.getFieldDATA_ID_FIREWORKS_ITEM().get(null), NMSUtils.getNmsItemStack(firework)));
+            sendEntityData();
+        } else {
+            setMetadata(8, NMSUtils.getNmsItemStack(firework));
         }
     }
 
+    public Optional<ItemStack> getFirework() {
+        return Optional.ofNullable(item);
+    }
+
+    /**
+     * @apiNote > 1.11
+     */
     public void setAttachedEntity(OptionalInt entityId) {
         Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), FireworkRocketEntityAccessor.getFieldDATA_ATTACHED_TO_TARGET().get(null), entityId));
         sendEntityData();
     }
 
+    /**
+     * @apiNote > 1.11
+     */
     public OptionalInt getAttachedEntity() {
         try {
             return (OptionalInt) SynchedEntityDataAccessor.getMethodGet1().invoke(getEntityData(), FireworkRocketEntityAccessor.getFieldDATA_ATTACHED_TO_TARGET().get(null));
@@ -64,6 +72,9 @@ public class FireworkNPC extends EntityNPC {
         }
     }
 
+    /**
+     * @apiNote > 1.11
+     */
     public boolean hasAttachedEntity() {
         try {
             return (boolean) FireworkRocketEntityAccessor.getMethodIsAttachedToEntity1().invoke(entity);
@@ -73,11 +84,17 @@ public class FireworkNPC extends EntityNPC {
         }
     }
 
+    /**
+     * @apiNote > 1.14
+     */
     public void setShotAtAngle(boolean shotAtAngle) {
         Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), FireworkRocketEntityAccessor.getFieldDATA_SHOT_AT_ANGLE().get(null), shotAtAngle));
         sendEntityData();
     }
 
+    /**
+     * @apiNote > 1.14
+     */
     public boolean isShotAtAngle() {
         try {
             return (boolean) SynchedEntityDataAccessor.getMethodGet1().invoke(getEntityData(), FireworkRocketEntityAccessor.getFieldDATA_SHOT_AT_ANGLE().get(null));
@@ -87,6 +104,9 @@ public class FireworkNPC extends EntityNPC {
         }
     }
 
+    /**
+     * @apiNote > 1.14
+     */
     public boolean hasExplosion() {
         try {
             return (boolean) FireworkRocketEntityAccessor.getMethodHasExplosion1().invoke(entity);

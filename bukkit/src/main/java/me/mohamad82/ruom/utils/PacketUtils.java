@@ -108,8 +108,13 @@ public class PacketUtils {
 
     public static Object getEntityPosPacket(int id, double x, double y, double z) {
         try {
-            return ClientboundMoveEntityPacket_i_PosAccessor.getConstructor0().newInstance(id,
-                    (short) (x * 4096), (short) (y * 4096), (short) (z * 4096), true);
+            if (ServerVersion.supports(13)) {
+                return ClientboundMoveEntityPacket_i_PosAccessor.getConstructor0().newInstance(id,
+                        (short) (x * 4096), (short) (y * 4096), (short) (z * 4096), true);
+            } else {
+                return ClientboundMoveEntityPacket_i_PosAccessor.getConstructor1().newInstance(id,
+                        (long) (x * 4096), (long) (y * 4096), (long) (z * 4096), true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
@@ -118,9 +123,15 @@ public class PacketUtils {
 
     public static Object getEntityPosRotPacket(int id, double x, double y, double z, float yaw, float pitch, boolean onGround) {
         try {
-            return ClientboundMoveEntityPacket_i_PosRotAccessor.getConstructor0().newInstance(id,
-                    (short) (x * 4096), (short) (y * 4096), (short) (z * 4096),
-                    NMSUtils.getAngle(yaw), NMSUtils.getAngle(pitch), onGround);
+            if (ServerVersion.supports(13)) {
+                return ClientboundMoveEntityPacket_i_PosRotAccessor.getConstructor0().newInstance(id,
+                        (short) (x * 4096), (short) (y * 4096), (short) (z * 4096),
+                        NMSUtils.getAngle(yaw), NMSUtils.getAngle(pitch), onGround);
+            } else {
+                return ClientboundMoveEntityPacket_i_PosRotAccessor.getConstructor1().newInstance(id,
+                        (long) (x * 4096), (long) (y * 4096), (long) (z * 4096),
+                        NMSUtils.getAngle(yaw), NMSUtils.getAngle(pitch), onGround);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
@@ -173,11 +184,15 @@ public class PacketUtils {
 
     public static Object getEntityEquipmentPacket(int id, Object nmsEquipmentSlot, Object nmsItem) {
         try {
-            Pair<Object, Object> pair = new Pair<>(nmsEquipmentSlot, nmsItem);
-            List<Pair<Object, Object>> pairList = new ArrayList<>();
-            pairList.add(pair);
+            if (ServerVersion.supports(13)) {
+                Pair<Object, Object> pair = new Pair<>(nmsEquipmentSlot, nmsItem);
+                List<Pair<Object, Object>> pairList = new ArrayList<>();
+                pairList.add(pair);
 
-            return ClientboundSetEquipmentPacketAccessor.getConstructor0().newInstance(id, pairList);
+                return ClientboundSetEquipmentPacketAccessor.getConstructor0().newInstance(id, pairList);
+            } else {
+                return ClientboundSetEquipmentPacketAccessor.getConstructor1().newInstance(id, nmsEquipmentSlot, nmsItem);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
@@ -210,6 +225,9 @@ public class PacketUtils {
         }
     }
 
+    /**
+     * @apiNote > 1.9
+     */
     public static Object getEntityPassengersPacket(Object entity, int... passengerIds) {
         try {
             Object packet = ClientboundSetPassengersPacketAccessor.getConstructor0().newInstance(entity);
@@ -224,10 +242,15 @@ public class PacketUtils {
 
     public static Object getChatPacket(Component message, ChatType type, @Nullable UUID sender) {
         try {
+            Object nmsComponent = MinecraftComponentSerializer.get().serialize(message);
             if (ServerVersion.supports(16)) {
-                return ClientboundChatPacketAccessor.getConstructor0().newInstance(MinecraftComponentSerializer.get().serialize(message), type.nmsObject, sender == null ? UUID.randomUUID() : sender);
+                return ClientboundChatPacketAccessor.getConstructor0().newInstance(nmsComponent, type.getNmsObject(), sender == null ? UUID.randomUUID() : sender);
             } else {
-                return ClientboundChatPacketAccessor.getConstructor1().newInstance(MinecraftComponentSerializer.get().serialize(message), type.nmsObject);
+                if (ServerVersion.supports(12)) {
+                    return ClientboundChatPacketAccessor.getConstructor1().newInstance(nmsComponent, type.getNmsObject());
+                } else {
+                    return ClientboundChatPacketAccessor.getConstructor2().newInstance(nmsComponent, type.legacyId);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -315,44 +338,15 @@ public class PacketUtils {
 
     public static Object getEntityDataPacket(int id, int metadataId, Object value) {
         try {
-            Object entityData = SynchedEntityDataAccessor.getConstructor0().newInstance((Object) null);
-            Object entityDataSerializer = getEntityDataSerializer(value);
-            SynchedEntityDataAccessor.getMethodDefine1().invoke(entityData, EntityDataSerializerAccessor.getMethodCreateAccessor1().invoke(entityDataSerializer, metadataId), value);
-
-            return ClientboundSetEntityDataPacketAccessor.getConstructor0().newInstance(id, entityData, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Error(e);
-        }
-    }
-
-    public static Object getEntityDataSerializer(Object object) {
-        try {
-            switch (object.getClass().getSimpleName()) {
-                case "Byte":
-                    return EntityDataSerializersAccessor.getFieldBYTE().get(null);
-                case "Integer":
-                    return EntityDataSerializersAccessor.getFieldINT().get(null);
-                case "Float":
-                    return EntityDataSerializersAccessor.getFieldFLOAT().get(null);
-                case "String":
-                    return EntityDataSerializersAccessor.getFieldSTRING().get(null);
-                case "Optional":
-                    return EntityDataSerializersAccessor.getFieldOPTIONAL_COMPONENT().get(null);
-                case "ItemStack":
-                    return EntityDataSerializersAccessor.getFieldITEM_STACK().get(null);
-                case "Boolean":
-                    return EntityDataSerializersAccessor.getFieldBOOLEAN().get(null);
-                default: {
-                    if (object.getClass().equals(ComponentAccessor.getType())) {
-                        return EntityDataSerializersAccessor.getFieldCOMPONENT();
-                    } else if (object.getClass().equals(PoseAccessor.getType())) {
-                        return EntityDataSerializersAccessor.getFieldPOSE();
-                    } else {
-                        return null;
-                    }
-                }
+            Object synchedEntityData = SynchedEntityDataAccessor.getConstructor0().newInstance((Object) null);
+            if (ServerVersion.supports(9)) {
+                Object entityDataSerializer = NMSUtils.getEntityDataSerializer(value);
+                SynchedEntityDataAccessor.getMethodDefine1().invoke(synchedEntityData, EntityDataSerializerAccessor.getMethodCreateAccessor1().invoke(entityDataSerializer, metadataId), value);
+            } else {
+                SynchedEntityDataAccessor.getMethodA1().invoke(synchedEntityData, metadataId, value);
             }
+
+            return ClientboundSetEntityDataPacketAccessor.getConstructor0().newInstance(id, synchedEntityData, true);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
@@ -374,14 +368,23 @@ public class PacketUtils {
     }
 
     public enum ChatType {
-        CHAT(ChatTypeAccessor.getFieldCHAT()),
-        SYSTEM(ChatTypeAccessor.getFieldSYSTEM()),
-        GAME_INFO(ChatTypeAccessor.getFieldGAME_INFO());
+        CHAT((byte) 0),
+        SYSTEM((byte) 1),
+        GAME_INFO((byte) 2);
 
-        private final Object nmsObject;
+        private final byte legacyId;
 
-        ChatType(Object nmsObject) {
-            this.nmsObject = nmsObject;
+        ChatType(byte legacyId) {
+            this.legacyId = legacyId;
+        }
+
+        private Object getNmsObject() {
+            switch (this) {
+                case CHAT: return ChatTypeAccessor.getFieldCHAT();
+                case SYSTEM: return ChatTypeAccessor.getFieldSYSTEM();
+                case GAME_INFO: return ChatTypeAccessor.getFieldGAME_INFO();
+            }
+            return null;
         }
     }
 

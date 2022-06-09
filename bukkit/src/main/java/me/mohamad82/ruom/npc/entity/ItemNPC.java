@@ -42,9 +42,9 @@ public class ItemNPC extends EntityNPC {
     }
 
     public void setAmount(int amount) {
-        ItemStack fixedAmountItem = getItem();
-        fixedAmountItem.setAmount(amount);
-        setItem(fixedAmountItem);
+        ItemStack item = getItem();
+        item.setAmount(amount);
+        setItem(item);
     }
 
     public int getAmount() {

@@ -3,14 +3,15 @@ package me.mohamad82.ruom.npc;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
-import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
-import me.mohamad82.ruom.nmsaccessors.EquipmentSlotAccessor;
-import me.mohamad82.ruom.nmsaccessors.PoseAccessor;
-import me.mohamad82.ruom.nmsaccessors.Vec3Accessor;
+import me.mohamad82.ruom.metadata.entity.V1_12_EntityMeta;
+import me.mohamad82.ruom.metadata.entity.V1_8_EntityMeta;
+import me.mohamad82.ruom.metadata.entity.pose.V1_12_EntityPose;
+import me.mohamad82.ruom.metadata.entity.pose.V1_8_EntityPose;
+import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
-import me.mohamad82.ruom.utils.Viewered;
+import me.mohamad82.ruom.utils.Viewable;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -18,16 +19,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class NPC extends Viewered {
+public abstract class NPC extends Viewable {
 
     protected final Map<EquipmentSlot, Object> equipments = new HashMap<>();
+    private final Set<Pose> poses = new HashSet<>();
+
+    private Component customName;
+    private Vector3 position;
 
     protected Object entity;
     protected int id;
@@ -41,7 +45,23 @@ public abstract class NPC extends Viewered {
 
     protected void initialize(Object entity) {
         this.entity = entity;
-        Ruom.run(() -> this.id = (int) EntityAccessor.getMethodGetId1().invoke(entity));
+        Ruom.run(() -> {
+            this.id = (int) EntityAccessor.getMethodGetId1().invoke(entity);
+            if (ServerVersion.supports(16)) {
+                Object vec3 = EntityAccessor.getFieldPosition().get(entity);
+                this.position = Vector3.at(
+                        (double) Vec3Accessor.getMethodX1().invoke(vec3),
+                        (double) Vec3Accessor.getMethodY1().invoke(vec3),
+                        (double) Vec3Accessor.getMethodZ1().invoke(vec3)
+                );
+            } else {
+                this.position = Vector3.at(
+                        (double) EntityAccessor.getFieldLocX().get(entity),
+                        (double) EntityAccessor.getFieldLocY().get(entity),
+                        (double) EntityAccessor.getFieldLocZ().get(entity)
+                );
+            }
+        });
     }
 
     public void look(float yaw, float pitch) {
@@ -57,6 +77,7 @@ public abstract class NPC extends Viewered {
         look(dirLocation.getYaw(), dirLocation.getPitch());
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean move(Vector3 vector) {
         if (Math.sqrt((vector.getX() * vector.getX()) + (vector.getY() * vector.getY()) + (vector.getZ() * vector.getZ())) >= 8) return false;
         setPosition(getPosition().add(vector));
@@ -127,7 +148,7 @@ public abstract class NPC extends Viewered {
         NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityVelocityPacket(id, vector3.getX(), vector3.getY(), vector3.getZ()));
     }
 
-    public void setEquipment(EquipmentSlot slot, ItemStack item) {
+    public void setEquipment(@NotNull EquipmentSlot slot, @Nullable ItemStack item) {
         Object nmsItem;
         if (item == null) {
             nmsItem = NMSUtils.getNmsEmptyItemStack();
@@ -138,50 +159,47 @@ public abstract class NPC extends Viewered {
         NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, slot.nmsSlot, nmsItem));
     }
 
-    public void setPose(Pose pose) {
-        Ruom.run(() -> EntityAccessor.getMethodSetPose1().invoke(entity, pose.getNmsPose()));
-        sendEntityData();
-    }
-
-    public void setGlowing(boolean glowing) {
-        Ruom.run(() -> {
-            if (ServerVersion.supports(17)) {
-                EntityAccessor.getMethodSetGlowingTag1().invoke(entity, glowing);
-            } else {
-                EntityAccessor.getMethodSetGlowing1().invoke(entity, glowing);
+    public void setPose(Pose pose, boolean flag) {
+        if (!pose.isSupported()) return;
+        boolean changed;
+        if (flag) {
+            changed = poses.add(pose);
+        } else {
+            changed = poses.remove(pose);
+            if (ServerVersion.supports(14) && !poses.contains(Pose.CROUCHING) && !poses.contains(Pose.SWIMMING)) {
+                Ruom.run(() -> EntityAccessor.getMethodSetPose1().invoke(entity, Pose.STANDING.getModern()));
             }
-        });
-        sendEntityData();
-    }
-
-    public boolean isGlowing() {
-        try {
-            if (ServerVersion.supports(17)) {
-                return (boolean) EntityAccessor.getMethodHasGlowingTag1().invoke(entity);
-            } else {
-                return (boolean) EntityAccessor.getMethodIsGlowing1().invoke(entity);
+        }
+        if (changed) {
+            if (ServerVersion.supports(14)) {
+                if (poses.contains(Pose.SWIMMING)) {
+                    Ruom.run(() -> EntityAccessor.getMethodSetPose1().invoke(entity, Pose.SWIMMING.getModern()));
+                } else if (poses.contains(Pose.CROUCHING)) {
+                    Ruom.run(() -> EntityAccessor.getMethodSetPose1().invoke(entity, Pose.CROUCHING.getModern()));
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            setMetadata(0, Pose.getBitMasks(poses, true));
         }
     }
 
+    public boolean hasPose(Pose pose) {
+        return poses.contains(pose);
+    }
+
     public void setCustomName(Component component) {
-        Ruom.run(() -> EntityAccessor.getMethodSetCustomName1().invoke(entity, MinecraftComponentSerializer.get().serialize(component)));
+        this.customName = component;
+        Object nmsComponent = MinecraftComponentSerializer.get().serialize(component);
+        if (ServerVersion.supports(13)) {
+            Ruom.run(() -> EntityAccessor.getMethodSetCustomName1().invoke(entity, nmsComponent));
+        } else {
+            setMetadata(ServerVersion.supports(12) ? V1_12_EntityMeta.CUSTOM_NAME.getIndex() : V1_8_EntityMeta.CUSTOM_NAME.getIndex(), nmsComponent);
+        }
         sendEntityData();
     }
 
     @Nullable
     public Component getCustomName() {
-        try {
-            Object component = EntityAccessor.getMethodGetCustomName1().invoke(entity);
-            if (component == null) return null;
-            return MinecraftComponentSerializer.get().deserialize(component);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return customName;
     }
 
     public void setCustomNameVisible(boolean customNameVisible) {
@@ -198,25 +216,17 @@ public abstract class NPC extends Viewered {
         }
     }
 
-    public void setInvisible(boolean invisible) {
-        Ruom.run(() -> EntityAccessor.getMethodSetInvisible1().invoke(entity, invisible));
-        sendEntityData();
-    }
-
-    public boolean isInvisible() {
-        try {
-            return (boolean) EntityAccessor.getMethodIsInvisible1().invoke(entity);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
+    /**
+     * @apiNote > 1.10
+     */
     public void setNoGravity(boolean noGravity) {
         Ruom.run(() -> EntityAccessor.getMethodSetNoGravity1().invoke(entity, noGravity));
         sendEntityData();
     }
 
+    /**
+     * @apiNote > 1.10
+     */
     public boolean isNoGravity() {
         try {
             return (boolean) EntityAccessor.getMethodIsNoGravity1().invoke(entity);
@@ -226,41 +236,20 @@ public abstract class NPC extends Viewered {
         }
     }
 
-    public void setOnFire(boolean fire) {
-        Ruom.run(() -> EntityAccessor.getMethodSetSharedFlag1().invoke(entity, 0, fire));
-        sendEntityData();
-    }
-
-    public boolean isOnFire() {
-        try {
-            return (boolean) EntityAccessor.getMethodGetSharedFlag1().invoke(entity, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public void setSprinting(boolean sprinting) {
-        Ruom.run(() -> EntityAccessor.getMethodSetSprinting1().invoke(entity, sprinting));
-        sendEntityData();
-    }
-
-    public boolean isSprinting() {
-        try {
-            return (boolean) EntityAccessor.getMethodIsSprinting1().invoke(entity);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
+    /**
+     * @apiNote > 1.17
+     */
     public void setTicksFrozen(int ticksFrozen) {
         if (!ServerVersion.supports(17)) return;
         Ruom.run(() -> EntityAccessor.getMethodSetTicksFrozen1().invoke(entity, ticksFrozen));
         sendEntityData();
     }
 
+    /**
+     * @apiNote > 1.17
+     */
     public int getTicksFrozen() {
+        if (!ServerVersion.supports(17)) return 0;
         try {
             return (int) EntityAccessor.getMethodGetTicksFrozen1().invoke(entity);
         } catch (Exception e) {
@@ -270,18 +259,22 @@ public abstract class NPC extends Viewered {
     }
 
     public void setMetadata(int metadataId, Object value) {
-        NMSUtils.sendPacket(getViewers(),
-                PacketUtils.getEntityDataPacket(id, metadataId, value));
+        if (ServerVersion.supports(9)) {
+            Object entityDataSerializer = NMSUtils.getEntityDataSerializer(value);
+            Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), EntityDataSerializerAccessor.getMethodCreateAccessor1().invoke(entityDataSerializer, metadataId), value));
+        } else {
+            Ruom.run(() -> SynchedEntityDataAccessor.getMethodWatch1().invoke(getEntityData(), metadataId, value));
+        }
+        sendEntityData();
     }
 
+    /**
+     * @apiNote > 1.9
+     */
     public void setPassengers(int... passengerIds) {
+        if (!ServerVersion.supports(9)) return;
         NMSUtils.sendPacket(getViewers(),
                 PacketUtils.getEntityPassengersPacket(entity));
-    }
-
-    public void setUuid(UUID uuid) {
-        Ruom.run(() -> EntityAccessor.getMethodSetUUID1().invoke(entity, uuid));
-        sendEntityData();
     }
 
     public UUID getUuid() {
@@ -315,27 +308,20 @@ public abstract class NPC extends Viewered {
     }
 
     protected void setPosition(Vector3 position) {
+        this.position = position;
         Ruom.run(() -> EntityAccessor.getMethodSetPos1().invoke(entity, position.getX(), position.getY(), position.getZ()));
     }
 
     public Vector3 getPosition() {
-        try {
-            Object vec3 = EntityAccessor.getFieldPosition().get(entity);
-            return Vector3.at(
-                    (double) Vec3Accessor.getMethodX1().invoke(vec3),
-                    (double) Vec3Accessor.getMethodY1().invoke(vec3),
-                    (double) Vec3Accessor.getMethodZ1().invoke(vec3)
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return position.clone();
     }
 
     public void discard() {
         discarded = true;
         removeViewers(getViewers());
         equipments.clear();
+        poses.clear();
+        customName = null;
         entity = null;
     }
 
@@ -361,23 +347,88 @@ public abstract class NPC extends Viewered {
     }
 
     public enum Pose {
-        STANDING(PoseAccessor.getFieldSTANDING()),
-        FALL_FLYING(PoseAccessor.getFieldFALL_FLYING()),
-        SLEEPING(PoseAccessor.getFieldSLEEPING()),
-        SWIMMING(PoseAccessor.getFieldSWIMMING()),
-        SPIN_ATTACK(PoseAccessor.getFieldSPIN_ATTACK()),
-        CROUCHING(PoseAccessor.getFieldCROUCHING()),
-        LONG_JUMPING(PoseAccessor.getFieldLONG_JUMPING()),
-        DYING(PoseAccessor.getFieldDYING());
+        STANDING(PoseAccessor.getFieldSTANDING(), V1_12_EntityPose.STANDING, V1_8_EntityPose.STANDING),
+        ON_FIRE(null, V1_12_EntityPose.ON_FIRE, V1_8_EntityPose.ON_FIRE),
+        CROUCHING(PoseAccessor.getFieldCROUCHING(), V1_12_EntityPose.CROUCHING, V1_8_EntityPose.CROUCHING),
+        SPRINTING(null, V1_12_EntityPose.SPRINTING, V1_8_EntityPose.SPRINTING),
+        SWIMMING(PoseAccessor.getFieldSWIMMING(), 0x10),
+        INVISIBLE(null, V1_12_EntityPose.INVISIBLE, V1_8_EntityPose.INVISIBLE),
+        GLOWING(null, V1_12_EntityPose.GLOWING),
+        ELYTRA_FLYING(null, V1_12_EntityPose.ELYTRA_FLYING),
+        LEGACY_USE_ITEM(null, null, V1_8_EntityPose.EATING_DRINKING_BLOCKING);
 
-        private final Object nmsPose;
+        private Object modern = null;
+        private final int legacy;
+        private final int superLegacy;
 
-        Pose(Object nmsPose) {
-            this.nmsPose = nmsPose;
+        Pose(Object modern, V1_12_EntityPose legacy, V1_8_EntityPose superLegacy) {
+            if (ServerVersion.supports(14)) {
+                this.modern = modern;
+            }
+            if (legacy != null) {
+                this.legacy = legacy.getBitMask();
+            } else {
+                this.legacy = 0;
+            }
+            this.superLegacy = superLegacy.getBitMask();
         }
 
-        public Object getNmsPose() {
-            return nmsPose;
+        Pose(Object modern, V1_12_EntityPose legacy) {
+            if (ServerVersion.supports(14)) {
+                this.modern = modern;
+            }
+            this.legacy = legacy.getBitMask();
+            this.superLegacy = 0;
+        }
+
+        Pose(Object modern, int legacy, int superLegacy) {
+            if (ServerVersion.supports(14)) {
+                this.modern = modern;
+            }
+            this.legacy = legacy;
+            this.superLegacy = superLegacy;
+        }
+
+        Pose(Object modern, int legacy) {
+            if (ServerVersion.supports(14)) {
+                this.modern = modern;
+            }
+            this.legacy = legacy;
+            this.superLegacy = 0;
+        }
+
+        public Object getModern() {
+            return modern;
+        }
+
+        public int getLegacy() {
+            return legacy;
+        }
+
+        public int getSuperLegacy() {
+            return superLegacy;
+        }
+
+        private boolean isSupported() {
+            if (ServerVersion.supports(9) && legacy != 0) return true;
+            else return superLegacy != 0;
+        }
+
+        public static int getBitMasks(boolean ignoreModern, Pose... poses) {
+            int bitMask = 0;
+            for (Pose pose : poses) {
+                if (ignoreModern && ServerVersion.supports(14) && pose.getModern() != null) continue;
+                if (ServerVersion.supports(9)) {
+                    bitMask |= pose.legacy;
+                } else {
+                    bitMask |= pose.superLegacy;
+                }
+            }
+            return (byte) bitMask;
+        }
+
+        public static byte getBitMasks(Set<Pose> poses, boolean ignoreModern) {
+            return (byte) getBitMasks(ignoreModern, poses.toArray(new Pose[0]));
         }
     }
 

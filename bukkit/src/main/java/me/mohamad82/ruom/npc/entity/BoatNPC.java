@@ -3,7 +3,6 @@ package me.mohamad82.ruom.npc.entity;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.BoatAccessor;
 import me.mohamad82.ruom.nmsaccessors.Boat_i_TypeAccessor;
-import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
 import me.mohamad82.ruom.nmsaccessors.SynchedEntityDataAccessor;
 import me.mohamad82.ruom.npc.EntityNPC;
 import me.mohamad82.ruom.npc.NPCType;
@@ -18,7 +17,6 @@ public class BoatNPC extends EntityNPC {
                 location,
                 NPCType.BOAT
         );
-        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
     }
 
     public static BoatNPC boatNPC(Location location) {
@@ -30,6 +28,9 @@ public class BoatNPC extends EntityNPC {
         }
     }
 
+    /**
+     * @apiNote > 1.9
+     */
     public static BoatNPC boatNPC(Location location, Type type) {
         BoatNPC boatNPC = boatNPC(location);
         boatNPC.setBoatType(type);
@@ -66,7 +67,6 @@ public class BoatNPC extends EntityNPC {
 
     /**
      * @apiNote > 1.13
-     * @param time The time
      */
     public void setBubbleTime(int time) {
         Ruom.run(() -> BoatAccessor.getMethodSetBubbleTime1().invoke(entity, time));
@@ -87,8 +87,7 @@ public class BoatNPC extends EntityNPC {
     }
 
     /**
-     * @apiNote > 1.9.4
-     * @param type The type
+     * @apiNote > 1.9
      */
     public void setBoatType(Type type) {
         Ruom.run(() -> BoatAccessor.getMethodSetType1().invoke(entity, type.nmsObject));
@@ -96,8 +95,7 @@ public class BoatNPC extends EntityNPC {
     }
 
     /**
-     * @apiNote > 1.9.4
-     * @return The type
+     * @apiNote > 1.9
      */
     public Type getBoatType() {
         try {
@@ -110,7 +108,6 @@ public class BoatNPC extends EntityNPC {
 
     /**
      * @apiNote > 1.13
-     * @param state The state
      */
     public void setRightPaddleState(boolean state) {
         Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), BoatAccessor.getFieldDATA_ID_PADDLE_RIGHT().get(null), state));
@@ -119,7 +116,6 @@ public class BoatNPC extends EntityNPC {
 
     /**
      * @apiNote > 1.13
-     * @return The state
      */
     public boolean getRightPaddleState() {
         try {
@@ -132,7 +128,6 @@ public class BoatNPC extends EntityNPC {
 
     /**
      * @apiNote > 1.13
-     * @param state The state
      */
     public void setLeftPaddleState(boolean state) {
         Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), BoatAccessor.getFieldDATA_ID_PADDLE_LEFT().get(null), state));
@@ -141,7 +136,6 @@ public class BoatNPC extends EntityNPC {
 
     /**
      * @apiNote > 1.13
-     * @return The state
      */
     public boolean getLeftPaddleState() {
         try {
@@ -164,6 +158,10 @@ public class BoatNPC extends EntityNPC {
 
         Type(Object nmsObject) {
             this.nmsObject = nmsObject;
+        }
+
+        public Object getNmsObject() {
+            return nmsObject;
         }
     }
 

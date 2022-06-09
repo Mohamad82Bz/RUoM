@@ -1,5 +1,6 @@
 package me.mohamad82.ruom.utils;
 
+import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import org.bukkit.Bukkit;
@@ -10,10 +11,37 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 
 public class BlockUtils {
+
+    private static final List<String> INTERACTABLE_MATERIALS = ListUtils.toList(
+            "CONTAINS:DOOR",
+            "CONTAINS:CHEST",
+            "FURNACE",
+            "CONTAINS:BED",
+            "JUKEBOX",
+            "LEVER",
+            "CONTAINS:BUTTON",
+            "BREWING_STAND",
+            "NOTE_BLOCK",
+            "CONTAINS:PISTON",
+            "CRAFTING_TABLE",
+            "CONTAINS:SPAWNER",
+            "TNT",
+            "ITEM_FRAME"
+    );
+
+    public static boolean isInteractable(Material material) {
+        if (ServerVersion.supports(13)) {
+            return material.isInteractable();
+        } else {
+            return XMaterial.matchXMaterial(material).isOneOf(INTERACTABLE_MATERIALS);
+        }
+    }
 
     public static void placeDoor(Location location, BlockData blockData) {
         Block bottomBlock = location.getBlock();

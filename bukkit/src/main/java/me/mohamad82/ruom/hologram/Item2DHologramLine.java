@@ -3,6 +3,7 @@ package me.mohamad82.ruom.hologram;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.EntityDataAccessorAccessor;
 import me.mohamad82.ruom.nmsaccessors.ThrowableItemProjectileAccessor;
+import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.entity.ThrowableProjectileNPC;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
@@ -44,7 +45,7 @@ public class Item2DHologramLine extends ItemHoloLine {
     public void setGlowing(boolean glowing) {
         super.setGlowing(glowing);
         if (npc != null) {
-            getThrowableProjectileNPC().setGlowing(glowing);
+            getThrowableProjectileNPC().setPose(NPC.Pose.GLOWING, glowing);
         }
     }
 
@@ -57,7 +58,7 @@ public class Item2DHologramLine extends ItemHoloLine {
     protected void initializeNpc(Location location) {
         npc = ThrowableProjectileNPC.throwableProjectileNPC(location, item);
         npc.setNoGravity(true);
-        npc.setGlowing(glowing);
+        npc.setPose(NPC.Pose.GLOWING, glowing);
     }
 
 }

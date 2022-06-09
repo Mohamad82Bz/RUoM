@@ -1,25 +1,28 @@
 package me.mohamad82.ruom.npc;
 
 import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.metadata.livingentity.V1_8_LivingEntityMeta;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
-import me.mohamad82.ruom.math.vector.Vector3;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class LivingEntityNPC extends EntityNPC {
 
+    private int effectColor = 0;
+    private boolean effectAsAmbient = false;
+
     protected LivingEntityNPC(Object entity, Location location, NPCType npcType) {
         super(entity, location, npcType);
     }
 
-    public void setArrowsOnBody(int arrowsOnBody) {
+    public void setBodyArrows(int arrowsOnBody) {
         Ruom.run(() -> LivingEntityAccessor.getMethodSetArrowCount1().invoke(entity, arrowsOnBody));
     }
 
-    public int getArrowsOnBody() {
+    public int getBodyArrows() {
         try {
             return (int) LivingEntityAccessor.getMethodGetArrowCount1().invoke(entity);
         } catch (Exception e) {
@@ -28,52 +31,32 @@ public abstract class LivingEntityNPC extends EntityNPC {
         }
     }
 
-    public void setSleepingPos(Vector3 vector3) {
-        Ruom.run(() -> LivingEntityAccessor.getMethodSetSleepingPos1().invoke(entity, BlockPosAccessor.getConstructor0().newInstance(vector3.getBlockX(), vector3.getBlockY(), vector3.getBlockZ())));
-    }
-
-    @Nullable
-    public Vector3 getSleepingPos() {
-        try {
-            Object blockPos = LivingEntityAccessor.getMethodGetSleepingPos1().invoke(entity);
-            if (blockPos == null) return null;
-            return Vector3.at(
-                    (int) Vec3iAccessor.getMethodGetX1().invoke(blockPos),
-                    (int) Vec3iAccessor.getMethodGetY1().invoke(blockPos),
-                    (int) Vec3iAccessor.getMethodGetZ1().invoke(blockPos)
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public void setEffectColor(int color) {
-        Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), LivingEntityAccessor.getFieldDATA_EFFECT_COLOR_ID().get(null), color));
-        sendEntityData();
+        this.effectColor = effectColor;
+        if (ServerVersion.supports(9)) {
+            Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), LivingEntityAccessor.getFieldDATA_EFFECT_COLOR_ID().get(null), color));
+            sendEntityData();
+        } else {
+            setMetadata(V1_8_LivingEntityMeta.POTION_EFFECT_COLOR.getIndex(), color);
+        }
     }
 
     public int getEffectColor() {
-        try {
-            return (int) SynchedEntityDataAccessor.getMethodGet1().invoke(getEntityData(), LivingEntityAccessor.getFieldDATA_EFFECT_COLOR_ID().get(null));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return -1;
-        }
+        return effectColor;
     }
 
     public void setEffectsAsAmbients(Boolean asAmbients) {
-        Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), LivingEntityAccessor.getFieldDATA_EFFECT_AMBIENCE_ID().get(null), asAmbients));
-        sendEntityData();
+        this.effectAsAmbient = asAmbients;
+        if (ServerVersion.supports(9)) {
+            Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), LivingEntityAccessor.getFieldDATA_EFFECT_AMBIENCE_ID().get(null), asAmbients));
+            sendEntityData();
+        } else {
+            setMetadata(V1_8_LivingEntityMeta.IS_POTION_EFFECT_AMBIENT.getIndex(), asAmbients ? (byte) 1 : (byte) 0);
+        }
     }
 
     public boolean areEffectsAsAmbients() {
-        try {
-            return (boolean) SynchedEntityDataAccessor.getMethodGet1().invoke(getEntityData(), LivingEntityAccessor.getFieldDATA_EFFECT_AMBIENCE_ID().get(null));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return effectAsAmbient;
     }
 
     public void resetEffects() {
@@ -81,13 +64,21 @@ public abstract class LivingEntityNPC extends EntityNPC {
         sendEntityData();
     }
 
+    /**
+     * @apiNote > 1.15
+     */
     public void setStingerCount(int stingerCount) {
+        if (!ServerVersion.supports(15)) return;
         if (!ServerVersion.supports(15)) return;
         Ruom.run(() -> LivingEntityAccessor.getMethodSetStingerCount1().invoke(entity));
         sendEntityData();
     }
 
+    /**
+     * @apiNote > 1.15
+     */
     public int getStingerCount() {
+        if (!ServerVersion.supports(15)) return -1;
         try {
             return (int) LivingEntityAccessor.getMethodGetStingerCount1().invoke(entity);
         } catch (Exception e) {
@@ -96,20 +87,42 @@ public abstract class LivingEntityNPC extends EntityNPC {
         }
     }
 
+    public void startUsingItem() {
+        startUsingItem(InteractionHand.MAIN_HAND);
+    }
+
     public void startUsingItem(InteractionHand interactionHand) {
-        Ruom.run(() -> {
-            LivingEntityAccessor.getFieldUseItem().set(entity, interactionHand == InteractionHand.MAIN_HAND ? equipments.get(EquipmentSlot.MAINHAND) : equipments.get(EquipmentSlot.OFFHAND));
-            LivingEntityAccessor.getMethodSetLivingEntityFlag1().invoke(entity, 1, true);
-            LivingEntityAccessor.getMethodSetLivingEntityFlag1().invoke(entity, 2, interactionHand == InteractionHand.OFF_HAND);
-        });
-        sendEntityData();
+        if (ServerVersion.supports(9)) {
+            Ruom.run(() -> {
+                LivingEntityAccessor.getFieldUseItem().set(entity, interactionHand == InteractionHand.MAIN_HAND ? equipments.get(EquipmentSlot.MAINHAND) : equipments.get(EquipmentSlot.OFFHAND));
+                if (ServerVersion.supports(13)) {
+                    LivingEntityAccessor.getMethodSetLivingEntityFlag1().invoke(entity, 1, true);
+                    LivingEntityAccessor.getMethodSetLivingEntityFlag1().invoke(entity, 2, interactionHand == InteractionHand.OFF_HAND);
+                } else {
+                    byte i = 1;
+                    if (interactionHand == InteractionHand.OFF_HAND)
+                        i |= 2;
+                    SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), LivingEntityAccessor.getFieldDATA_LIVING_ENTITY_FLAGS().get(null), i);
+                }
+            });
+            sendEntityData();
+        } else {
+            setPose(Pose.LEGACY_USE_ITEM, true);
+        }
     }
 
     public void stopUsingItem() {
-        Ruom.run(() -> LivingEntityAccessor.getMethodStopUsingItem1().invoke(entity));
-        sendEntityData();
+        if (ServerVersion.supports(9)) {
+            Ruom.run(() -> LivingEntityAccessor.getMethodStopUsingItem1().invoke(entity));
+            sendEntityData();
+        } else {
+            setPose(Pose.LEGACY_USE_ITEM, false);
+        }
     }
 
+    /**
+     * @apiNote > 1.9
+     */
     @Nullable
     public ItemStack getUseItem() {
         try {

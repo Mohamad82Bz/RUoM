@@ -4,6 +4,8 @@ import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.EntityTypeAccessor;
 import org.bukkit.entity.EntityType;
 
+import java.lang.reflect.Field;
+
 public enum NPCType {
     AREA_EFFECT_CLOUD,
     ARMOR_STAND,
@@ -113,10 +115,11 @@ public enum NPCType {
     private Object nmsEntityType;
 
     NPCType() {
-        Ruom.run(() -> nmsEntityType = EntityTypeAccessor.class.getMethod("getField" + toString().toUpperCase()).invoke(null));
+        Ruom.run(() -> nmsEntityType = ((Field) EntityTypeAccessor.class.getMethod("getField" + toString().toUpperCase()).invoke(null)).get(null));
     }
 
     public Object getNmsEntityType() {
+        Ruom.broadcast(nmsEntityType.toString());
         return nmsEntityType;
     }
 

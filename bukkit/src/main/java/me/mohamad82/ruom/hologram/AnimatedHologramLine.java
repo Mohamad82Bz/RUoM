@@ -2,6 +2,7 @@ package me.mohamad82.ruom.hologram;
 
 import com.google.common.collect.ImmutableList;
 import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -53,7 +54,7 @@ public class AnimatedHologramLine extends HoloLine {
     @Override
     protected void initializeNpc(Location location) {
         npc = ArmorStandNPC.armorStandNPC(location);
-        npc.setInvisible(true);
+        npc.setPose(NPC.Pose.INVISIBLE, true);
         npc.setCustomNameVisible(true);
         npc.setCustomName(components.get(0));
         getArmorStand().setNoBasePlate(true);

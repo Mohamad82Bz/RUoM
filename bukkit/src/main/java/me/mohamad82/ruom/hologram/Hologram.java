@@ -1,7 +1,7 @@
 package me.mohamad82.ruom.hologram;
 
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.utils.Viewered;
+import me.mohamad82.ruom.utils.Viewable;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
 import org.bukkit.Location;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Hologram extends Viewered {
+public class Hologram extends Viewable {
 
     private List<HoloLine> lines = new ArrayList<>();
     private final Map<HoloLine, Location> lineLocations = new HashMap<>();

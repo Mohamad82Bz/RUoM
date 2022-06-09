@@ -3,7 +3,6 @@ package me.mohamad82.ruom.utils;
 import com.cryptomorin.xseries.ReflectionUtils;
 import com.cryptomorin.xseries.XSound;
 import io.netty.channel.Channel;
-import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
@@ -352,6 +351,23 @@ public class NMSUtils {
         }
     }
 
+    public static void setBodyArrows(Player player, int amount) {
+        try {
+            LivingEntityAccessor.getMethodSetArrowCount1().invoke(getServerPlayer(player), amount);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int getBodyArrows(Player player) {
+        try {
+            return (int) LivingEntityAccessor.getMethodGetArrowCount1().invoke(getServerPlayer(player));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     public static Object getServerPlayer(Player player) {
         try {
             return CRAFT_PLAYER_GET_HANDLE_METHOD.invoke(player);
@@ -462,6 +478,39 @@ public class NMSUtils {
 
     public static void sendActionBar(Player player, Component message) {
         sendPacket(player, PacketUtils.getChatPacket(message, PacketUtils.ChatType.GAME_INFO, UUID.randomUUID()));
+    }
+
+    public static Object getEntityDataSerializer(Object object) {
+        try {
+            switch (object.getClass().getSimpleName()) {
+                case "Byte":
+                    return EntityDataSerializersAccessor.getFieldBYTE().get(null);
+                case "Integer":
+                    return EntityDataSerializersAccessor.getFieldINT().get(null);
+                case "Float":
+                    return EntityDataSerializersAccessor.getFieldFLOAT().get(null);
+                case "String":
+                    return EntityDataSerializersAccessor.getFieldSTRING().get(null);
+                case "Optional":
+                    return EntityDataSerializersAccessor.getFieldOPTIONAL_COMPONENT().get(null);
+                case "ItemStack":
+                    return EntityDataSerializersAccessor.getFieldITEM_STACK().get(null);
+                case "Boolean":
+                    return EntityDataSerializersAccessor.getFieldBOOLEAN().get(null);
+                default: {
+                    if (object.getClass().equals(ComponentAccessor.getType())) {
+                        return EntityDataSerializersAccessor.getFieldCOMPONENT();
+                    } else if (object.getClass().equals(PoseAccessor.getType())) {
+                        return EntityDataSerializersAccessor.getFieldPOSE();
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
     }
 
     /**

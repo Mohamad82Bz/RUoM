@@ -3,7 +3,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.6.3'
+version = '4.8.3'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -27,8 +27,9 @@ dependencies {
     implementation 'net.kyori:adventure-api:4.10.1'
     implementation 'net.kyori:adventure-text-minimessage:4.10.1'
     implementation 'net.kyori:adventure-platform-bukkit:4.1.0'
-    implementation 'com.github.cryptomorin:XSeries:8.6.2'
+    implementation 'com.github.cryptomorin:XSeries:8.7.1'
     implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
+    implementation 'xyz.xenondevs:particle:1.7.1'
 
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
@@ -39,7 +40,9 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.18.1-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
+    //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
+    //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
 
     //:core dependencies
     compileOnly 'com.zaxxer:HikariCP:4.0.3'
@@ -49,7 +52,8 @@ shadowJar {
     relocate('net.kyori.adventure', 'me.mohamad82.ruom.adventure')
     relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
-    relocate('com.extollit', 'me.mohamad82.hydrazine')
+    relocate('com.extollit', 'me.mohamad82.ruom.hydrazine')
+    relocate('xyz.xenondevs.particle', 'me.mohamad82.particle')
 
     //:core relocations
     relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
@@ -173,6 +177,22 @@ nmsGen {
     var VillagerProfession = reqClass("net.minecraft.world.entity.npc.VillagerProfession")
     var ChatFormatting = reqClass("net.minecraft.ChatFormatting")
     var BoatType = reqClass('net.minecraft.world.entity.vehicle.Boat$Type')
+    var Registry = reqClass('net.minecraft.core.Registry')
+    var MappedRegistry = reqClass('net.minecraft.core.MappedRegistry')
+    var WritableRegistry = reqClass('net.minecraft.core.WritableRegistry')
+    var RegistryAccess = reqClass('net.minecraft.core.RegistryAccess')
+    var BuiltinRegistries = reqClass('net.minecraft.data.BuiltinRegistries')
+    var Holder = reqClass('net.minecraft.core.Holder')
+    var Biome = reqClass('net.minecraft.world.level.biome.Biome')
+    var BiomeBuilder = reqClass('net.minecraft.world.level.biome.Biome$BiomeBuilder')
+    var BiomeCategory = reqClass('net.minecraft.world.level.biome.Biome$BiomeCategory')
+    var BiomePrecipitation = reqClass('net.minecraft.world.level.biome.Biome$Precipitation')
+    var TemperatureModifier = reqClass('net.minecraft.world.level.biome.Biome$TemperatureModifier')
+    var BiomeGenerationSettings = reqClass('net.minecraft.world.level.biome.BiomeGenerationSettings')
+    var BiomeSpecialEffects = reqClass('net.minecraft.world.level.biome.BiomeSpecialEffects')
+    var BiomeSpecialEffectsBuilder = reqClass('net.minecraft.world.level.biome.BiomeSpecialEffects$Builder')
+    var BiomeSpecialEffectsGrassColorModifier = reqClass('net.minecraft.world.level.biome.BiomeSpecialEffects$GrassColorModifier')
+    var MobSpawnSettings = reqClass('net.minecraft.world.level.biome.MobSpawnSettings')
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -185,6 +205,7 @@ nmsGen {
     var FallingBlockEntity = reqClass("net.minecraft.world.entity.item.FallingBlockEntity")
     var AreaEffectCloud = reqClass("net.minecraft.world.entity.AreaEffectCloud")
     var FishingHook = reqClass("net.minecraft.world.entity.projectile.FishingHook")
+    var LegacyFishingHook = reqClass("spigot:EntityFishingHook")
     var FireworkRocketEntity = reqClass("net.minecraft.world.entity.projectile.FireworkRocketEntity")
     var LightningBolt = reqClass("net.minecraft.world.entity.LightningBolt")
     var SignBlockEntity = reqClass("net.minecraft.world.level.block.entity.SignBlockEntity")
@@ -243,8 +264,12 @@ nmsGen {
             .reqConstructor(int, byte, byte, boolean)
     ClientboundMoveEntityPacketPos
             .reqConstructor(int, short, short, short, boolean)
+            .reqConstructor(int, long, long, long)
+            .reqConstructor(int, byte, byte, byte)
     ClientboundMoveEntityPacketPosRot
             .reqConstructor(int, short, short, short, byte, byte, boolean)
+            .reqConstructor(int, long, long, long, byte, byte, boolean)
+            .reqConstructor(int, byte, byte, byte, byte, byte, boolean)
     ClientboundAnimatePacket
             .reqConstructor(Entity, int)
             .reqMethod("getId")
@@ -257,6 +282,7 @@ nmsGen {
             .reqMethod("getId")
     ClientboundSetEquipmentPacket
             .reqConstructor(int, List)
+            .reqConstructor(int, EquipmentSlot, ItemStack)
     ClientboundTeleportEntityPacket
             .reqConstructor(Entity)
             .reqField("id")
@@ -322,6 +348,7 @@ nmsGen {
     ClientboundChatPacket
             .reqConstructor(Component, ChatType, UUID)
             .reqConstructor(Component, ChatType)
+            .reqConstructor(Component, byte)
             .reqMethod("getMessage")
             .reqMethod("getType")
             .reqMethod("getSender")
@@ -383,6 +410,7 @@ nmsGen {
             .reqConstructor(ServerLevel)
             .reqConstructor(Level)
     Level
+            .reqMethod("getChunkAt", BlockPos)
             .reqMethod("getChunk", int, int)
             .reqMethod("getLightEngine")
             .reqMethod("dimension")
@@ -420,6 +448,8 @@ nmsGen {
             .reqMethod("getAverageReceivedPackets")
             .reqMethod("getAverageSentPackets")
             .reqField("channel")
+    MinecraftServer
+            .reqMethod("registryAccess")
     GameType
             .reqEnumField("SURVIVAL")
             .reqEnumField("CREATIVE")
@@ -500,6 +530,9 @@ nmsGen {
             .reqMethod("getSharedFlag", int)
             .reqMethod("moveTo", double, double, double)
             .reqField("position")
+            .reqField("spigot:locX:1.8.8")
+            .reqField("spigot:locY:1.8.8")
+            .reqField("spigot:locZ:1.8.8")
             .reqField("DATA_CUSTOM_NAME")
             .reqField("DATA_CUSTOM_NAME_VISIBLE")
             .reqField("DATA_SILENT")
@@ -521,8 +554,13 @@ nmsGen {
             .reqMethod("getUseItemRemainingTicks")
             .reqMethod("setLivingEntityFlag", int, boolean)
             .reqField("useItem")
+            .reqField("DATA_LIVING_ENTITY_FLAGS")
+            .reqField("DATA_HEALTH_ID")
             .reqField("DATA_EFFECT_COLOR_ID")
             .reqField("DATA_EFFECT_AMBIENCE_ID")
+            .reqField("DATA_ARROW_COUNT_ID")
+            .reqField("DATA_STINGER_COUNT_ID")
+            .reqField("SLEEPING_POS_ID")
     SpawnerBlockEntity
             .reqMethod("getSpawner")
     BaseSpawner
@@ -605,8 +643,12 @@ nmsGen {
     SynchedEntityData
             .reqConstructor(Entity)
             .reqMethod("define", EntityDataAccessor, Object)
+            .reqMethod("defineId", Class, EntityDataSerializer)
             .reqMethod("set", EntityDataAccessor, Object)
             .reqMethod("get", EntityDataAccessor)
+            .reqMethod("obfuscated:a:1.8.8", int, Object)
+            .reqMethod("spigot:add:1.8.8", int, int)
+            .reqMethod("spigot:watch:1.8.8", int, Object)
     CompoundTag
             .reqConstructor()
             .reqMethod("getString", String)
@@ -642,6 +684,8 @@ nmsGen {
             .reqMethod("getPath")
             .reqMethod("getNamespace")
             .reqMethod("toString")
+    ResourceKey
+            .reqMethod("create", ResourceKey, ResourceLocation)
     Advancement
             .reqMethod("getDisplay")
             .reqMethod("getRewards")
@@ -749,6 +793,72 @@ nmsGen {
             .reqEnumField("JUNGLE")
             .reqEnumField("ACACIA")
             .reqEnumField("DARK_OAK")
+    Registry
+            .reqField("BIOME_REGISTRY")
+            .reqMethod("getOrThrow", ResourceKey)
+            .reqMethod("get", ResourceKey)
+            .reqMethod("get", ResourceLocation)
+            .reqMethod("register", Registry, ResourceLocation, Object)
+            .reqMethod("register", Registry, ResourceKey, Object)
+    MappedRegistry
+            .reqField("frozen")
+    WritableRegistry
+            .reqMethod("register", ResourceKey, Object, "com.mojang.serialization.Lifecycle")
+    RegistryAccess
+            .reqMethod("ownedRegistryOrThrow", ResourceKey)
+    BuiltinRegistries
+            .reqField("BIOME")
+            .reqMethod("register", Registry, ResourceKey, Object)
+    Holder
+            .reqMethod("direct", Object)
+    Biome
+            .reqField("generationSettings")
+            .reqField("mobSettings")
+            .reqMethod("getPrecipitation")
+            .reqMethod("getBiomeCategory")
+            .reqMethod("getSpecialEffects")
+    BiomeBuilder
+            .reqConstructor()
+            .reqMethod("from", Biome)
+            .reqMethod("precipitation", BiomePrecipitation)
+            .reqMethod("biomeCategory", BiomeCategory)
+            .reqMethod("temperature", float)
+            .reqMethod("downfall", float)
+            .reqMethod("specialEffects", BiomeSpecialEffects)
+            .reqMethod("mobSpawnSettings", MobSpawnSettings)
+            .reqMethod("generationSettings", BiomeGenerationSettings)
+            .reqMethod("temperatureAdjustment", TemperatureModifier)
+            .reqMethod("build")
+    TemperatureModifier
+            .reqEnumField("NONE")
+            .reqEnumField("FROZEN")
+    BiomeSpecialEffects
+            .reqMethod("getFogColor")
+            .reqMethod("getWaterColor")
+            .reqMethod("getWaterFogColor")
+            .reqMethod("getSkyColor")
+            .reqMethod("getFoliageColorOverride")
+            .reqMethod("getGrassColorOverride")
+            .reqMethod("getGrassColorModifier")
+            .reqMethod("getAmbientParticleSettings")
+            .reqMethod("getAmbientLoopSoundEvent")
+            .reqMethod("getAmbientMoodSettings")
+            .reqMethod("getAmbientAdditionsSettings")
+            .reqMethod("getBackgroundMusic")
+    BiomeSpecialEffectsBuilder
+            .reqConstructor()
+            .reqMethod("fogColor", int)
+            .reqMethod("waterColor", int)
+            .reqMethod("waterFogColor", int)
+            .reqMethod("skyColor", int)
+            .reqMethod("foliageColorOverride", int)
+            .reqMethod("grassColorModifier", BiomeSpecialEffectsGrassColorModifier)
+            .reqMethod("grassColorOverride", int)
+            .reqMethod("build")
+    BiomeSpecialEffectsGrassColorModifier
+            .reqEnumField("NONE")
+            .reqEnumField("DARK_FOREST")
+            .reqEnumField("SWAMP")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
@@ -783,6 +893,8 @@ nmsGen {
             .reqMethod("isNoBasePlate")
             .reqMethod("isShowArms")
             .reqMethod("isSmall")
+            .reqMethod("spigot:setGravity:1.8.8", boolean)
+            .reqMethod("spigot:hasGravity:1.8.8")
     Arrow
             .reqConstructor(EntityType, Level)
             .reqMethod("setEffectsFromItem", ItemStack)
@@ -791,6 +903,8 @@ nmsGen {
             .reqMethod("setFixedColor", int)
     ThrownPotion
             .reqConstructor(EntityType, Level)
+            .reqConstructor(Level)
+            .reqField("DATA_ITEM_STACK")
     ThrownTrident
             .reqConstructor(EntityType, Level)
             .reqConstructor(Level, LivingEntity, ItemStack)
@@ -825,13 +939,15 @@ nmsGen {
             .reqMethod("isWaiting")
             .reqMethod("getPotion")
     FishingHook
-            .reqConstructor(EntityType, Level) //1.17+
-            .reqConstructor(Player, Level, int, int) //1.14 - 1.16
-            .reqConstructor(Level, Player) //1.8 - 1.13
+            .reqConstructor(EntityType, Level) //1.17
             .reqMethod("setOwner", Entity)
             .reqMethod("getAddEntityPacket")
             .reqField("DATA_HOOKED_ENTITY")
             .reqField("DATA_BITING")
+    LegacyFishingHook
+            .reqConstructor(Player, Level, int, int) //1.14 - 1.16
+            .reqConstructor(Level, Player) //1.8 - 1.13
+            .reqField("obfuscated:b:1.12.2")
     FireworkRocketEntity
             .reqConstructor(EntityType, Level)
             .reqMethod("hasExplosion")

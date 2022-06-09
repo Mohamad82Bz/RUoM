@@ -9,6 +9,9 @@ import org.bukkit.Location;
 
 import java.lang.reflect.Field;
 
+/**
+ * @apiNote > 1.14 for now
+ */
 public class VillagerNPC extends EntityNPC {
 
     protected VillagerNPC(Location location, VillagerType type, VillagerProfession profession) throws Exception {
@@ -17,7 +20,6 @@ public class VillagerNPC extends EntityNPC {
                 location,
                 NPCType.VILLAGER
         );
-        EntityAccessor.getMethodSetPos1().invoke(entity, location.getX(), location.getY(), location.getZ());
         setVillagerData(type, profession);
     }
 

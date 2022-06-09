@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class Viewered {
+public abstract class Viewable {
 
     private final Set<Player> viewers = new HashSet<>();
 
