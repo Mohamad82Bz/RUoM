@@ -11,6 +11,7 @@ pluginManagement {
 rootProject.name = 'RUoM'
 
 include 'core'
+include 'common'
 include 'bukkit'
 include 'velocity'
 include 'bungeecord'

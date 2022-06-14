@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
     id 'com.github.johnrengelman.shadow' version '7.1.0' apply false
-    id 'org.screamingsandals.nms-mapper' version '1.2.0' apply false
+    id 'org.screamingsandals.nms-mapper' version '1.2.1' apply false
 }
 
 group = 'me.mohamad82'
@@ -65,6 +65,18 @@ project(':core') {
             gpr(MavenPublication) { publication ->
                 groupId 'me.mohamad82'
                 artifactId 'ruom-core'
+                project.shadow.component(publication)
+            }
+        }
+    }
+}
+
+project(':common') {
+    publishing {
+        publications {
+            gpr(MavenPublication) { publication ->
+                groupId 'me.mohamad82'
+                artifactId 'ruom-common'
                 project.shadow.component(publication)
             }
         }

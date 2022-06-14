@@ -1,15 +1,10 @@
 package me.mohamad82.ruom.database.mysql;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.database.Database;
 import me.mohamad82.ruom.database.Priority;
 import me.mohamad82.ruom.database.Query;
-import me.mohamad82.ruom.utils.ServerVersion;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,54 +16,63 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-public class MySQLDatabase extends MySQLExecutor {
+public abstract class MySQLExecutor extends Database {
 
-    private final static ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder().setNameFormat(Ruom.getPlugin().getName().toLowerCase() + "-mysql-thread-%d").build();
+    protected final ExecutorService threadPool;
+    private final MySQLCredentials credentials;
 
-    private BukkitTask queueTask;
+    protected HikariDataSource hikari;
+    protected final int poolingSize;
+    protected int poolingUsed = 0;
 
-    public MySQLDatabase(MySQLCredentials credentials, int poolingSize) {
-        super(credentials, poolingSize, THREAD_FACTORY);
+    public MySQLExecutor(MySQLCredentials credentials, int poolingSize, ThreadFactory threadFactory) {
+        this.credentials = credentials;
+        this.poolingSize = poolingSize;
+
+        threadPool = Executors.newFixedThreadPool(Math.max(1, poolingSize), threadFactory);
     }
 
-    @Override
-    public void connect() {
-        super.connect(ServerVersion.supports(13) ? "com.mysql.cj.jdbc.Driver" : "com.mysql.jdbc.Driver");
-        this.queueTask = startQueue();
+    protected void connect(String driverClassName) {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(credentials.getUrl());
+        hikariConfig.setDriverClassName(driverClassName);
+        hikariConfig.setUsername(credentials.getUsername());
+        hikariConfig.setPassword(credentials.getPassword());
+        hikariConfig.setMaximumPoolSize(poolingSize);
+
+        this.hikari = new HikariDataSource(hikariConfig);
     }
 
-    @Override
-    public void shutdown() {
-        queueTask.cancel();
-        queue.clear();
-        hikari.close();
-    }
+    protected void tick() {
+        List<Priority> priorities = new ArrayList<>(Arrays.asList(Priority.values()));
 
-    @Override
-    public CompletableFuture<Void> scheduleShutdown() {
-        CompletableFuture<Void> completableFuture = new CompletableFuture<>();
-        Ruom.runAsync(() -> {
-            if (isQueueEmpty()) {
-                shutdown();
-                completableFuture.complete(null);
+        for (Priority priority : priorities) {
+            List<Query> queries = new ArrayList<>(queue.get(priority));
+            if (queries.isEmpty()) continue;
+
+            Set<Query> removedQueries = new HashSet<>();
+            for (Query query : queries) {
+                if (query.getStatusCode() == Query.StatusCode.FINISHED.getCode())
+                    removedQueries.add(query);
             }
-        }, 0, 1);
-        return completableFuture;
-    }
+            queries.removeAll(removedQueries);
 
-    public BukkitTask startQueue() {
-        return new BukkitRunnable() {
-            public void run() {
-                if (poolingUsed >= poolingSize) {
-                    tick(this);
-                    return;
+            for (Query query : queries) {
+                if (query.hasDoneRequirements() && query.getStatusCode() != Query.StatusCode.RUNNING.getCode()) {
+                    query.setStatusCode(Query.StatusCode.RUNNING.getCode());
+
+                    executeQuery(query).whenComplete((statusCode, error) -> {
+                        query.setStatusCode(statusCode);
+                        poolingUsed--;
+                    });
+
+                    poolingUsed++;
+                    if (poolingUsed >= poolingSize) break;
                 }
-
-                tick();
-
-                tick(this);
             }
-        }.runTask(Ruom.getPlugin());
+            if (poolingUsed >= poolingSize) break;
+            if (!queries.isEmpty()) break;
+        }
     }
 
     protected CompletableFuture<Integer> executeQuery(Query query) {
@@ -95,18 +99,14 @@ public class MySQLDatabase extends MySQLExecutor {
                     closeConnection(connection);
                     completableFuture.complete(Query.StatusCode.FINISHED.getCode());
                 } catch (SQLException e) {
-                    Ruom.error("Failed to perform a query in the sqlite database. Stacktrace:");
-                    Ruom.debug("Statement: " + query.getStatement());
+                    onQueryFail(query);
                     e.printStackTrace();
 
                     query.increaseFailedAttempts();
                     if (query.getFailedAttempts() > failAttemptRemoval) {
                         closeConnection(connection);
                         completableFuture.complete(Query.StatusCode.FINISHED.getCode());
-                        Ruom.warn("This query has been removed from the queue as it exceeded the maximum failures." +
-                                " It's more likely to see some stuff break because of this failure, Please report" +
-                                " this bug to the developers.\n" +
-                                "Developer(s) of this plugin: " + Ruom.getPlugin().getDescription().getAuthors());
+                        onQueryRemoveDueToFail(query);
                     }
 
                     closeConnection(connection);
@@ -120,15 +120,10 @@ public class MySQLDatabase extends MySQLExecutor {
         return completableFuture;
     }
 
-    public void tick(Runnable runnable) {
-        Ruom.runSync(runnable, 1);
-    }
-
     private Connection createConnection() {
         try {
             return hikari.getConnection();
         } catch (SQLException e) {
-            Ruom.error("Failed to establish mysql connection!");
             e.printStackTrace();
             return null;
         }
@@ -138,19 +133,12 @@ public class MySQLDatabase extends MySQLExecutor {
         try {
             connection.close();
         } catch (SQLException e) {
-            Ruom.error("Failed to close a mysql connection!");
             e.printStackTrace();
         }
     }
 
-    @Override
-    protected void onQueryFail(Query query) {
+    protected abstract void onQueryFail(Query query);
 
-    }
-
-    @Override
-    protected void onQueryRemoveDueToFail(Query query) {
-
-    }
+    protected abstract void onQueryRemoveDueToFail(Query query);
 
 }

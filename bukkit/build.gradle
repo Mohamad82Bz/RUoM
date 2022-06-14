@@ -3,7 +3,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.8.3'
+version = '4.9.0'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -40,7 +40,8 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.19-R0.1-SNAPSHOT:remapped-mojang'
+    //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
 
@@ -97,6 +98,8 @@ nmsGen {
     var ClientboundEntityEventPacket = reqClass("net.minecraft.network.protocol.game.ClientboundEntityEventPacket")
     var ClientboundChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPacket")
     var ClientboundSetPlayerTeamPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket")
+    var ClientboundSetDisplayChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetDisplayChatPreviewPacket")
+    var ClientboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPreviewPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -105,6 +108,7 @@ nmsGen {
     var ServerboundInteractPacketActionType = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$ActionType')
     var ServerboundInteractPacketActionInteractAt = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAtLocationAction')
     var ServerboundInteractPacketActionInteract = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAction')
+    var ServerboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ServerboundChatPreviewPacket")
 
     var ServerPlayer = reqClass("net.minecraft.server.level.ServerPlayer")
     var Player = reqClass("net.minecraft.world.entity.player.Player")
@@ -140,6 +144,8 @@ nmsGen {
     var ChunkPos = reqClass("net.minecraft.world.level.ChunkPos")
     var Direction = reqClass("net.minecraft.core.Direction")
     var BlockState = reqClass("net.minecraft.world.level.block.state.BlockState")
+    var BlockBehaviour = reqClass("net.minecraft.world.level.block.state.BlockBehaviour")
+    var BlockStateBase = reqClass('net.minecraft.world.level.block.state.BlockBehaviour$BlockStateBase')
     var Blocks = reqClass("net.minecraft.world.level.block.Blocks")
     var Block = reqClass("net.minecraft.world.level.block.Block")
     var Component = reqClass("net.minecraft.network.chat.Component")
@@ -193,6 +199,8 @@ nmsGen {
     var BiomeSpecialEffectsBuilder = reqClass('net.minecraft.world.level.biome.BiomeSpecialEffects$Builder')
     var BiomeSpecialEffectsGrassColorModifier = reqClass('net.minecraft.world.level.biome.BiomeSpecialEffects$GrassColorModifier')
     var MobSpawnSettings = reqClass('net.minecraft.world.level.biome.MobSpawnSettings')
+    var SoundEvent = reqClass('net.minecraft.sounds.SoundEvent')
+    var SoundType = reqClass('net.minecraft.world.level.block.SoundType')
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -365,6 +373,13 @@ nmsGen {
             .reqField("players")
             .reqField("method")
             .reqField("options")
+    ClientboundSetDisplayChatPreviewPacket
+            .reqConstructor(boolean)
+            .reqMethod("enabled")
+    ClientboundChatPreviewPacket
+            .reqConstructor(int, Component)
+            .reqMethod("queryId")
+            .reqMethod("preview")
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -409,9 +424,14 @@ nmsGen {
     ServerPlayerGameMode
             .reqConstructor(ServerLevel)
             .reqConstructor(Level)
+    ServerboundChatPreviewPacket
+            .reqMethod("queryId")
+            .reqMethod("query")
     Level
             .reqMethod("getChunkAt", BlockPos)
             .reqMethod("getChunk", int, int)
+            .reqMethod("obfuscated:c:1.8.8", BlockPos)
+            .reqMethod("getBlockState", BlockPos)
             .reqMethod("getLightEngine")
             .reqMethod("dimension")
             .reqMethod("dimensionType")
@@ -433,6 +453,7 @@ nmsGen {
             .reqMethod("setShoulderEntityRight", CompoundTag)
             .reqMethod("setShoulderEntityLeft", CompoundTag)
             .reqMethod("getGameProfile")
+            .reqMethod("playSound", SoundEvent, float, float)
             .reqField("containerMenu")
             .reqField("DATA_PLAYER_MODE_CUSTOMISATION")
     ServerLevel
@@ -602,6 +623,10 @@ nmsGen {
             .reqEnumField("SOUTH")
             .reqEnumField("WEST")
             .reqEnumField("EAST")
+    BlockState
+            .reqMethod("spigot:getBlock:1.12.2")
+    BlockStateBase
+            .reqMethod("getBlock")
     Rotations
             .reqConstructor(float, float, float)
             .reqMethod("getX")
@@ -611,7 +636,10 @@ nmsGen {
             .reqMethod("getWrappedY")
             .reqMethod("getWrappedZ")
     Block
+            .reqField("spigot:stepSound:1.8.8")
             .reqMethod("byItem", Item)
+            .reqMethod("spigot:getById:1.8.8", int)
+            .reqMethod("getSoundType", BlockState)
             .reqMethod("defaultBlockState")
             .reqMethod("getId", BlockState)
     Component
@@ -859,6 +887,14 @@ nmsGen {
             .reqEnumField("NONE")
             .reqEnumField("DARK_FOREST")
             .reqEnumField("SWAMP")
+    SoundEvent
+            .reqMethod("getLocation")
+    SoundType
+            .reqField("breakSound")
+            .reqField("stepSound")
+            .reqField("placeSound")
+            .reqField("hitSound")
+            .reqField("fallSound")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
