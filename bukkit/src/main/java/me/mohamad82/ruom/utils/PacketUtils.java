@@ -258,11 +258,31 @@ public class PacketUtils {
         }
     }
 
+    public static Object getChatPreviewPacket(int queryId, Component message) {
+        if (!ServerVersion.supports(19)) return null;
+        try {
+            return ClientboundChatPreviewPacketAccessor.getConstructor0().newInstance(queryId, MinecraftComponentSerializer.get().serialize(message));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
+    public static Object getSetDisplayChatPreviewPacket(boolean enabled) {
+        if (!ServerVersion.supports(19)) return null;
+        try {
+            return ClientboundSetDisplayChatPreviewPacketAccessor.getConstructor0().newInstance(enabled);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
     public static Object getPlayerTeamPacket(String name, @Nullable Component playerPrefix, @Nullable Component playerSuffix, NameTagVisibility nameTagVisibility, CollisionRule collisionRule, ChatColor color, Collection<Player> players, boolean canSeeFriendlyInvisible, int method) {
         try {
             Object packet;
             if (ServerVersion.supports(17)) {
-                //TODO
+                //TODO 1.17 team packets
                 packet = null;
             } else {
                 packet = ClientboundSetPlayerTeamPacketAccessor.getConstructor1().newInstance();

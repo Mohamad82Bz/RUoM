@@ -8,6 +8,7 @@ import me.mohamad82.ruom.nmsaccessors.*;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
@@ -368,6 +369,17 @@ public class NMSUtils {
         }
     }
 
+    public static void playSound(Player player, Object soundEvent, float volume, float pitch) {
+        if (!soundEvent.getClass().equals(SoundEventAccessor.getType())) {
+            throw new IllegalArgumentException("Sound must be a SoundEvent object");
+        }
+        try {
+            PlayerAccessor.getMethodPlaySound1().invoke(getServerPlayer(player), soundEvent, volume, pitch);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static Object getServerPlayer(Player player) {
         try {
             return CRAFT_PLAYER_GET_HANDLE_METHOD.invoke(player);
@@ -416,6 +428,21 @@ public class NMSUtils {
     public static Object getBlockState(BlockState blockState) {
         try {
             return CRAFT_BLOCK_STATE_GET_HANDLE_METHOD.invoke(null, blockState);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static SoundGroup getSoundGroup(Block block) {
+        try {
+            return new SoundGroup(
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.BREAK, block),
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.STEP, block),
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.PLACE, block),
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.HIT, block),
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.FALL, block)
+            );
         } catch (Exception e) {
             e.printStackTrace();
             return null;

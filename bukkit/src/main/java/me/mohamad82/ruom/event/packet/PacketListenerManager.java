@@ -29,6 +29,7 @@ public class PacketListenerManager implements Listener {
     private final Set<PacketEvent> packetEvents = new HashSet<>();
     private final Set<PlayerActionEvent> actionEvents = new HashSet<>();
     private final Set<PlayerInteractAtEntityEvent> interactEvents = new HashSet<>();
+    private final Set<ChatPreviewEvent> chatPreviewEvents = new HashSet<>();
 
     private PacketListenerManager() {
 
@@ -62,6 +63,10 @@ public class PacketListenerManager implements Listener {
         interactEvents.add(interactEvent);
     }
 
+    protected void register(ChatPreviewEvent chatPreviewEvent) {
+        chatPreviewEvents.add(chatPreviewEvent);
+    }
+
     protected void unregister(PacketEvent packetEvent) {
         packetEvents.remove(packetEvent);
     }
@@ -72,6 +77,10 @@ public class PacketListenerManager implements Listener {
 
     protected void unregister(PlayerInteractAtEntityEvent interactEvent) {
         interactEvents.remove(interactEvent);
+    }
+
+    protected void unregister(ChatPreviewEvent chatPreviewEvent) {
+        chatPreviewEvents.remove(chatPreviewEvent);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -196,6 +205,16 @@ public class PacketListenerManager implements Listener {
                                             break;
                                         }
                                     }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        } else if (packet.getClass().equals(ServerboundChatPreviewPacketAccessor.getType())) {
+                            Ruom.runAsync(() -> {
+                                try {
+                                    int queryId = (int) ServerboundChatPreviewPacketAccessor.getMethodQueryId1().invoke(packet);
+                                    String message = (String) ServerboundChatPreviewPacketAccessor.getMethodQuery1().invoke(packet);
+                                    chatPreviewEvents.forEach(chatPreviewEvent -> chatPreviewEvent.onPreviewRequest(player, queryId, message));
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
