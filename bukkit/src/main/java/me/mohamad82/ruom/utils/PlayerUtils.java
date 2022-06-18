@@ -10,6 +10,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+import xyz.xenondevs.particle.data.texture.ItemTexture;
 
 import java.util.Random;
 
@@ -123,16 +126,17 @@ public class PlayerUtils {
 
     public static void spawnFoodEatParticles(Location location, Material foodMaterial) {
         final Random random = new Random();
-        final Location rightSide = getRightHandLocation(location).add(0, -0.25, 0);
+        final Location rightArm = getRightHandLocation(location).add(0, -0.25, 0);
+        ParticleBuilder particleBuilder = new ParticleBuilder(ParticleEffect.ITEM_CRACK, rightArm).setParticleData(new ItemTexture(new ItemStack(foodMaterial)));
         for (int i = 0; i < 11; i++) {
             if (random.nextInt(7) < 1) continue;
             float a1 = (float) (random.nextInt(4) - 2) / 10;
             float a2 = (float) (random.nextInt(4) - 2) / 10;
             float a3 = (float) (random.nextInt(15) - 5) / 100;
 
-            location.getWorld().spawnParticle(Particle.ITEM_CRACK, rightSide,
-                    0, 0 + a1, 1, 0 + a2, 0.23 + a3,
-                    new ItemStack(foodMaterial));
+            particleBuilder.setAmount(1);
+            particleBuilder.setOffset(a1, 1, a2);
+            particleBuilder.setSpeed((float) 0.23 + a3);
         }
     }
 

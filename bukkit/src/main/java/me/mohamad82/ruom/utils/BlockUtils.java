@@ -10,6 +10,10 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.inventory.ItemStack;
+import xyz.xenondevs.particle.ParticleBuilder;
+import xyz.xenondevs.particle.ParticleEffect;
+import xyz.xenondevs.particle.data.texture.ItemTexture;
 
 import java.util.List;
 import java.util.Optional;
@@ -137,10 +141,10 @@ public class BlockUtils {
 
     public static void spawnBlockBreakParticles(Location blockLocation, Material material) {
         Location center = LocUtils.simplifyToCenter(blockLocation);
+        ParticleBuilder particleBuilder = new ParticleBuilder(ParticleEffect.BLOCK_CRACK, blockLocation).setParticleData(new ItemTexture(new ItemStack(material)));
         for (int i = 0; i <= 30; i++) {
-            blockLocation.getWorld().spawnParticle(Particle.BLOCK_CRACK,
-                    center.clone().add(getRandomInBlock(), getRandomInBlock() + 0.5, getRandomInBlock()),
-                    2, material.createBlockData());
+            particleBuilder.setLocation(center.clone().add(getRandomInBlock(), getRandomInBlock() + 0.5, getRandomInBlock()));
+            particleBuilder.display();
         }
     }
 
