@@ -27,12 +27,13 @@ import java.util.concurrent.CompletableFuture;
 
 public class NMSUtils {
 
-    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE, CRAFT_LIVING_ENTITY, CRAFT_ENTITY, CRAFT_BLOCK_ENTITY_STATE;
+    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE, CRAFT_LIVING_ENTITY, CRAFT_ENTITY, CRAFT_BLOCK_ENTITY_STATE,
+            CRAFT_CHUNK;
 
     private static Method CRAFT_ITEM_STACK_AS_NMS_COPY, CRAFT_ITEM_STACK_AS_BUKKIT_COPY, CRAFT_PLAYER_GET_HANDLE_METHOD, CRAFT_WORLD_GET_HANDLE_METHOD,
             CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD2,
             CRAFT_PARTICLE_TO_BUKKIT_METHOD, CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD, CRAFT_ENTITY_GET_HANDLE_METHOD, ENTITY_GET_BUKKIT_ENTITY_METHOD,
-            CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD;
+            CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD, CRAFT_CHUNK_GET_HANDLE_METHOD;
 
     private static Field LIVING_ENTITY_DROPS_FIELD;
 
@@ -48,6 +49,7 @@ public class NMSUtils {
                 CRAFT_LIVING_ENTITY = ReflectionUtils.getCraftClass("entity.CraftLivingEntity");
                 CRAFT_ENTITY = ReflectionUtils.getCraftClass("entity.CraftEntity");
                 CRAFT_BLOCK_ENTITY_STATE = ReflectionUtils.getCraftClass("block.CraftBlockEntityState");
+                CRAFT_CHUNK = ReflectionUtils.getCraftClass("CraftChunk");
             }
             {
                 CRAFT_PLAYER_GET_HANDLE_METHOD = CRAFT_PLAYER.getMethod("getHandle");
@@ -71,6 +73,7 @@ public class NMSUtils {
                 ENTITY_GET_BUKKIT_ENTITY_METHOD = EntityAccessor.getType().getMethod("getBukkitEntity");
                 CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
                 CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
+                CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle");
             }
             {
                 if (ServerVersion.supports(13)) {
@@ -392,6 +395,15 @@ public class NMSUtils {
     public static Object getServerLevel(World world) {
         try {
             return CRAFT_WORLD_GET_HANDLE_METHOD.invoke(world);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Object getLevelChunk(Chunk chunk) {
+        try {
+            return CRAFT_CHUNK_GET_HANDLE_METHOD.invoke(chunk);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

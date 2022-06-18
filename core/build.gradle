@@ -3,4 +3,5 @@ compileJava.options.encoding = "UTF-8"
 
 dependencies {
     compileOnly 'com.zaxxer:HikariCP:4.0.3'
+    compileOnly 'com.google.code.gson:gson:2.9.0'
 }
