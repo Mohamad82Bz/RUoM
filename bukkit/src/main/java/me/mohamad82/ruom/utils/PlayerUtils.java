@@ -1,5 +1,6 @@
 package me.mohamad82.ruom.utils;
 
+import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
 import net.kyori.adventure.text.Component;
@@ -26,7 +27,7 @@ public class PlayerUtils {
 
     public static void sendActionBar(Component message, Player... players) {
         for (Player player : players) {
-            NMSUtils.sendActionBar(player, message);
+            AdventureApi.get().player(player).sendActionBar(message);
         }
     }
 

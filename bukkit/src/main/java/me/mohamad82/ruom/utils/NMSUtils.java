@@ -3,6 +3,7 @@ package me.mohamad82.ruom.utils;
 import com.cryptomorin.xseries.ReflectionUtils;
 import com.cryptomorin.xseries.XSound;
 import io.netty.channel.Channel;
+import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
@@ -515,6 +516,11 @@ public class NMSUtils {
         }
     }
 
+    /**
+     * @deprecated This will throw weird errors on new versions of minecraft (>1.19). Use Adventure: Audience#sendActionBar
+     * @param player The player to send the message to
+     * @param message The message
+     */
     public static void sendActionBar(Player player, Component message) {
         sendPacket(player, PacketUtils.getChatPacket(message, PacketUtils.ChatType.GAME_INFO, UUID.randomUUID()));
     }

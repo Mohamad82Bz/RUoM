@@ -18,7 +18,7 @@ fun Player.sendMessage(message: Component) {
 }
 
 fun Player.sendActionBar(message: Component) {
-    NMSUtils.sendActionBar(this, message)
+    AdventureApi.get().player(this).sendActionBar(message)
 }
 
 fun Player.sendToast(message: ToastMessage) {

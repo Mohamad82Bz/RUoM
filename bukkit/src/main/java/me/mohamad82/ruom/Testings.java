@@ -7,6 +7,7 @@ import com.extollit.gaming.ai.path.model.IPath;
 import com.extollit.linalg.immutable.Vec3d;
 import com.extollit.linalg.immutable.Vec3i;
 import me.mohamad82.ruom.adventure.ComponentUtils;
+import me.mohamad82.ruom.event.packet.ChatPreviewEvent;
 import me.mohamad82.ruom.event.packet.PlayerInteractAtEntityEvent;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
@@ -19,8 +20,11 @@ import me.mohamad82.ruom.pathfinding.Instance;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ResourceKey;
 import me.mohamad82.ruom.world.biome.BiomeEffects;
-import me.mohamad82.ruom.world.biome.BiomeUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -44,6 +48,7 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
     AINPC aiNpc;
     HydrazinePathFinder pathFinder;
     ResourceKey biomeKey = new ResourceKey("custombiome", "koobs");
+    ChatPreview chatPreview;
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("ruom")) {
@@ -65,21 +70,13 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
                 npc.setPose(NPC.Pose.CROUCHING, true);
                 return true;
             }
-            if (args[0].equalsIgnoreCase("biome")) {
-                BiomeEffects biomeEffects = new BiomeEffects();
-                biomeKey = new ResourceKey(args[1], args[2]);
-
-                BiomeUtils.createCustomBiome(biomeKey, biomeEffects);
-                for (int x = player.getLocation().getBlockX() - 8; x < player.getLocation().getBlockX() + 8; x++) {
-                    for (int z = player.getLocation().getBlockZ() - 8; z < player.getLocation().getBlockZ() + 8; z++) {
-                        for (int y = player.getLocation().getBlockY() - 8; y < player.getLocation().getBlockY() + 8; y++) {
-                            Block block = player.getWorld().getBlockAt(x, y, z);
-                            if (block.getType() != Material.AIR) {
-                                BiomeUtils.setBiome(biomeKey, block.getLocation());
-                            }
-                        }
-                    }
-                }
+            if (args[0].equalsIgnoreCase("setpreview")) {
+                chatPreview.setDisplayChatPreview(player, Boolean.parseBoolean(args[1]));
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("preview")) {
+                chatPreview = new ChatPreview();
+                Ruom.broadcast("Registered");
                 return true;
             }
             if (args[0].equalsIgnoreCase("itemcategory")) {
@@ -187,6 +184,14 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
         @Override
         protected void onAttack(Player player, int entityId) {
             Ruom.broadcast("3");
+        }
+    }
+
+    public static class ChatPreview extends ChatPreviewEvent {
+        @Override
+        protected void onPreviewRequest(Player player, int queryId, String message) {
+            Component item = NMSUtils.getItemStackComponent(player.getInventory().getItemInMainHand());
+            sendPreview(player, queryId, MiniMessage.miniMessage().deserialize(message, TagResolver.resolver("item", Tag.inserting(item))));
         }
     }
 

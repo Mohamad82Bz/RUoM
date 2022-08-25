@@ -3,7 +3,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.9.2'
+version = '4.9.5'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -14,10 +14,7 @@ repositories {
         url = uri('https://maven.enginehub.org/repo/')
     }
     maven {
-        url = uri('https://mvn.intellectualsites.com/content/repositories/releases/')
-    }
-    maven {
-        url = uri('https://repo.screamingsandals.org/public/')
+        url = uri('https://repo.screamingsandals.org/releases/')
     }
 }
 
@@ -100,6 +97,7 @@ nmsGen {
     var ClientboundSetPlayerTeamPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket")
     var ClientboundSetDisplayChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetDisplayChatPreviewPacket")
     var ClientboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPreviewPacket")
+    var ClientboundSystemChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSystemChatPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -380,6 +378,9 @@ nmsGen {
             .reqConstructor(int, Component)
             .reqMethod("queryId")
             .reqMethod("preview")
+    ClientboundSystemChatPacket
+            .reqMethod("content")
+            .reqMethod("typeId")
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")

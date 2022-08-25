@@ -4,6 +4,7 @@ import io.netty.channel.*;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.npc.LivingEntityNPC;
+import me.mohamad82.ruom.utils.ListUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
 import me.mohamad82.ruom.math.vector.Vector3;
@@ -15,6 +16,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class PacketListenerManager implements Listener {
@@ -209,7 +211,7 @@ public class PacketListenerManager implements Listener {
                                     e.printStackTrace();
                                 }
                             });
-                        } else if (packet.getClass().equals(ServerboundChatPreviewPacketAccessor.getType())) {
+                        } else if (ServerVersion.supports(19) && packet.getClass().equals(ServerboundChatPreviewPacketAccessor.getType())) {
                             Ruom.runAsync(() -> {
                                 try {
                                     int queryId = (int) ServerboundChatPreviewPacketAccessor.getMethodQueryId1().invoke(packet);

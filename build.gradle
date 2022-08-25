@@ -1,9 +1,9 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.7.20-Beta'
     id 'com.github.johnrengelman.shadow' version '7.1.0' apply false
-    id 'org.screamingsandals.nms-mapper' version '1.2.1' apply false
+    id 'org.screamingsandals.nms-mapper' version '1.2.3' apply false
 }
 
 group = 'me.mohamad82'
