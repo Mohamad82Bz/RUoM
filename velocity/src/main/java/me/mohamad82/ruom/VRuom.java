@@ -1,33 +1,39 @@
 package me.mohamad82.ruom;
 
+import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class VRuom {
 
-    private static Object MAIN_INSTANCE;
+    private static Plugin MAIN_INSTANCE;
     private static ProxyServer proxyServer;
     private static Logger logger;
     private static boolean debug = false;
 
-    public static void initialize(Object plugin, ProxyServer server, Logger logger) {
+    public static void initialize(Plugin plugin, ProxyServer server, Logger logger) {
         MAIN_INSTANCE = plugin;
         proxyServer = server;
         VRuom.logger = logger;
     }
 
-    public static Object getPlugin() {
+    public static Plugin getPlugin() {
         return MAIN_INSTANCE;
     }
 
     public static ProxyServer getServer() {
         return proxyServer;
+    }
+
+    public static File getDataFolder() {
+        return new File("plugins/" + getPlugin().name());
     }
 
     public static void registerListener(Object listener) {
