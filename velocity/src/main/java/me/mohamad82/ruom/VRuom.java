@@ -18,8 +18,8 @@ public class VRuom {
     private static Logger logger;
     private static boolean debug = false;
 
-    public static void initialize(Plugin plugin, ProxyServer server, Logger logger) {
-        MAIN_INSTANCE = plugin;
+    public static void initialize(Class<?> plugin, ProxyServer server, Logger logger) {
+        MAIN_INSTANCE = plugin.getAnnotation(Plugin.class);
         proxyServer = server;
         VRuom.logger = logger;
     }
