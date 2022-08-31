@@ -1,11 +1,7 @@
 package me.mohamad82.ruom.database.mysql;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.database.Database;
-import me.mohamad82.ruom.database.Priority;
 import me.mohamad82.ruom.database.Query;
 import me.mohamad82.ruom.utils.ServerVersion;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -15,10 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 public class MySQLDatabase extends MySQLExecutor {
@@ -74,44 +67,41 @@ public class MySQLDatabase extends MySQLExecutor {
     protected CompletableFuture<Integer> executeQuery(Query query) {
         CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                Connection connection = createConnection();
-                try {
-                    PreparedStatement preparedStatement = query.createPreparedStatement(connection);
-                    ResultSet resultSet = null;
+        Runnable runnable = () -> {
+            Connection connection = createConnection();
+            try {
+                PreparedStatement preparedStatement = query.createPreparedStatement(connection);
+                ResultSet resultSet = null;
 
-                    if (query.getStatement().startsWith("INSERT") ||
-                            query.getStatement().startsWith("UPDATE") ||
-                            query.getStatement().startsWith("DELETE") ||
-                            query.getStatement().startsWith("CREATE"))
-                        preparedStatement.executeUpdate();
-                    else
-                        resultSet = preparedStatement.executeQuery();
+                if (query.getStatement().startsWith("INSERT") ||
+                        query.getStatement().startsWith("UPDATE") ||
+                        query.getStatement().startsWith("DELETE") ||
+                        query.getStatement().startsWith("CREATE"))
+                    preparedStatement.executeUpdate();
+                else
+                    resultSet = preparedStatement.executeQuery();
 
-                    query.getCompletableFuture().complete(resultSet);
+                query.getCompletableFuture().complete(resultSet);
 
+                closeConnection(connection);
+                completableFuture.complete(Query.StatusCode.FINISHED.getCode());
+            } catch (SQLException e) {
+                Ruom.error("Failed to perform a query in the sqlite database. Stacktrace:");
+                Ruom.debug("Statement: " + query.getStatement());
+                e.printStackTrace();
+
+                query.increaseFailedAttempts();
+                if (query.getFailedAttempts() > failAttemptRemoval) {
                     closeConnection(connection);
                     completableFuture.complete(Query.StatusCode.FINISHED.getCode());
-                } catch (SQLException e) {
-                    Ruom.error("Failed to perform a query in the sqlite database. Stacktrace:");
-                    Ruom.debug("Statement: " + query.getStatement());
-                    e.printStackTrace();
-
-                    query.increaseFailedAttempts();
-                    if (query.getFailedAttempts() > failAttemptRemoval) {
-                        closeConnection(connection);
-                        completableFuture.complete(Query.StatusCode.FINISHED.getCode());
-                        Ruom.warn("This query has been removed from the queue as it exceeded the maximum failures." +
-                                " It's more likely to see some stuff break because of this failure, Please report" +
-                                " this bug to the developers.\n" +
-                                "Developer(s) of this plugin: " + Ruom.getPlugin().getDescription().getAuthors());
-                    }
-
-                    closeConnection(connection);
-                    completableFuture.complete(Query.StatusCode.FAILED.getCode());
+                    Ruom.warn("This query has been removed from the queue as it exceeded the maximum failures." +
+                            " It's more likely to see some stuff break because of this failure, Please report" +
+                            " this bug to the developers.\n" +
+                            "Developer(s) of this plugin: " + Ruom.getPlugin().getDescription().getAuthors());
                 }
+
+                closeConnection(connection);
+                completableFuture.complete(Query.StatusCode.FAILED.getCode());
             }
         };
 
@@ -144,13 +134,9 @@ public class MySQLDatabase extends MySQLExecutor {
     }
 
     @Override
-    protected void onQueryFail(Query query) {
-
-    }
+    protected void onQueryFail(Query query) { }
 
     @Override
-    protected void onQueryRemoveDueToFail(Query query) {
-
-    }
+    protected void onQueryRemoveDueToFail(Query query) { }
 
 }

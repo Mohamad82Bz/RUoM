@@ -1,5 +1,7 @@
 package me.mohamad82.ruom;
 
+import com.velocitypowered.api.command.Command;
+import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -13,15 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 public class VRuom {
 
-    private static Plugin MAIN_INSTANCE;
-    private static ProxyServer proxyServer;
-    private static Logger logger;
+    private final static Plugin MAIN_INSTANCE;
+    private final static Logger logger;
     private static boolean debug = false;
 
-    public static void initialize(Class<?> plugin, ProxyServer server, Logger logger) {
-        MAIN_INSTANCE = plugin.getAnnotation(Plugin.class);
-        proxyServer = server;
-        VRuom.logger = logger;
+    static {
+        MAIN_INSTANCE = VRUoMPlugin.get().getClass().getSuperclass().getAnnotation(Plugin.class);
+        logger = VRUoMPlugin.getLogger();
     }
 
     public static Plugin getPlugin() {
@@ -29,15 +29,20 @@ public class VRuom {
     }
 
     public static ProxyServer getServer() {
-        return proxyServer;
+        return VRUoMPlugin.getServer();
     }
 
     public static File getDataFolder() {
-        return new File("plugins/" + getPlugin().name());
+        return new File("plugins", getPlugin().name());
     }
 
     public static void registerListener(Object listener) {
-        getServer().getEventManager().register(getPlugin(), listener);
+        getServer().getEventManager().register(VRUoMPlugin.get(), listener);
+    }
+
+    public static void registerCommand(String name, Collection<String> aliases, Command command) {
+        CommandMeta meta = getServer().getCommandManager().metaBuilder(name).aliases(aliases.toArray(new String[0])).build();
+        getServer().getCommandManager().register(meta, command);
     }
 
     public static Collection<Player> getOnlinePlayers() {
