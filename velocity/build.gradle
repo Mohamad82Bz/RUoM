@@ -1,4 +1,4 @@
-version = '4.2.3'
+version = '4.2.9'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -13,7 +13,7 @@ repositories {
 dependencies {
     implementation project(path: ':core', configuration: 'shadow')
 
-    implementation 'net.kyori:adventure-text-minimessage:4.10.1'
+    implementation 'net.kyori:adventure-text-minimessage:4.11.0'
 
     compileOnly 'com.velocitypowered:velocity-api:3.0.0'
 

@@ -20,7 +20,7 @@ public class VRuom {
     private static boolean debug = false;
 
     static {
-        MAIN_INSTANCE = VRUoMPlugin.get().getClass().getSuperclass().getAnnotation(Plugin.class);
+        MAIN_INSTANCE = VRUoMPlugin.get().getClass().getAnnotation(Plugin.class);
         logger = VRUoMPlugin.getLogger();
     }
 
@@ -93,15 +93,15 @@ public class VRuom {
     }
 
     public static ScheduledTask runAsync(Runnable runnable) {
-        return getServer().getScheduler().buildTask(getPlugin(), runnable).schedule();
+        return getServer().getScheduler().buildTask(VRUoMPlugin.get(), runnable).schedule();
     }
 
     public static ScheduledTask runAsync(Runnable runnable, long delay, TimeUnit delayUnit) {
-        return getServer().getScheduler().buildTask(getPlugin(), runnable).delay(delay, delayUnit).schedule();
+        return getServer().getScheduler().buildTask(VRUoMPlugin.get(), runnable).delay(delay, delayUnit).schedule();
     }
 
     public static ScheduledTask runAsync(Runnable runnable, long delay, TimeUnit delayUnit, long period, TimeUnit periodUnit) {
-        return getServer().getScheduler().buildTask(getPlugin(), runnable).delay(delay, delayUnit).repeat(period, periodUnit).schedule();
+        return getServer().getScheduler().buildTask(VRUoMPlugin.get(), runnable).delay(delay, delayUnit).repeat(period, periodUnit).schedule();
     }
 
 }
