@@ -3,7 +3,6 @@ package me.mohamad82.ruom.utils;
 import com.cryptomorin.xseries.ReflectionUtils;
 import com.cryptomorin.xseries.XSound;
 import io.netty.channel.Channel;
-import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
@@ -46,10 +45,14 @@ public class NMSUtils {
                 CRAFT_WORLD = ReflectionUtils.getCraftClass("CraftWorld");
                 CRAFT_SERVER = ReflectionUtils.getCraftClass("CraftServer");
                 CRAFT_BLOCK_STATE = ReflectionUtils.getCraftClass("block.CraftBlockState");
-                CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
+                if (ServerVersion.supports(9)) {
+                    CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
+                }
                 CRAFT_LIVING_ENTITY = ReflectionUtils.getCraftClass("entity.CraftLivingEntity");
                 CRAFT_ENTITY = ReflectionUtils.getCraftClass("entity.CraftEntity");
-                CRAFT_BLOCK_ENTITY_STATE = ReflectionUtils.getCraftClass("block.CraftBlockEntityState");
+                if (ServerVersion.supports(9)) {
+                    CRAFT_BLOCK_ENTITY_STATE = ReflectionUtils.getCraftClass("block.CraftBlockEntityState");
+                }
                 CRAFT_CHUNK = ReflectionUtils.getCraftClass("CraftChunk");
             }
             {
@@ -72,7 +75,9 @@ public class NMSUtils {
                 CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD = CRAFT_LIVING_ENTITY.getMethod("getHandle");
                 CRAFT_ENTITY_GET_HANDLE_METHOD = CRAFT_ENTITY.getMethod("getHandle");
                 ENTITY_GET_BUKKIT_ENTITY_METHOD = EntityAccessor.getType().getMethod("getBukkitEntity");
-                CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
+                if (ServerVersion.supports(9)) {
+                    CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
+                }
                 CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
                 CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle");
             }
@@ -338,6 +343,9 @@ public class NMSUtils {
         }
     }
 
+    /**
+     * @apiNote > 1.13
+     */
     public static Object getNmsSign(Sign sign) {
         try {
             return CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.invoke(sign);

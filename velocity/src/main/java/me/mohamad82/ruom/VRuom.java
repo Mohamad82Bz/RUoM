@@ -15,17 +15,21 @@ import java.util.concurrent.TimeUnit;
 
 public class VRuom {
 
-    private final static Plugin MAIN_INSTANCE;
+    private final static Plugin DESCRIPTION;
     private final static Logger logger;
     private static boolean debug = false;
 
     static {
-        MAIN_INSTANCE = VRUoMPlugin.get().getClass().getAnnotation(Plugin.class);
+        DESCRIPTION = VRUoMPlugin.get().getClass().getAnnotation(Plugin.class);
         logger = VRUoMPlugin.getLogger();
     }
 
-    public static Plugin getPlugin() {
-        return MAIN_INSTANCE;
+    public static Object getPlugin() {
+        return VRUoMPlugin.getPlugin();
+    }
+
+    public static Plugin getDescription() {
+        return DESCRIPTION;
     }
 
     public static ProxyServer getServer() {
@@ -33,7 +37,7 @@ public class VRuom {
     }
 
     public static File getDataFolder() {
-        return new File("plugins", getPlugin().name());
+        return new File("plugins", getDescription().name());
     }
 
     public static void registerListener(Object listener) {

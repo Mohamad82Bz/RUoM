@@ -1,9 +1,11 @@
 //file:noinspection GroovyUnusedAssignment
+
+import java.time.Instant
 import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.9.5'
+version = '4.9.14'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -21,10 +23,10 @@ repositories {
 dependencies {
     implementation project(path: ':core', configuration: 'shadow')
 
-    implementation 'net.kyori:adventure-api:4.10.1'
-    implementation 'net.kyori:adventure-text-minimessage:4.10.1'
-    implementation 'net.kyori:adventure-platform-bukkit:4.1.0'
-    implementation 'com.github.cryptomorin:XSeries:8.7.1'
+    implementation 'net.kyori:adventure-api:4.11.0'
+    implementation 'net.kyori:adventure-text-minimessage:4.11.0'
+    implementation 'net.kyori:adventure-platform-bukkit:4.1.2'
+    implementation 'com.github.cryptomorin:XSeries:9.0.0'
     implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
     implementation 'xyz.xenondevs:particle:1.7.1'
 
@@ -97,6 +99,7 @@ nmsGen {
     var ClientboundSetPlayerTeamPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket")
     var ClientboundSetDisplayChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetDisplayChatPreviewPacket")
     var ClientboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPreviewPacket")
+    var ClientboundPlayerChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerChatPacket")
     var ClientboundSystemChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSystemChatPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
@@ -147,6 +150,7 @@ nmsGen {
     var Blocks = reqClass("net.minecraft.world.level.block.Blocks")
     var Block = reqClass("net.minecraft.world.level.block.Block")
     var Component = reqClass("net.minecraft.network.chat.Component")
+    var ComponentSerializer = reqClass('net.minecraft.network.chat.Component$Serializer')
     var Item = reqClass("net.minecraft.world.item.Item")
     var ItemStack = reqClass("net.minecraft.world.item.ItemStack")
     var Potion = reqClass("net.minecraft.world.item.alchemy.Potion")
@@ -199,6 +203,9 @@ nmsGen {
     var MobSpawnSettings = reqClass('net.minecraft.world.level.biome.MobSpawnSettings')
     var SoundEvent = reqClass('net.minecraft.sounds.SoundEvent')
     var SoundType = reqClass('net.minecraft.world.level.block.SoundType')
+    var ChatSender = reqClass("net.minecraft.network.chat.ChatSender")
+    var CryptSaltSignaturePair = reqClass('net.minecraft.util.Crypt$SaltSignaturePair')
+    var PlayerChatMessage = reqClass("net.minecraft.network.chat.PlayerChatMessage")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -358,6 +365,7 @@ nmsGen {
             .reqMethod("getMessage")
             .reqMethod("getType")
             .reqMethod("getSender")
+            .reqField("message")
     ClientboundSetPlayerTeamPacket
             .reqConstructor(String, int, java.util.Optional, Collection)
             .reqConstructor()
@@ -378,6 +386,15 @@ nmsGen {
             .reqConstructor(int, Component)
             .reqMethod("queryId")
             .reqMethod("preview")
+    ClientboundPlayerChatPacket
+            .reqConstructor("ClientboundPlayerChatPacket", Component, java.util.Optional, int, ChatSender, Instant, CryptSaltSignaturePair)
+            .reqMethod("getMessage")
+            .reqField("signedContent")
+            .reqField("unsignedContent")
+            .reqField("typeId")
+            .reqField("sender")
+            .reqField("timeStamp")
+            .reqField("saltSignature")
     ClientboundSystemChatPacket
             .reqMethod("content")
             .reqMethod("typeId")
@@ -650,6 +667,8 @@ nmsGen {
             .reqMethod("getSiblings")
             .reqMethod("plainCopy")
             .reqMethod("copy")
+    ComponentSerializer
+            .reqMethod("fromJsonLenient", String)
     Item
             .reqMethod("getItemCategory")
     ItemStack
@@ -896,6 +915,11 @@ nmsGen {
             .reqField("placeSound")
             .reqField("hitSound")
             .reqField("fallSound")
+    PlayerChatMessage
+            .reqMethod("serverContent")
+            .reqMethod("signedContent")
+            .reqMethod("signature")
+            .reqMethod("unsignedContent")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)

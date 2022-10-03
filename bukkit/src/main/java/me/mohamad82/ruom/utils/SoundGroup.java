@@ -1,7 +1,6 @@
 package me.mohamad82.ruom.utils;
 
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
 public class SoundGroup {
 
@@ -17,6 +16,14 @@ public class SoundGroup {
         this.stepSound = stepSound;
         this.hitSound = hitSound;
         this.fallSound = fallSound;
+    }
+
+    public SoundGroup(org.bukkit.SoundGroup bukkitSoundGroup) {
+        this.breakSound = bukkitSoundGroup.getBreakSound();
+        this.placeSound = bukkitSoundGroup.getPlaceSound();
+        this.stepSound = bukkitSoundGroup.getStepSound();
+        this.hitSound = bukkitSoundGroup.getHitSound();
+        this.fallSound = bukkitSoundGroup.getFallSound();
     }
 
     public Sound getBreakSound() {
