@@ -5,7 +5,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.9.14'
+version = '4.9.16'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -101,6 +101,7 @@ nmsGen {
     var ClientboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPreviewPacket")
     var ClientboundPlayerChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerChatPacket")
     var ClientboundSystemChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSystemChatPacket")
+    var ClientboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundKeepAlivePacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -110,6 +111,7 @@ nmsGen {
     var ServerboundInteractPacketActionInteractAt = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAtLocationAction')
     var ServerboundInteractPacketActionInteract = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAction')
     var ServerboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ServerboundChatPreviewPacket")
+    var ServerboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ServerboundKeepAlivePacket")
 
     var ServerPlayer = reqClass("net.minecraft.server.level.ServerPlayer")
     var Player = reqClass("net.minecraft.world.entity.player.Player")
@@ -206,6 +208,7 @@ nmsGen {
     var ChatSender = reqClass("net.minecraft.network.chat.ChatSender")
     var CryptSaltSignaturePair = reqClass('net.minecraft.util.Crypt$SaltSignaturePair')
     var PlayerChatMessage = reqClass("net.minecraft.network.chat.PlayerChatMessage")
+    var ProfilePublicKey = reqClass("net.minecraft.world.entity.player.ProfilePublicKey")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -277,8 +280,8 @@ nmsGen {
             .reqConstructor(int, byte, byte, boolean)
     ClientboundMoveEntityPacketPos
             .reqConstructor(int, short, short, short, boolean)
-            .reqConstructor(int, long, long, long)
-            .reqConstructor(int, byte, byte, byte)
+            .reqConstructor(int, long, long, long, boolean)
+            .reqConstructor(int, byte, byte, byte, boolean)
     ClientboundMoveEntityPacketPosRot
             .reqConstructor(int, short, short, short, byte, byte, boolean)
             .reqConstructor(int, long, long, long, byte, byte, boolean)
@@ -387,7 +390,7 @@ nmsGen {
             .reqMethod("queryId")
             .reqMethod("preview")
     ClientboundPlayerChatPacket
-            .reqConstructor("ClientboundPlayerChatPacket", Component, java.util.Optional, int, ChatSender, Instant, CryptSaltSignaturePair)
+            .reqConstructor(Component, java.util.Optional, int, ChatSender, Instant, CryptSaltSignaturePair)
             .reqMethod("getMessage")
             .reqField("signedContent")
             .reqField("unsignedContent")
@@ -435,6 +438,7 @@ nmsGen {
     ServerPlayer
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile")
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ServerPlayerGameMode)
+            .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ProfilePublicKey)
             .reqMethod("setCamera", Entity)
             .reqMethod("refreshContainer", AbstractContainerMenu)
             .reqField("connection")

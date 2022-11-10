@@ -61,7 +61,8 @@ public abstract class SQLiteExecutor extends Database {
                 if (query.getStatement().startsWith("INSERT") ||
                         query.getStatement().startsWith("UPDATE") ||
                         query.getStatement().startsWith("DELETE") ||
-                        query.getStatement().startsWith("CREATE"))
+                        query.getStatement().startsWith("CREATE")||
+                        query.getStatement().startsWith("ALTER"))
                     preparedStatement.executeUpdate();
                 else
                     resultSet = preparedStatement.executeQuery();

@@ -25,7 +25,7 @@ public class VRuom {
     }
 
     public static Object getPlugin() {
-        return VRUoMPlugin.getPlugin();
+        return VRUoMPlugin.get();
     }
 
     public static Plugin getDescription() {
