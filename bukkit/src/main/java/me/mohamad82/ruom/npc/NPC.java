@@ -326,9 +326,18 @@ public abstract class NPC extends Viewable {
     }
 
     @Override
-    public void onAddViewers(Player... players) {
+    public void onPreAddViewers(Player... players) {
         if (discarded)
             throw new IllegalStateException("Cannot add viewers to a discarded npc.");
+    }
+
+    @Override
+    public void onPostAddViewers(Player... players) {
+        for (Map.Entry<EquipmentSlot, Object> entry : equipments.entrySet()) {
+            if (!entry.getValue().equals(NMSUtils.getNmsEmptyItemStack())) {
+                NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, entry.getKey().nmsSlot, entry.getValue()));
+            }
+        }
     }
 
     public enum EquipmentSlot {

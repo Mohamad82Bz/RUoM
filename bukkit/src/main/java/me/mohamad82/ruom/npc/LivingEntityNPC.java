@@ -2,7 +2,9 @@ package me.mohamad82.ruom.npc;
 
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.metadata.livingentity.V1_8_LivingEntityMeta;
-import me.mohamad82.ruom.nmsaccessors.*;
+import me.mohamad82.ruom.nmsaccessors.InteractionHandAccessor;
+import me.mohamad82.ruom.nmsaccessors.LivingEntityAccessor;
+import me.mohamad82.ruom.nmsaccessors.SynchedEntityDataAccessor;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
 import org.bukkit.Location;

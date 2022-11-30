@@ -14,20 +14,29 @@ public abstract class Viewable {
 
     protected abstract void removeViewer(Player player);
 
-    public void onAddViewers(Player... players) {
+    public void onPreAddViewers(Player... players) {
         //Optional event that can be overriden
     }
 
-    public void onRemoveViewers(Player... players) {
+    public void onPreRemovePlayers(Player... players) {
+        //Optional event that can be overriden
+    }
+
+    public void onPostAddViewers(Player... players) {
+        //Optional event that can be overriden
+    }
+
+    public void onPostRemoveViewers(Player... players) {
         //Optional event that can be overriden
     }
 
     public void addViewers(Player... players) {
-        onAddViewers(players);
+        onPreAddViewers(players);
         for (Player player : players) {
             addViewer(player);
             viewers.add(player);
         }
+        onPostAddViewers(players);
     }
 
     public void addViewers(Set<Player> players) {
@@ -35,11 +44,12 @@ public abstract class Viewable {
     }
 
     public void removeViewers(Player... players) {
-        onRemoveViewers(players);
+        onPreRemovePlayers(players);
         for (Player player : players) {
             removeViewer(player);
             viewers.remove(player);
         }
+        onPostRemoveViewers(players);
     }
 
     public void removeViewers(Set<Player> players) {
