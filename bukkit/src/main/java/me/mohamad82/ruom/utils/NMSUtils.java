@@ -3,6 +3,7 @@ package me.mohamad82.ruom.utils;
 import com.cryptomorin.xseries.ReflectionUtils;
 import com.cryptomorin.xseries.XSound;
 import io.netty.channel.Channel;
+import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
@@ -23,7 +24,7 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class NMSUtils {
 
@@ -712,13 +713,8 @@ public class NMSUtils {
      * @param player The player that is going to receive the packet(s).
      * @param packets The packet(s) that are going to be sent to the player.
      */
-    public static CompletableFuture<Void> sendPacket(Player player, Object... packets) {
-        return CompletableFuture.runAsync(() -> {
-            sendPacketSync(player, packets);
-        }).exceptionally(e -> {
-            e.printStackTrace();
-            return null;
-        });
+    public static Future<?> sendPacket(Player player, Object... packets) {
+        return Ruom.runEAsync(() -> sendPacketSync(player, packets));
     }
 
     /**
@@ -726,13 +722,8 @@ public class NMSUtils {
      * @param players The players that are going to receive the packet(s).
      * @param packets The packet(s) that are going to be sent to the player(s).
      */
-    public static CompletableFuture<Void> sendPacket(Collection<Player> players, Object... packets) {
-        return CompletableFuture.runAsync(() -> {
-            sendPacketSync(players, packets);
-        }).exceptionally(e -> {
-            e.printStackTrace();
-            return null;
-        });
+    public static Future<?> sendPacket(Collection<Player> players, Object... packets) {
+        return Ruom.runEAsync(() -> sendPacketSync(players, packets));
     }
 
 }
