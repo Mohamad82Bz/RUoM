@@ -97,10 +97,11 @@ public class ToastMessage {
         awardCriteria();
         Set<Player> playersSet = new HashSet<>(Arrays.asList(players));
 
-        NMSUtils.sendPacket(playersSet, addPacket).whenComplete((v, error) -> Ruom.runAsync(() -> {
+        Ruom.runEAsync(() -> {
+            NMSUtils.sendPacketSync(playersSet, addPacket);
             revokeCriteria();
-            NMSUtils.sendPacket(playersSet, removePacket);
-        }, 2));
+            NMSUtils.sendPacketSync(playersSet, removePacket);
+        });
     }
 
     private void awardCriteria() {
