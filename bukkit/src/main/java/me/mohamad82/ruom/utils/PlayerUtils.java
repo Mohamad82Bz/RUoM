@@ -1,13 +1,14 @@
 package me.mohamad82.ruom.utils;
 
+import com.cryptomorin.xseries.XMaterial;
 import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,8 @@ import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
 import xyz.xenondevs.particle.data.texture.ItemTexture;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class PlayerUtils {
@@ -151,6 +154,25 @@ public class PlayerUtils {
 
     public static Vector3 getPlayerVector3Location(Player player) {
         return Vector3UtilsBukkit.toVector3(player.getLocation());
+    }
+
+    public static void teleport(Player player, Vector3 location) {
+        player.teleport(Vector3UtilsBukkit.toLocation(player.getWorld(), location));
+    }
+
+    public static void hideInventoryContent(Player player) {
+        List<ItemStack> items = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            items.add(XMaterial.AIR.parseItem());
+        }
+        items.add(player.getInventory().getItem(EquipmentSlot.HEAD));
+        items.add(player.getInventory().getItem(EquipmentSlot.CHEST));
+        items.add(player.getInventory().getItem(EquipmentSlot.LEGS));
+        items.add(player.getInventory().getItem(EquipmentSlot.FEET));
+        for (int i = 9; i < 45; i++) {
+            items.add(XMaterial.AIR.parseItem());
+        }
+        NMSUtils.sendPacketSync(player, PacketUtils.getContainerSetContentPacket(0, 0, items, XMaterial.AIR.parseItem()));
     }
 
 }

@@ -68,3 +68,11 @@ fun Player.hasItemInHand(material: Material): Boolean {
 fun Player.getRightHandLocation(): Location {
     return PlayerUtils.getRightHandLocation(this.location)
 }
+
+fun Player.teleport(location: Vector3) {
+    PlayerUtils.teleport(player, location)
+}
+
+fun Player.hideInventoryContent() {
+    PlayerUtils.hideInventoryContent(this)
+}
