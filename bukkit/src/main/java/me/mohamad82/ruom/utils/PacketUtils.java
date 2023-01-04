@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -240,6 +241,25 @@ public class PacketUtils {
         }
     }
 
+    public static Object getContainerSetContentPacket(int containerId, int stateId, List<ItemStack> items, ItemStack carriedItem) {
+        try {
+            List<Object> nmsItems = new ArrayList<>();
+            for (ItemStack item : items) {
+                nmsItems.add(NMSUtils.getNmsItemStack(item));
+            }
+            Object nonNullList = NonNullListAccessor.getConstructor0().newInstance(nmsItems, NMSUtils.getNmsEmptyItemStack());
+            return ClientboundContainerSetContentPacketAccessor.getConstructor0().newInstance(
+                    containerId,
+                    stateId,
+                    nonNullList,
+                    NMSUtils.getNmsItemStack(carriedItem)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
     public static Object getChatPacket(Component message, ChatType type, @Nullable UUID sender) {
         try {
             Object nmsComponent = MinecraftComponentSerializer.get().serialize(message);
@@ -258,6 +278,10 @@ public class PacketUtils {
         }
     }
 
+    /**
+     * @deprecated Chat preview was removed in 1.19.3
+     */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     public static Object getChatPreviewPacket(int queryId, Component message) {
         if (!ServerVersion.supports(19)) return null;
         try {
@@ -268,6 +292,10 @@ public class PacketUtils {
         }
     }
 
+    /**
+     * @deprecated Chat preview was removed in 1.19.3
+     */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     public static Object getSetDisplayChatPreviewPacket(boolean enabled) {
         if (!ServerVersion.supports(19)) return null;
         try {
