@@ -166,6 +166,18 @@ public class NMSUtils {
         }
     }
 
+    public static void setPlayerCamera(Player player, Entity entity) {
+        setPlayerCamera(player, getNmsEntity(entity));
+    }
+
+    public static void setPlayerCamera(Player player) {
+        setPlayerCamera(player, player);
+    }
+
+    public static void setPlayerCamera(Player player, Object nmsEntity) {
+        Ruom.run(() -> ServerPlayerAccessor.getMethodSetCamera1().invoke(getServerPlayer(player), nmsEntity));
+    }
+
     @Nullable
     public static ItemStack getPlayerUseItem(Player player) {
         try {
