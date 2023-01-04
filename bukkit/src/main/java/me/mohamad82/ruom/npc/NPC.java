@@ -274,7 +274,7 @@ public abstract class NPC extends Viewable {
     public void setPassengers(int... passengerIds) {
         if (!ServerVersion.supports(9)) return;
         NMSUtils.sendPacket(getViewers(),
-                PacketUtils.getEntityPassengersPacket(entity));
+                PacketUtils.getEntityPassengersPacket(entity, passengerIds));
     }
 
     public UUID getUuid() {
