@@ -1,5 +1,6 @@
 package me.mohamad82.ruom.hologram;
 
+import com.google.common.collect.ImmutableList;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.utils.Viewable;
 import me.mohamad82.ruom.math.vector.Vector3;
@@ -105,6 +106,14 @@ public class Hologram extends Viewable {
 
         reload();
         return true;
+    }
+
+    /**
+     * Returns an immutable list of lines
+     * @return Immutable list of lines
+     */
+    public ImmutableList<HoloLine> getLines() {
+        return ImmutableList.copyOf(lines);
     }
 
     @Override
