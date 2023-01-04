@@ -5,7 +5,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.10.1'
+version = '4.10.11'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -102,6 +102,8 @@ nmsGen {
     var ClientboundPlayerChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerChatPacket")
     var ClientboundSystemChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSystemChatPacket")
     var ClientboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundKeepAlivePacket")
+    var ClientboundSetCameraPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetCameraPacket")
+    var ClientboundContainerSetContentPacket = reqClass("net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -209,6 +211,7 @@ nmsGen {
     var CryptSaltSignaturePair = reqClass('net.minecraft.util.Crypt$SaltSignaturePair')
     var PlayerChatMessage = reqClass("net.minecraft.network.chat.PlayerChatMessage")
     var ProfilePublicKey = reqClass("net.minecraft.world.entity.player.ProfilePublicKey")
+    var NonNullList = reqClass("net.minecraft.core.NonNullList")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -401,6 +404,10 @@ nmsGen {
     ClientboundSystemChatPacket
             .reqMethod("content")
             .reqMethod("typeId")
+    ClientboundSetCameraPacket
+            .reqField("cameraId")
+    ClientboundContainerSetContentPacket
+            .reqConstructor(int, int, NonNullList, ItemStack)
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -924,6 +931,16 @@ nmsGen {
             .reqMethod("signedContent")
             .reqMethod("signature")
             .reqMethod("unsignedContent")
+    NonNullList
+            .reqConstructor(List, Object)
+            .reqMethod("create")
+            .reqMethod("withSize", int, Object)
+            .reqMethod("get", int)
+            .reqMethod("set", int, Object)
+            .reqMethod("add", int, Object)
+            .reqMethod("remove", int)
+            .reqMethod("size")
+            .reqMethod("clear")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
