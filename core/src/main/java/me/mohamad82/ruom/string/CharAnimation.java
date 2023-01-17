@@ -21,7 +21,6 @@ public class CharAnimation {
                     animationChar = '▟';
                     tick = 1;
             }
-            tick++;
         } else if (style.equals(Style.SQUARE_LINE)) {
             switch (tick) {
                 case 1: animationChar = '◰'; break;
@@ -33,6 +32,7 @@ public class CharAnimation {
                     tick = 1;
             }
         }
+        tick++;
 
         return animationChar;
     }
