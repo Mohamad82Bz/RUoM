@@ -373,11 +373,17 @@ public class PacketUtils {
 
     public static Object getEntityDataPacket(Object entity) {
         try {
-            return ClientboundSetEntityDataPacketAccessor.getConstructor0().newInstance(
-                    EntityAccessor.getMethodGetId1().invoke(entity),
-                    EntityAccessor.getMethodGetEntityData1().invoke(entity),
-                    true
-            );
+            //TODO: Check if version is 1.19.3 instead if null check
+            return ClientboundSetEntityDataPacketAccessor.getConstructor0() == null ?
+                    ClientboundSetEntityDataPacketAccessor.getConstructor1().newInstance(
+                            EntityAccessor.getMethodGetId1().invoke(entity),
+                            SynchedEntityDataAccessor.getMethodGetNonDefaultValues1().invoke(EntityAccessor.getMethodGetEntityData1().invoke(entity))
+                    ) :
+                    ClientboundSetEntityDataPacketAccessor.getConstructor0().newInstance(
+                        EntityAccessor.getMethodGetId1().invoke(entity),
+                        EntityAccessor.getMethodGetEntityData1().invoke(entity),
+                        true
+                    );
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);

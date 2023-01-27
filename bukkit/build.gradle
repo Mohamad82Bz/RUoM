@@ -5,7 +5,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.10.11'
+version = '4.10.14'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -39,7 +39,7 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.19-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
@@ -230,6 +230,7 @@ nmsGen {
     var SignBlockEntity = reqClass("net.minecraft.world.level.block.entity.SignBlockEntity")
     var Villager = reqClass("net.minecraft.world.entity.npc.Villager")
     var Boat = reqClass("net.minecraft.world.entity.vehicle.Boat")
+    var Creeper = reqClass("net.minecraft.world.entity.monster.Creeper")
 
     ClientboundPlayerInfoPacket
             .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
@@ -297,7 +298,7 @@ nmsGen {
             .reqConstructor(BlockPos, BlockState, ServerboundPlayerActionPacketAction, boolean)
     ClientboundSetEntityDataPacket
             .reqConstructor(int, SynchedEntityData, boolean)
-            .reqMethod("getUnpackedData")
+            .reqConstructor(int, List) //1.19.3 and higher
             .reqMethod("getId")
     ClientboundSetEquipmentPacket
             .reqConstructor(int, List)
@@ -701,6 +702,8 @@ nmsGen {
             .reqMethod("setPotion", ItemStack, Potion)
     SynchedEntityData
             .reqConstructor(Entity)
+            .reqMethod("packDirty") //1.19.3 and higher
+            .reqMethod("getNonDefaultValues") //1.19.3 and higher
             .reqMethod("define", EntityDataAccessor, Object)
             .reqMethod("defineId", Class, EntityDataSerializer)
             .reqMethod("set", EntityDataAccessor, Object)
@@ -1066,4 +1069,8 @@ nmsGen {
             .reqMethod("getBoatType")
             .reqField("DATA_ID_PADDLE_LEFT")
             .reqField("DATA_ID_PADDLE_RIGHT")
+    Creeper
+            .reqField("DATA_SWELL_DIR")
+            .reqField("DATA_IS_POWERED")
+            .reqField("DATA_IS_IGNITED")
 }

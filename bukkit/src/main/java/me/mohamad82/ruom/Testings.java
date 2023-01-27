@@ -9,28 +9,35 @@ import com.extollit.linalg.immutable.Vec3i;
 import me.mohamad82.ruom.adventure.ComponentUtils;
 import me.mohamad82.ruom.event.packet.ChatPreviewEvent;
 import me.mohamad82.ruom.event.packet.PlayerInteractAtEntityEvent;
+import me.mohamad82.ruom.hologram.Hologram;
+import me.mohamad82.ruom.hologram.HologramLine;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
+import me.mohamad82.ruom.nmsaccessors.CreeperAccessor;
+import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
+import me.mohamad82.ruom.nmsaccessors.SynchedEntityDataAccessor;
 import me.mohamad82.ruom.npc.LivingEntityNPC;
 import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
 import me.mohamad82.ruom.npc.entity.ArrowNPC;
 import me.mohamad82.ruom.pathfinding.AINPC;
 import me.mohamad82.ruom.pathfinding.Instance;
+import me.mohamad82.ruom.utils.ListUtils;
+import me.mohamad82.ruom.utils.LocUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ResourceKey;
-import me.mohamad82.ruom.world.biome.BiomeEffects;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -42,6 +49,17 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
     @Override
     public void onEnable() {
         getCommand("ruom").setExecutor(this);
+
+        PlayerNPC npc = PlayerNPC.playerNPC("TestName",
+                new Location(Bukkit.getWorld("world"), 0, 0, 0, 0, 0),
+                Optional.empty());
+    }
+
+    @Override
+    public void onDisable() {
+        if (aiNpc != null) {
+            aiNpc.getNpc().discard();
+        }
     }
 
     Instance instance;
@@ -58,6 +76,34 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
                 return true;
             }
             Player player = (Player) sender;
+            if (args[0].equalsIgnoreCase("holo")) {
+                Hologram holo = Hologram.hologram(
+                        ListUtils.toList(
+                                HologramLine.hologramLine(ComponentUtils.parse("<rainbow>Test----------"), 0f)
+                        ),
+                        player.getLocation().add(0, 2, 0)
+                );
+                holo.addViewers(player);
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("creeper")) {
+                Creeper creeper = (Creeper) player.getWorld().spawnEntity(player.getLocation(), EntityType.CREEPER);
+                Object nmsEntity = NMSUtils.getNmsEntity(creeper);
+                new BukkitRunnable() {
+                    public void run() {
+                        if (creeper.isDead()) {
+                            cancel();
+                            return;
+                        }
+                        Ruom.run(() -> {
+                            Object entityData = EntityAccessor.getMethodGetEntityData1().invoke(nmsEntity);
+                            int swell = (int) SynchedEntityDataAccessor.getMethodGet1().invoke(entityData, CreeperAccessor.getFieldDATA_SWELL_DIR().get(null));
+                            Ruom.broadcast("Is ignited: " + (swell == -1 ? "false" : "true"));
+                        });
+                    }
+                }.runTaskTimer(this, 0, 1);
+                return true;
+            }
             if (args[0].equalsIgnoreCase("arrow")) {
                 Ruom.broadcast("Spawned");
                 ArrowNPC npc = ArrowNPC.arrowNPC(player.getLocation());
@@ -122,8 +168,7 @@ public class Testings extends RUoMPlugin implements CommandExecutor {
                         new BukkitRunnable() {
                             int i = 0;
                             public void run() {
-                                player.getWorld().spawnParticle(Particle.REDSTONE, new Location(player.getWorld(), cords.x, cords.y + 0.5, cords.z, 0, 0), 1, new Particle.DustOptions(Color.BLUE, 1f));
-
+                                player.getWorld().spawnParticle(Particle.REDSTONE, LocUtils.simplifyToCenter(new Location(player.getWorld(), cords.x, cords.y + 0.5, cords.z, 0, 0)), 1, new Particle.DustOptions(Color.BLUE, 1f));
                                 i++;
                                 if (i == 20) {
                                     cancel();
