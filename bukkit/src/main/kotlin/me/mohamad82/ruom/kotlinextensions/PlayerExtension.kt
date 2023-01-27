@@ -74,5 +74,9 @@ fun Player.teleport(location: Vector3) {
 }
 
 fun Player.hideInventoryContent() {
-    PlayerUtils.hideInventoryContent(this)
+    PlayerUtils.hideInventoryContent(this, )
+}
+
+fun Player.hideInventoryContent(fakeItems: Map<Int, ItemStack>) {
+    PlayerUtils.hideInventoryContent(this, fakeItems)
 }

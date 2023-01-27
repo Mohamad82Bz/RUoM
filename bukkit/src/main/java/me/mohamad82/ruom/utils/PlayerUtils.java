@@ -1,6 +1,7 @@
 package me.mohamad82.ruom.utils;
 
 import com.cryptomorin.xseries.XMaterial;
+import kotlin.Pair;
 import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
@@ -18,6 +19,7 @@ import xyz.xenondevs.particle.data.texture.ItemTexture;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class PlayerUtils {
@@ -160,7 +162,14 @@ public class PlayerUtils {
         player.teleport(Vector3UtilsBukkit.toLocation(player.getWorld(), location));
     }
 
-    public static void hideInventoryContent(Player player) {
+    /**
+     * Hides inventory content with optional fake items.
+     * @param player The player
+     * @param fakeItems Optional fake items. Note: Fake items are packet based and will be removed when updating inventory (Like on inventory click)
+     * @throws IllegalArgumentException If fake item slot is below 0 or greater than 45
+     */
+    @SafeVarargs
+    public static void hideInventoryContent(Player player, Pair<Integer, ItemStack>... fakeItems) {
         List<ItemStack> items = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             items.add(XMaterial.AIR.parseItem());
@@ -172,7 +181,28 @@ public class PlayerUtils {
         for (int i = 9; i < 45; i++) {
             items.add(XMaterial.AIR.parseItem());
         }
+        for (Pair<Integer, ItemStack> fakeItem : fakeItems) {
+            if (fakeItem.getFirst() < 0 || fakeItem.getFirst() > 45) {
+                throw new IllegalArgumentException("Tried to set fake items on slots other than 0 to 45.");
+            }
+            items.set(fakeItem.getFirst(), fakeItem.getSecond());
+        }
         NMSUtils.sendPacketSync(player, PacketUtils.getContainerSetContentPacket(0, 0, items, XMaterial.AIR.parseItem()));
     }
 
+    /**
+     * Hides inventory content with fake items.
+     * @param player The player
+     * @param fakeItems Fake items. Note: Fake items are packet based and will be removed when updating inventory (Like on inventory click)
+     * @throws IllegalArgumentException If fake item slot is below 0 or greater than 45
+     */
+    public static void hideInventoryContent(Player player, Map<Integer, ItemStack> fakeItems) {
+        Pair<Integer, ItemStack>[] fakeItemsArray = new Pair[fakeItems.size()];
+        int i = 0;
+        for (Map.Entry<Integer, ItemStack> entry : fakeItems.entrySet()) {
+            fakeItemsArray[i] = new Pair<>(entry.getKey(), entry.getValue());
+            i++;
+        }
+        hideInventoryContent(player, fakeItemsArray);
+    }
 }
