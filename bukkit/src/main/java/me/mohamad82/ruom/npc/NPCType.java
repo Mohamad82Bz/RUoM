@@ -119,7 +119,6 @@ public enum NPCType {
     }
 
     public Object getNmsEntityType() {
-        Ruom.broadcast(nmsEntityType.toString());
         return nmsEntityType;
     }
 

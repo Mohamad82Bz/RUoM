@@ -17,17 +17,21 @@ import java.util.concurrent.TimeUnit;
 
 public class VRuom {
 
-    private final static Plugin MAIN_INSTANCE;
+    private final static Plugin DESCRIPTION;
     private final static Logger logger;
     private static boolean debug = false;
 
     static {
-        MAIN_INSTANCE = VRUoMPlugin.get().getClass().getAnnotation(Plugin.class);
+        DESCRIPTION = VRUoMPlugin.get().getClass().getAnnotation(Plugin.class);
         logger = VRUoMPlugin.getLogger();
     }
 
-    public static Plugin getPlugin() {
-        return MAIN_INSTANCE;
+    public static Object getPlugin() {
+        return VRUoMPlugin.get();
+    }
+
+    public static Plugin getDescription() {
+        return DESCRIPTION;
     }
 
     public static ProxyServer getServer() {
@@ -43,7 +47,7 @@ public class VRuom {
      * Data folder is accessible through the DataDirectory constructor in the Velocity main class\
      */
     public static File getDataFolder() {
-        return new File("plugins", getPlugin().name());
+        return new File("plugins", getDescription().name());
     }
 
     public static void registerListener(Object listener) {

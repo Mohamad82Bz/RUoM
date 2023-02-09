@@ -1,32 +1,35 @@
 package me.mohamad82.ruom.database.mysql;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import me.mohamad82.ruom.Ruom;
+import com.velocitypowered.api.scheduler.ScheduledTask;
+import me.mohamad82.ruom.VRUoMPlugin;
+import me.mohamad82.ruom.VRuom;
 import me.mohamad82.ruom.database.Query;
-import me.mohamad82.ruom.utils.ServerVersion;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 public class MySQLDatabase extends MySQLExecutor {
 
-    private final static ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder().setNameFormat(Ruom.getPlugin().getName().toLowerCase() + "-mysql-thread-%d").build();
+    private final static ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder().setNameFormat(VRuom.getDescription().name() + "-mysql-thread-%d").build();
 
-    private BukkitTask queueTask;
+    private final Class<?> mysqlDriver;
+    private ScheduledTask queueTask;
 
-    public MySQLDatabase(MySQLCredentials credentials, int poolingSize) {
+    public MySQLDatabase(MySQLCredentials credentials, int poolingSize, Class<?> mysqlDriver) {
         super(credentials, poolingSize, THREAD_FACTORY);
+        this.mysqlDriver = mysqlDriver;
     }
 
     @Override
     public void connect() {
-        super.connect(ServerVersion.supports(13) ? "com.mysql.cj.jdbc.Driver" : "com.mysql.jdbc.Driver");
+        super.connect(mysqlDriver.getName());
         this.queueTask = startQueue();
     }
 
@@ -40,17 +43,17 @@ public class MySQLDatabase extends MySQLExecutor {
     @Override
     public CompletableFuture<Void> scheduleShutdown() {
         CompletableFuture<Void> completableFuture = new CompletableFuture<>();
-        Ruom.runAsync(() -> {
+        VRuom.runAsync(() -> {
             if (isQueueEmpty()) {
                 shutdown();
                 completableFuture.complete(null);
             }
-        }, 0, 1);
+        }, 0, TimeUnit.SECONDS, 50, TimeUnit.MILLISECONDS);
         return completableFuture;
     }
 
-    public BukkitTask startQueue() {
-        return new BukkitRunnable() {
+    public ScheduledTask startQueue() {
+        Runnable runnable = new Runnable() {
             public void run() {
                 if (poolingUsed >= poolingSize) {
                     tick(this);
@@ -61,7 +64,8 @@ public class MySQLDatabase extends MySQLExecutor {
 
                 tick(this);
             }
-        }.runTask(Ruom.getPlugin());
+        };
+        return VRuom.getServer().getScheduler().buildTask(VRUoMPlugin.get(), runnable).schedule();
     }
 
     protected CompletableFuture<Integer> executeQuery(Query query) {
@@ -87,18 +91,18 @@ public class MySQLDatabase extends MySQLExecutor {
                 closeConnection(connection);
                 completableFuture.complete(Query.StatusCode.FINISHED.getCode());
             } catch (SQLException e) {
-                Ruom.error("Failed to perform a query in the sqlite database. Stacktrace:");
-                Ruom.debug("Statement: " + query.getStatement());
+                VRuom.error("Failed to perform a query in the sqlite database. Stacktrace:");
+                VRuom.debug("Statement: " + query.getStatement());
                 e.printStackTrace();
 
                 query.increaseFailedAttempts();
                 if (query.getFailedAttempts() > failAttemptRemoval) {
                     closeConnection(connection);
                     completableFuture.complete(Query.StatusCode.FINISHED.getCode());
-                    Ruom.warn("This query has been removed from the queue as it exceeded the maximum failures." +
+                    VRuom.warn("This query has been removed from the queue as it exceeded the maximum failures." +
                             " It's more likely to see some stuff break because of this failure, Please report" +
                             " this bug to the developers.\n" +
-                            "Developer" + (Ruom.getPlugin().getDescription().getAuthors().size() > 1 ? "s" : "") + " of this plugin: " + Ruom.getPlugin().getDescription().getAuthors());
+                            "Developer" + (VRuom.getDescription().authors().length > 1 ? "s" : "") + " of this plugin: " + Arrays.toString(VRuom.getDescription().authors()));
                 }
 
                 closeConnection(connection);
@@ -112,14 +116,14 @@ public class MySQLDatabase extends MySQLExecutor {
     }
 
     public void tick(Runnable runnable) {
-        Ruom.runSync(runnable, 1);
+        VRuom.runAsync(runnable, 10, TimeUnit.MILLISECONDS);
     }
 
     private Connection createConnection() {
         try {
             return hikari.getConnection();
         } catch (SQLException e) {
-            Ruom.error("Failed to establish mysql connection!");
+            VRuom.error("Failed to establish mysql connection!");
             e.printStackTrace();
             return null;
         }
@@ -129,7 +133,7 @@ public class MySQLDatabase extends MySQLExecutor {
         try {
             connection.close();
         } catch (SQLException e) {
-            Ruom.error("Failed to close a mysql connection!");
+            VRuom.error("Failed to close a mysql connection!");
             e.printStackTrace();
         }
     }

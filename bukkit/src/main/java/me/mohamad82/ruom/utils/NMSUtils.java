@@ -3,7 +3,7 @@ package me.mohamad82.ruom.utils;
 import com.cryptomorin.xseries.ReflectionUtils;
 import com.cryptomorin.xseries.XSound;
 import io.netty.channel.Channel;
-import me.mohamad82.ruom.adventure.AdventureApi;
+import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class NMSUtils {
 
@@ -46,10 +46,14 @@ public class NMSUtils {
                 CRAFT_WORLD = ReflectionUtils.getCraftClass("CraftWorld");
                 CRAFT_SERVER = ReflectionUtils.getCraftClass("CraftServer");
                 CRAFT_BLOCK_STATE = ReflectionUtils.getCraftClass("block.CraftBlockState");
-                CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
+                if (ServerVersion.supports(9)) {
+                    CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
+                }
                 CRAFT_LIVING_ENTITY = ReflectionUtils.getCraftClass("entity.CraftLivingEntity");
                 CRAFT_ENTITY = ReflectionUtils.getCraftClass("entity.CraftEntity");
-                CRAFT_BLOCK_ENTITY_STATE = ReflectionUtils.getCraftClass("block.CraftBlockEntityState");
+                if (ServerVersion.supports(9)) {
+                    CRAFT_BLOCK_ENTITY_STATE = ReflectionUtils.getCraftClass("block.CraftBlockEntityState");
+                }
                 CRAFT_CHUNK = ReflectionUtils.getCraftClass("CraftChunk");
             }
             {
@@ -72,7 +76,9 @@ public class NMSUtils {
                 CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD = CRAFT_LIVING_ENTITY.getMethod("getHandle");
                 CRAFT_ENTITY_GET_HANDLE_METHOD = CRAFT_ENTITY.getMethod("getHandle");
                 ENTITY_GET_BUKKIT_ENTITY_METHOD = EntityAccessor.getType().getMethod("getBukkitEntity");
-                CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
+                if (ServerVersion.supports(9)) {
+                    CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
+                }
                 CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
                 CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle");
             }
@@ -158,6 +164,18 @@ public class NMSUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static void setPlayerCamera(Player player, Entity entity) {
+        setPlayerCamera(player, getNmsEntity(entity));
+    }
+
+    public static void setPlayerCamera(Player player) {
+        setPlayerCamera(player, player);
+    }
+
+    public static void setPlayerCamera(Player player, Object nmsEntity) {
+        Ruom.run(() -> ServerPlayerAccessor.getMethodSetCamera1().invoke(getServerPlayer(player), nmsEntity));
     }
 
     @Nullable
@@ -338,6 +356,9 @@ public class NMSUtils {
         }
     }
 
+    /**
+     * @apiNote > 1.13
+     */
     public static Object getNmsSign(Sign sign) {
         try {
             return CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.invoke(sign);
@@ -704,13 +725,8 @@ public class NMSUtils {
      * @param player The player that is going to receive the packet(s).
      * @param packets The packet(s) that are going to be sent to the player.
      */
-    public static CompletableFuture<Void> sendPacket(Player player, Object... packets) {
-        return CompletableFuture.runAsync(() -> {
-            sendPacketSync(player, packets);
-        }).exceptionally(e -> {
-            e.printStackTrace();
-            return null;
-        });
+    public static Future<?> sendPacket(Player player, Object... packets) {
+        return Ruom.runEAsync(() -> sendPacketSync(player, packets));
     }
 
     /**
@@ -718,13 +734,8 @@ public class NMSUtils {
      * @param players The players that are going to receive the packet(s).
      * @param packets The packet(s) that are going to be sent to the player(s).
      */
-    public static CompletableFuture<Void> sendPacket(Collection<Player> players, Object... packets) {
-        return CompletableFuture.runAsync(() -> {
-            sendPacketSync(players, packets);
-        }).exceptionally(e -> {
-            e.printStackTrace();
-            return null;
-        });
+    public static Future<?> sendPacket(Collection<Player> players, Object... packets) {
+        return Ruom.runEAsync(() -> sendPacketSync(players, packets));
     }
 
 }

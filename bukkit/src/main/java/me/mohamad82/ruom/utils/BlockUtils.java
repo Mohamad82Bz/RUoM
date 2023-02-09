@@ -1,24 +1,20 @@
 package me.mohamad82.ruom.utils;
 
-import com.cryptomorin.xseries.XBlock;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
-import xyz.xenondevs.particle.data.texture.ItemTexture;
+import xyz.xenondevs.particle.data.texture.BlockTexture;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 
 public class BlockUtils {
 
@@ -141,7 +137,7 @@ public class BlockUtils {
 
     public static void spawnBlockBreakParticles(Location blockLocation, Material material) {
         Location center = LocUtils.simplifyToCenter(blockLocation);
-        ParticleBuilder particleBuilder = new ParticleBuilder(ParticleEffect.BLOCK_CRACK, blockLocation).setParticleData(new ItemTexture(new ItemStack(material)));
+        ParticleBuilder particleBuilder = new ParticleBuilder(ParticleEffect.BLOCK_CRACK, blockLocation).setParticleData(new BlockTexture(material));
         for (int i = 0; i <= 30; i++) {
             particleBuilder.setLocation(center.clone().add(getRandomInBlock(), getRandomInBlock() + 0.5, getRandomInBlock()));
             particleBuilder.display();

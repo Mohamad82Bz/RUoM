@@ -71,7 +71,7 @@ public class SQLiteDatabase extends SQLiteExecutor {
         Ruom.warn("This query has been removed from the sqlite queue as it exceeded the maximum failures." +
                 " It's more likely to see some stuff break because of this failure, Please report" +
                 " this bug to the developers.\n" +
-                "Developer(s) of this plugin: " + Ruom.getPlugin().getDescription().getAuthors());
+                "Developer" + (Ruom.getPlugin().getDescription().getAuthors().size() > 1 ? "s" : "") + " of this plugin: " + Ruom.getPlugin().getDescription().getAuthors());
     }
 
 }

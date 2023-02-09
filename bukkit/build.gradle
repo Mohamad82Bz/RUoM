@@ -1,9 +1,11 @@
 //file:noinspection GroovyUnusedAssignment
+
+import java.time.Instant
 import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.9.5'
+version = '4.10.14'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -21,12 +23,12 @@ repositories {
 dependencies {
     implementation project(path: ':core', configuration: 'shadow')
 
-    implementation 'net.kyori:adventure-api:4.10.1'
-    implementation 'net.kyori:adventure-text-minimessage:4.10.1'
-    implementation 'net.kyori:adventure-platform-bukkit:4.1.0'
-    implementation 'com.github.cryptomorin:XSeries:8.7.1'
+    implementation 'net.kyori:adventure-api:4.11.0'
+    implementation 'net.kyori:adventure-text-minimessage:4.11.0'
+    implementation 'net.kyori:adventure-platform-bukkit:4.1.2'
+    implementation 'com.github.cryptomorin:XSeries:9.0.0'
     implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
-    implementation 'xyz.xenondevs:particle:1.7.1'
+    implementation 'xyz.xenondevs:particle:1.8.3'
 
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
@@ -37,7 +39,7 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.19-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
@@ -97,7 +99,11 @@ nmsGen {
     var ClientboundSetPlayerTeamPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket")
     var ClientboundSetDisplayChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetDisplayChatPreviewPacket")
     var ClientboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPreviewPacket")
+    var ClientboundPlayerChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerChatPacket")
     var ClientboundSystemChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSystemChatPacket")
+    var ClientboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundKeepAlivePacket")
+    var ClientboundSetCameraPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetCameraPacket")
+    var ClientboundContainerSetContentPacket = reqClass("net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -107,6 +113,7 @@ nmsGen {
     var ServerboundInteractPacketActionInteractAt = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAtLocationAction')
     var ServerboundInteractPacketActionInteract = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAction')
     var ServerboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ServerboundChatPreviewPacket")
+    var ServerboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ServerboundKeepAlivePacket")
 
     var ServerPlayer = reqClass("net.minecraft.server.level.ServerPlayer")
     var Player = reqClass("net.minecraft.world.entity.player.Player")
@@ -147,6 +154,7 @@ nmsGen {
     var Blocks = reqClass("net.minecraft.world.level.block.Blocks")
     var Block = reqClass("net.minecraft.world.level.block.Block")
     var Component = reqClass("net.minecraft.network.chat.Component")
+    var ComponentSerializer = reqClass('net.minecraft.network.chat.Component$Serializer')
     var Item = reqClass("net.minecraft.world.item.Item")
     var ItemStack = reqClass("net.minecraft.world.item.ItemStack")
     var Potion = reqClass("net.minecraft.world.item.alchemy.Potion")
@@ -199,6 +207,11 @@ nmsGen {
     var MobSpawnSettings = reqClass('net.minecraft.world.level.biome.MobSpawnSettings')
     var SoundEvent = reqClass('net.minecraft.sounds.SoundEvent')
     var SoundType = reqClass('net.minecraft.world.level.block.SoundType')
+    var ChatSender = reqClass("net.minecraft.network.chat.ChatSender")
+    var CryptSaltSignaturePair = reqClass('net.minecraft.util.Crypt$SaltSignaturePair')
+    var PlayerChatMessage = reqClass("net.minecraft.network.chat.PlayerChatMessage")
+    var ProfilePublicKey = reqClass("net.minecraft.world.entity.player.ProfilePublicKey")
+    var NonNullList = reqClass("net.minecraft.core.NonNullList")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -217,6 +230,7 @@ nmsGen {
     var SignBlockEntity = reqClass("net.minecraft.world.level.block.entity.SignBlockEntity")
     var Villager = reqClass("net.minecraft.world.entity.npc.Villager")
     var Boat = reqClass("net.minecraft.world.entity.vehicle.Boat")
+    var Creeper = reqClass("net.minecraft.world.entity.monster.Creeper")
 
     ClientboundPlayerInfoPacket
             .reqConstructor(ClientboundPlayerInfoPacketAction, ServerPlayer.array())
@@ -270,8 +284,8 @@ nmsGen {
             .reqConstructor(int, byte, byte, boolean)
     ClientboundMoveEntityPacketPos
             .reqConstructor(int, short, short, short, boolean)
-            .reqConstructor(int, long, long, long)
-            .reqConstructor(int, byte, byte, byte)
+            .reqConstructor(int, long, long, long, boolean)
+            .reqConstructor(int, byte, byte, byte, boolean)
     ClientboundMoveEntityPacketPosRot
             .reqConstructor(int, short, short, short, byte, byte, boolean)
             .reqConstructor(int, long, long, long, byte, byte, boolean)
@@ -284,7 +298,7 @@ nmsGen {
             .reqConstructor(BlockPos, BlockState, ServerboundPlayerActionPacketAction, boolean)
     ClientboundSetEntityDataPacket
             .reqConstructor(int, SynchedEntityData, boolean)
-            .reqMethod("getUnpackedData")
+            .reqConstructor(int, List) //1.19.3 and higher
             .reqMethod("getId")
     ClientboundSetEquipmentPacket
             .reqConstructor(int, List)
@@ -358,6 +372,7 @@ nmsGen {
             .reqMethod("getMessage")
             .reqMethod("getType")
             .reqMethod("getSender")
+            .reqField("message")
     ClientboundSetPlayerTeamPacket
             .reqConstructor(String, int, java.util.Optional, Collection)
             .reqConstructor()
@@ -378,9 +393,22 @@ nmsGen {
             .reqConstructor(int, Component)
             .reqMethod("queryId")
             .reqMethod("preview")
+    ClientboundPlayerChatPacket
+            .reqConstructor(Component, java.util.Optional, int, ChatSender, Instant, CryptSaltSignaturePair)
+            .reqMethod("getMessage")
+            .reqField("signedContent")
+            .reqField("unsignedContent")
+            .reqField("typeId")
+            .reqField("sender")
+            .reqField("timeStamp")
+            .reqField("saltSignature")
     ClientboundSystemChatPacket
             .reqMethod("content")
             .reqMethod("typeId")
+    ClientboundSetCameraPacket
+            .reqField("cameraId")
+    ClientboundContainerSetContentPacket
+            .reqConstructor(int, int, NonNullList, ItemStack)
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -418,6 +446,7 @@ nmsGen {
     ServerPlayer
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile")
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ServerPlayerGameMode)
+            .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ProfilePublicKey)
             .reqMethod("setCamera", Entity)
             .reqMethod("refreshContainer", AbstractContainerMenu)
             .reqField("connection")
@@ -650,6 +679,8 @@ nmsGen {
             .reqMethod("getSiblings")
             .reqMethod("plainCopy")
             .reqMethod("copy")
+    ComponentSerializer
+            .reqMethod("fromJsonLenient", String)
     Item
             .reqMethod("getItemCategory")
     ItemStack
@@ -671,6 +702,8 @@ nmsGen {
             .reqMethod("setPotion", ItemStack, Potion)
     SynchedEntityData
             .reqConstructor(Entity)
+            .reqMethod("packDirty") //1.19.3 and higher
+            .reqMethod("getNonDefaultValues") //1.19.3 and higher
             .reqMethod("define", EntityDataAccessor, Object)
             .reqMethod("defineId", Class, EntityDataSerializer)
             .reqMethod("set", EntityDataAccessor, Object)
@@ -896,6 +929,21 @@ nmsGen {
             .reqField("placeSound")
             .reqField("hitSound")
             .reqField("fallSound")
+    PlayerChatMessage
+            .reqMethod("serverContent")
+            .reqMethod("signedContent")
+            .reqMethod("signature")
+            .reqMethod("unsignedContent")
+    NonNullList
+            .reqConstructor(List, Object)
+            .reqMethod("create")
+            .reqMethod("withSize", int, Object)
+            .reqMethod("get", int)
+            .reqMethod("set", int, Object)
+            .reqMethod("add", int, Object)
+            .reqMethod("remove", int)
+            .reqMethod("size")
+            .reqMethod("clear")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
@@ -1021,4 +1069,8 @@ nmsGen {
             .reqMethod("getBoatType")
             .reqField("DATA_ID_PADDLE_LEFT")
             .reqField("DATA_ID_PADDLE_RIGHT")
+    Creeper
+            .reqField("DATA_SWELL_DIR")
+            .reqField("DATA_IS_POWERED")
+            .reqField("DATA_IS_IGNITED")
 }

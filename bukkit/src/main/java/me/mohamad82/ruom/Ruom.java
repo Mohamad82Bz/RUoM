@@ -1,9 +1,9 @@
 package me.mohamad82.ruom;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.event.packet.PacketListenerManager;
 import me.mohamad82.ruom.gui.GUIListener;
-import me.mohamad82.ruom.skin.SkinBuilder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -15,8 +15,16 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 
 public class Ruom {
+
+    private final static ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder().setNameFormat(Ruom.getPlugin().getName().toLowerCase() + "-async-thread-%d").build();
+
+    private final static ExecutorService asyncExecutor = Executors.newFixedThreadPool(RUoMPlugin.exclusiveThreads, THREAD_FACTORY);
 
     private final static Set<String> recordedHasPluginSet = new HashSet<>();
 
@@ -118,6 +126,15 @@ public class Ruom {
         return Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), runnable);
     }
 
+    /**
+     * Runs a task on exclusive asyc threads of the plugin. More reliable than bukkit async threads.
+     * @param runnable The task
+     * @return A future that returns null when the task got completed
+     */
+    public static Future<?> runEAsync(Runnable runnable) {
+        return asyncExecutor.submit(runnable);
+    }
+
     public static BukkitTask runAsync(Runnable runnable, int delay) {
         return Bukkit.getScheduler().runTaskLaterAsynchronously(getPlugin(), runnable, delay);
     }
@@ -140,6 +157,7 @@ public class Ruom {
 
     public static void shutdown() {
         recordedHasPluginSet.clear();
+        asyncExecutor.shutdown();
         try {
             if (AdventureApi.get() != null) {
                 AdventureApi.get().close();

@@ -120,4 +120,8 @@ public class AINPC implements IPathingEntity, IPathingEntity.Capabilities {
         age++;
     }
 
+    public NPC getNpc() {
+        return npc;
+    }
+
 }
