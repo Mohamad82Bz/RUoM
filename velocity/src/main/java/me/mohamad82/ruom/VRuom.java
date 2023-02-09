@@ -8,7 +8,9 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
 import org.slf4j.Logger;
 
+import javax.xml.crypto.Data;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +38,14 @@ public class VRuom {
         return VRUoMPlugin.getServer();
     }
 
+    public static Path getDataDirectory() {
+        return VRUoMPlugin.getDataDirectory();
+    }
+
+    /**
+     * @deprecated Use {@link #getDataDirectory()} instead
+     * Data folder is accessible through the DataDirectory constructor in the Velocity main class\
+     */
     public static File getDataFolder() {
         return new File("plugins", getDescription().name());
     }
