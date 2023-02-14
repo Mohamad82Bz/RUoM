@@ -57,7 +57,7 @@ public class PlayerNPC extends LivingEntityNPC {
                         NMSUtils.getDedicatedServer(),
                         serverLevel,
                         profile,
-                        ServerVersion.supports(13) ?
+                        ServerVersion.supports(14) ?
                                 ServerPlayerGameModeAccessor.getConstructor0().newInstance(serverLevel) :
                                 ServerPlayerGameModeAccessor.getConstructor1().newInstance(serverLevel)
                 );
