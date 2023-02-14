@@ -368,6 +368,25 @@ public class NMSUtils {
         }
     }
 
+    public static Object getNmsBlock(Block block) {
+        try {
+            if (ServerVersion.supports(16)) {
+                return BlockBehaviour_i_BlockStateBaseAccessor.getMethodGetBlock1().invoke(
+                        LevelAccessor.getMethodGetBlockState1().invoke(NMSUtils.getServerLevel(block.getWorld()), BlockPosAccessor.getConstructor0().newInstance(block.getX(), block.getY(), block.getZ()))
+                );
+            } else if (ServerVersion.supports(9)) {
+                return BlockStateAccessor.getMethodGetBlock1().invoke(LevelAccessor.getMethodC1().invoke(NMSUtils.getServerLevel(block.getWorld()),
+                        BlockPosAccessor.getConstructor0().newInstance(block.getX(), block.getY(), block.getZ())));
+            } else {
+                return LevelAccessor.getMethodC1().invoke(NMSUtils.getServerLevel(block.getWorld()),
+                        BlockPosAccessor.getConstructor0().newInstance(block.getX(), block.getY(), block.getZ()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static int getPing(Player player) {
         try {
             return (int) ServerPlayerAccessor.getFieldLatency().get(getServerPlayer(player));
