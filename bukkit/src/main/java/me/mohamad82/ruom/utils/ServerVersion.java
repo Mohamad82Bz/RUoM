@@ -12,6 +12,13 @@ public class ServerVersion {
     }
 
     /**
+     * @return The complete server's version. Example return: "v1_19_R2" which is 1.19.3
+     */
+    public static String getCompleteVersion() {
+        return ReflectionUtils.VERSION;
+    }
+
+    /**
      * @return true if the server is running on 1.8 - 1.12.2
      */
     public static boolean isLegacy() {
