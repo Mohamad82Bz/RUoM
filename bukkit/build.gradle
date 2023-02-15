@@ -5,7 +5,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.10.17'
+version = '4.10.18'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -212,6 +212,8 @@ nmsGen {
     var PlayerChatMessage = reqClass("net.minecraft.network.chat.PlayerChatMessage")
     var ProfilePublicKey = reqClass("net.minecraft.world.entity.player.ProfilePublicKey")
     var NonNullList = reqClass("net.minecraft.core.NonNullList")
+    var MobEffectInstance = reqClass("net.minecraft.world.effect.MobEffectInstance")
+    var MobEffect = reqClass("net.minecraft.world.effect.MobEffect")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -696,6 +698,7 @@ nmsGen {
             .reqMethod("save", CompoundTag)
             .reqField("EMPTY")
     PotionUtils
+            .reqMethod("getMobEffects", ItemStack)
             .reqMethod("getColor", ItemStack)
             .reqMethod("getPotion", ItemStack)
             .reqMethod("getPotion", CompoundTag)
@@ -944,6 +947,18 @@ nmsGen {
             .reqMethod("remove", int)
             .reqMethod("size")
             .reqMethod("clear")
+    MobEffectInstance
+            .reqMethod("getEffect")
+            .reqMethod("getDuration")
+            .reqMethod("getAmplifier")
+            .reqMethod("isAmbient")
+            .reqMethod("isVisible")
+            .reqMethod("showIcon")
+    MobEffect
+            .reqMethod("getDescriptionId")
+            .reqMethod("getDisplayName")
+            .reqMethod("getCategory")
+            .reqMethod("getColor")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
