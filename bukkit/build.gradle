@@ -5,7 +5,7 @@ import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 
-version = '4.10.18'
+version = '4.10.20'
 compileJava.options.encoding = "UTF-8"
 
 repositories {
@@ -70,6 +70,9 @@ nmsGen {
     var ClientboundPlayerInfoPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket")
     var ClientboundPlayerInfoPacketAction = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action')
     var ClientboundPlayerInfoPacketPlayerUpdate = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate')
+    var ClientboundPlayerInfoUpdatePacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket")
+    var ClientboundPlayerInfoRemovePacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket")
+    var ClientboundPlayerInfoUpdatePacketAction = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action')
     var ClientboundAddEntityPacket = reqClass("net.minecraft.network.protocol.game.ClientboundAddEntityPacket")
     var ClientboundAddPlayerPacket = reqClass("net.minecraft.network.protocol.game.ClientboundAddPlayerPacket")
     var ClientboundRotateHeadPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRotateHeadPacket")
@@ -244,6 +247,17 @@ nmsGen {
             .reqEnumField("UPDATE_LATENCY")
             .reqEnumField("UPDATE_DISPLAY_NAME")
             .reqEnumField("REMOVE_PLAYER")
+    ClientboundPlayerInfoUpdatePacket
+            .reqConstructor(ClientboundPlayerInfoUpdatePacketAction, ServerPlayer)
+    ClientboundPlayerInfoRemovePacket
+            .reqConstructor(List)
+    ClientboundPlayerInfoUpdatePacketAction
+            .reqEnumField("ADD_PLAYER")
+            .reqEnumField("INITIALIZE_CHAT")
+            .reqEnumField("UPDATE_GAME_MODE")
+            .reqEnumField("UPDATE_LISTED")
+            .reqEnumField("UPDATE_LATENCY")
+            .reqEnumField("UPDATE_DISPLAY_NAME")
     ClientboundPlayerInfoPacketPlayerUpdate
             .reqConstructor("com.mojang.authlib.GameProfile", int, GameType, Component)
             .reqMethod("getProfile")
@@ -622,7 +636,7 @@ nmsGen {
             .reqMethod("getEntityToSpawn")
     EntityType
             .reqMethod("loadEntityRecursive", CompoundTag, Level, Function)
-            .reqAllEnumFieldsOfVersion("1.18")
+            .reqAllEnumFieldsOfVersion("1.19")
     EquipmentSlot
             .reqEnumField("MAINHAND")
             .reqEnumField("OFFHAND")

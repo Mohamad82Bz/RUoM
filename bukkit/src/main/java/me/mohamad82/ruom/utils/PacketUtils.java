@@ -43,10 +43,18 @@ public class PacketUtils {
 
     public static Object getPlayerInfoPacket(Object serverPlayer, PlayerInfoAction action) {
         try {
-            Object serverPlayerArray = Array.newInstance(ServerPlayerAccessor.getType(), 1);
-            Array.set(serverPlayerArray, 0, serverPlayer);
+            if (ServerVersion.supports(20) || ServerVersion.getCompleteVersion().equals("v1_19_R2")) {
+                if (action.equals(PlayerInfoAction.REMOVE_PLAYER)) {
+                    return ClientboundPlayerInfoRemovePacketAccessor.getConstructor0().newInstance(ListUtils.toList(EntityAccessor.getMethodGetUUID1().invoke(serverPlayer)));
+                } else {
+                    return ClientboundPlayerInfoUpdatePacketAccessor.getConstructor0().newInstance(action.modernNmsObject, serverPlayer);
+                }
+            } else {
+                Object serverPlayerArray = Array.newInstance(ServerPlayerAccessor.getType(), 1);
+                Array.set(serverPlayerArray, 0, serverPlayer);
 
-            return ClientboundPlayerInfoPacketAccessor.getConstructor0().newInstance(action.nmsObject, serverPlayerArray);
+                return ClientboundPlayerInfoPacketAccessor.getConstructor0().newInstance(action.legacyNmsObject, serverPlayerArray);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
@@ -408,16 +416,18 @@ public class PacketUtils {
     }
 
     public enum PlayerInfoAction {
-        ADD_PLAYER(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldADD_PLAYER()),
-        UPDATE_GAME_MODE(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_GAME_MODE()),
-        UPDATE_LATENCY(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_LATENCY()),
-        UPDATE_DISPLAY_NAME(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_DISPLAY_NAME()),
-        REMOVE_PLAYER(ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldREMOVE_PLAYER());
+        ADD_PLAYER(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldADD_PLAYER(), ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldADD_PLAYER()),
+        UPDATE_GAME_MODE(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldUPDATE_GAME_MODE(), ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_GAME_MODE()),
+        UPDATE_LATENCY(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldUPDATE_LATENCY(), ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_LATENCY()),
+        UPDATE_DISPLAY_NAME(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldUPDATE_DISPLAY_NAME(), ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_DISPLAY_NAME()),
+        REMOVE_PLAYER(null, ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldREMOVE_PLAYER());
 
-        private final Object nmsObject;
+        private final Object modernNmsObject;
+        private final Object legacyNmsObject;
 
-        PlayerInfoAction(Object nmsObject) {
-            this.nmsObject = nmsObject;
+        PlayerInfoAction(Object modernNmsObject, Object legacyNmsObject) {
+            this.modernNmsObject = modernNmsObject;
+            this.legacyNmsObject = legacyNmsObject;
         }
     }
 
