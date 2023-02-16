@@ -556,15 +556,6 @@ public class NMSUtils {
         }
     }
 
-    /**
-     * @deprecated This will throw weird errors on new versions of minecraft (>1.19). Use Adventure: Audience#sendActionBar
-     * @param player The player to send the message to
-     * @param message The message
-     */
-    public static void sendActionBar(Player player, Component message) {
-        sendPacket(player, PacketUtils.getChatPacket(message, PacketUtils.ChatType.GAME_INFO, UUID.randomUUID()));
-    }
-
     public static Object getEntityDataSerializer(Object object) {
         try {
             switch (object.getClass().getSimpleName()) {

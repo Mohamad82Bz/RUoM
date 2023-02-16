@@ -4,6 +4,7 @@ import java.time.Instant
 import java.util.function.Function
 
 apply plugin: 'org.screamingsandals.nms-mapper'
+apply plugin: 'org.jetbrains.kotlin.jvm'
 
 version = '4.10.20'
 compileJava.options.encoding = "UTF-8"
@@ -30,7 +31,7 @@ dependencies {
     implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
     implementation 'xyz.xenondevs:particle:1.8.3'
 
-    compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:remapped-mojang'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
     compileOnly 'com.intellectualsites.fawe:FAWE-Bukkit:1.16-637'
@@ -39,7 +40,6 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
@@ -59,6 +59,12 @@ shadowJar {
     relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
 }
 
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+}
+
 sourceSets.main.java.srcDirs = ['src/generated/java', 'src/main/java']
 
 nmsGen {
@@ -70,9 +76,9 @@ nmsGen {
     var ClientboundPlayerInfoPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket")
     var ClientboundPlayerInfoPacketAction = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action')
     var ClientboundPlayerInfoPacketPlayerUpdate = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate')
-    var ClientboundPlayerInfoUpdatePacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket")
-    var ClientboundPlayerInfoRemovePacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket")
-    var ClientboundPlayerInfoUpdatePacketAction = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action')
+    var ClientboundPlayerInfoUpdatePacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket") //1.19.3 and above
+    var ClientboundPlayerInfoRemovePacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket") //1.19.3 and above
+    var ClientboundPlayerInfoUpdatePacketAction = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action') //1.19.3 and above
     var ClientboundAddEntityPacket = reqClass("net.minecraft.network.protocol.game.ClientboundAddEntityPacket")
     var ClientboundAddPlayerPacket = reqClass("net.minecraft.network.protocol.game.ClientboundAddPlayerPacket")
     var ClientboundRotateHeadPacket = reqClass("net.minecraft.network.protocol.game.ClientboundRotateHeadPacket")

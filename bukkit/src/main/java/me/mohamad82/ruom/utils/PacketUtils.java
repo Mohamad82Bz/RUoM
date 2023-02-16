@@ -290,6 +290,7 @@ public class PacketUtils {
      * @deprecated Chat preview was removed in 1.19.3
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     public static Object getChatPreviewPacket(int queryId, Component message) {
         if (!ServerVersion.supports(19)) return null;
         try {
@@ -304,6 +305,7 @@ public class PacketUtils {
      * @deprecated Chat preview was removed in 1.19.3
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     public static Object getSetDisplayChatPreviewPacket(boolean enabled) {
         if (!ServerVersion.supports(19)) return null;
         try {
