@@ -156,7 +156,7 @@ public abstract class NPC extends Viewable {
             nmsItem = NMSUtils.getNmsItemStack(item);
         }
         equipments.put(slot, nmsItem);
-        NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, slot.nmsSlot, nmsItem));
+        NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, slot, nmsItem));
     }
 
     public void setPose(Pose pose, boolean flag) {
@@ -335,7 +335,7 @@ public abstract class NPC extends Viewable {
     public void onPostAddViewers(Player... players) {
         for (Map.Entry<EquipmentSlot, Object> entry : equipments.entrySet()) {
             if (!entry.getValue().equals(NMSUtils.getNmsEmptyItemStack())) {
-                NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, entry.getKey().nmsSlot, entry.getValue()));
+                NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, entry.getKey(), entry.getValue()));
             }
         }
     }
@@ -349,6 +349,10 @@ public abstract class NPC extends Viewable {
         LEGS(EquipmentSlotAccessor.getFieldLEGS());
 
         private final Object nmsSlot;
+
+        public Object getNmsSlot() {
+            return nmsSlot;
+        }
 
         EquipmentSlot(Object nmsSlot) {
             this.nmsSlot = nmsSlot;

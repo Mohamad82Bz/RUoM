@@ -39,7 +39,7 @@ public class MinecraftSkin {
                         PacketUtils.getPlayerInfoPacket(serverPlayer, PacketUtils.PlayerInfoAction.ADD_PLAYER),
                         PacketUtils.getAddEntityPacket(serverPlayer));
                 NMSUtils.sendPacket(player,
-                        PacketUtils.getRespawnPacket(NMSUtils.getServerLevel(player.getWorld()), gameMode, gameMode, false, false));
+                        PacketUtils.getRespawnPacket(NMSUtils.getServerLevel(player.getWorld()), player.getGameMode(), player.getGameMode(), false, false));
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -3,9 +3,11 @@ package me.mohamad82.ruom.utils;
 import com.mojang.datafixers.util.Pair;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
+import me.mohamad82.ruom.npc.NPC;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,11 +32,13 @@ public class PacketUtils {
         }
     }
 
-    public static Object getRespawnPacket(Object serverLevel, Object newGameMode, Object oldGameMode, boolean isFlat, boolean copyMetadata) {
+    public static Object getRespawnPacket(Object serverLevel, GameMode newGameMode, GameMode oldGameMode, boolean isFlat, boolean copyMetadata) {
         try {
+            Object nmsNewGameMode = GameTypeAccessor.getType().getField(newGameMode.toString().toUpperCase()).get(null);
+            Object nmsOldGameMode = GameTypeAccessor.getType().getField(oldGameMode.toString().toUpperCase()).get(null);
             return ClientboundRespawnPacketAccessor.getConstructor0().newInstance(LevelAccessor.getMethodDimensionType1().invoke(serverLevel),
                     LevelAccessor.getMethodDimension1().invoke(serverLevel), ServerLevelAccessor.getMethodGetSeed1().invoke(serverLevel),
-                    newGameMode, oldGameMode, false, isFlat, copyMetadata);
+                    nmsNewGameMode, nmsOldGameMode, false, isFlat, copyMetadata);
         } catch (Exception e) {
             e.printStackTrace();
             return new Error(e);
@@ -191,16 +195,16 @@ public class PacketUtils {
         }
     }
 
-    public static Object getEntityEquipmentPacket(int id, Object nmsEquipmentSlot, Object nmsItem) {
+    public static Object getEntityEquipmentPacket(int id, NPC.EquipmentSlot equipmentSlot, Object nmsItem) {
         try {
             if (ServerVersion.supports(13)) {
-                Pair<Object, Object> pair = new Pair<>(nmsEquipmentSlot, nmsItem);
+                Pair<Object, Object> pair = new Pair<>(equipmentSlot.getNmsSlot(), nmsItem);
                 List<Pair<Object, Object>> pairList = new ArrayList<>();
                 pairList.add(pair);
 
                 return ClientboundSetEquipmentPacketAccessor.getConstructor0().newInstance(id, pairList);
             } else {
-                return ClientboundSetEquipmentPacketAccessor.getConstructor1().newInstance(id, nmsEquipmentSlot, nmsItem);
+                return ClientboundSetEquipmentPacketAccessor.getConstructor1().newInstance(id, equipmentSlot.getNmsSlot(), nmsItem);
             }
         } catch (Exception e) {
             e.printStackTrace();
