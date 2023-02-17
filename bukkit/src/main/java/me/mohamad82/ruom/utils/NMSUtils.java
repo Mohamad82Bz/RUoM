@@ -218,7 +218,7 @@ public class NMSUtils {
     }
 
     /**
-     * @apiNote > 1.13
+     * @apiNote >= 1.13
      * @param particle The bukkit particle
      * @param data Data of the bukkit particle
      * @return Nms particle
@@ -233,7 +233,7 @@ public class NMSUtils {
     }
 
     /**
-     * @apiNote > 1.13
+     * @apiNote >= 1.13
      * @param particleOptions The nms particle
      * @return Bukkit particle
      */
@@ -256,7 +256,7 @@ public class NMSUtils {
     }
 
     /**
-     * @apiNote > 1.13
+     * @apiNote >= 1.13
      * @param livingEntity The bukkit living entity
      * @return List of bukkit itemstack
      */
@@ -357,7 +357,7 @@ public class NMSUtils {
     }
 
     /**
-     * @apiNote > 1.13
+     * @apiNote >= 1.13
      */
     public static Object getNmsSign(Sign sign) {
         try {
@@ -487,6 +487,27 @@ public class NMSUtils {
         }
     }
 
+    /**
+     * @apiNote >= 1.9, For 1.8 use {@link me.mohamad82.ruom.utils.SoundGroupUtils#getBlockSound(SoundGroupUtils.SoundType, Block)}
+     */
+    public static SoundGroup getSoundGroup(Material material) {
+        try {
+            return new SoundGroup(
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.BREAK, material),
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.STEP, material),
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.PLACE, material),
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.HIT, material),
+                    SoundGroupUtils.getBlockSound(SoundGroupUtils.SoundType.FALL, material)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * @apiNote >= 1.8
+     */
     public static SoundGroup getSoundGroup(Block block) {
         try {
             return new SoundGroup(
