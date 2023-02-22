@@ -78,8 +78,8 @@ public class NMSUtils {
                 ENTITY_GET_BUKKIT_ENTITY_METHOD = EntityAccessor.getType().getMethod("getBukkitEntity");
                 if (ServerVersion.supports(9)) {
                     CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
+                    CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
                 }
-                CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
                 CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle");
             }
             {
