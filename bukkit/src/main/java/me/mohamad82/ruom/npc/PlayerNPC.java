@@ -77,6 +77,10 @@ public class PlayerNPC extends LivingEntityNPC {
         return new PlayerNPC(name, location, skin);
     }
 
+    public static PlayerNPC playerNPC(String name, Location location, @Nullable MinecraftSkin skin) {
+        return new PlayerNPC(name, location, skin == null ? Optional.empty() : Optional.of(skin));
+    }
+
     public void setModelParts(ModelPart... modelParts) {
         Ruom.run(() -> SynchedEntityDataAccessor.getMethodSet1().invoke(getEntityData(), PlayerAccessor.getFieldDATA_PLAYER_MODE_CUSTOMISATION().get(null), ModelPart.getMasks(modelParts)));
         sendEntityData();
