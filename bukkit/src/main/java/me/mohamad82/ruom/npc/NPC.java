@@ -160,7 +160,10 @@ public abstract class NPC extends Viewable {
     }
 
     public void setPose(Pose pose, boolean flag) {
-        if (!pose.isSupported()) return;
+        if (!pose.isSupported()) {
+            Ruom.debug("Tried to set unsupported pose for an NPC: " + pose.name());
+            return;
+        }
         boolean changed;
         if (flag) {
             changed = poses.add(pose);
@@ -294,7 +297,7 @@ public abstract class NPC extends Viewable {
         return entity;
     }
 
-    protected void sendEntityData() {
+    public void sendEntityData() {
         Ruom.run(() -> NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityDataPacket(entity)));
     }
 

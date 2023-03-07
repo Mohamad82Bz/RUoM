@@ -3,9 +3,12 @@ package me.mohamad82.ruom.test;
 import com.cryptomorin.xseries.XMaterial;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
+import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
 import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
 import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
+import me.mohamad82.ruom.skin.MinecraftSkin;
+import me.mohamad82.ruom.skin.SkinBuilder;
 import me.mohamad82.ruom.utils.ListUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
@@ -23,6 +26,8 @@ import java.util.Optional;
 
 public class TestCommand implements CommandExecutor {
 
+    private NPC npc = null;
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
@@ -35,6 +40,7 @@ public class TestCommand implements CommandExecutor {
                 }
                 case "nmsutils": {
                     Ruom.broadcast(test_nmsUtils((Player) sender) + "");
+                    break;
                 }
             }
         }

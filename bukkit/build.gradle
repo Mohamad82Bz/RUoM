@@ -6,8 +6,10 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.10.23'
+version = '4.10.25'
 compileJava.options.encoding = "UTF-8"
+
+var latestMinecraftVersion = "1.19"
 
 repositories {
     maven {
@@ -54,7 +56,7 @@ shadowJar {
     relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
     relocate('com.extollit', 'me.mohamad82.ruom.hydrazine')
-    relocate('xyz.xenondevs.particle', 'me.mohamad82.particle')
+    relocate('xyz.xenondevs.particle', 'me.mohamad82.ruom.particle')
 
     //:core relocations
     relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
@@ -171,6 +173,7 @@ nmsGen {
     var Potions = reqClass("net.minecraft.world.item.alchemy.Potions")
     var PotionUtils = reqClass("net.minecraft.world.item.alchemy.PotionUtils")
     var SynchedEntityData = reqClass("net.minecraft.network.syncher.SynchedEntityData")
+    var DataItem = reqClass('net.minecraft.network.syncher.SynchedEntityData$DataItem')
     var CompoundTag = reqClass("net.minecraft.nbt.CompoundTag")
     var TagParser = reqClass("net.minecraft.nbt.TagParser")
     var EntityDataSerializer = reqClass("net.minecraft.network.syncher.EntityDataSerializer")
@@ -572,6 +575,8 @@ nmsGen {
             .reqMethod("getId")
             .reqMethod("setId", int)
             .reqMethod("setPose", Pose)
+            .reqMethod("hasPose", Pose)
+            .reqMethod("isCrouching")
             .reqMethod("setPos", double, double, double)
             .reqMethod("setRot", float, float)
             .reqMethod("setGlowingTag", boolean) //1.17 and higher
@@ -643,7 +648,7 @@ nmsGen {
             .reqMethod("getEntityToSpawn")
     EntityType
             .reqMethod("loadEntityRecursive", CompoundTag, Level, Function)
-            .reqAllEnumFieldsOfVersion("1.19")
+            .reqAllEnumFieldsOfVersion(latestMinecraftVersion)
     EquipmentSlot
             .reqEnumField("MAINHAND")
             .reqEnumField("OFFHAND")
@@ -718,6 +723,8 @@ nmsGen {
             .reqMethod("getItem")
             .reqMethod("save", CompoundTag)
             .reqField("EMPTY")
+    Potion
+            .reqField("name")
     PotionUtils
             .reqMethod("getMobEffects", ItemStack)
             .reqMethod("getColor", ItemStack)
@@ -726,6 +733,7 @@ nmsGen {
             .reqMethod("setPotion", ItemStack, Potion)
     SynchedEntityData
             .reqConstructor(Entity)
+            .reqField("itemsById")
             .reqMethod("packDirty") //1.19.3 and higher
             .reqMethod("getNonDefaultValues") //1.19.3 and higher
             .reqMethod("define", EntityDataAccessor, Object)
@@ -735,6 +743,14 @@ nmsGen {
             .reqMethod("obfuscated:a:1.8.8", int, Object)
             .reqMethod("spigot:add:1.8.8", int, int)
             .reqMethod("spigot:watch:1.8.8", int, Object)
+    DataItem
+            .reqConstructor(EntityDataAccessor, Object)
+            .reqField("initialValue")
+            .reqMethod("getAccessor")
+            .reqMethod("setValue", Object)
+            .reqMethod("getValue")
+            .reqMethod("isSetToDefault")
+            .reqMethod("value")
     CompoundTag
             .reqConstructor()
             .reqMethod("getString", String)
