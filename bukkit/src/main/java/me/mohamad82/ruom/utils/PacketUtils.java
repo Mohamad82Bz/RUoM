@@ -326,7 +326,7 @@ public class PacketUtils {
         try {
             Object packet;
             if (ServerVersion.supports(17)) {
-                Optional<Object> playerTeamOptional;
+                Optional<Object> parameters;
                 if (method == 0 || method == 2) {
                     Object playerTeam = PlayerTeamAccessor.getConstructor0().newInstance(null, name);
                     PlayerTeamAccessor.getFieldPlayerPrefix().set(playerTeam, MinecraftComponentSerializer.get().serialize(playerPrefix == null ? Component.empty() : playerPrefix));
@@ -337,15 +337,15 @@ public class PacketUtils {
                     ((Set<String>) PlayerTeamAccessor.getFieldPlayers().get(playerTeam)).addAll(players.stream().map(HumanEntity::getName).collect(Collectors.toSet()));
                     PlayerTeamAccessor.getFieldSeeFriendlyInvisibles().set(playerTeam, canSeeFriendlyInvisible);
 
-                    playerTeamOptional = Optional.of(playerTeam);
+                    parameters = Optional.of(ClientboundSetPlayerTeamPacket_i_ParametersAccessor.getConstructor0().newInstance(playerTeam));
                 } else {
-                    playerTeamOptional = Optional.empty();
+                    parameters = Optional.empty();
                 }
 
-                packet = ClientboundSetPlayerTeamPacketAccessor.getConstructor0().newInstance(
+                packet   = ClientboundSetPlayerTeamPacketAccessor.getConstructor0().newInstance(
                         name,
                         method,
-                        playerTeamOptional,
+                        parameters,
                         players.stream().map((HumanEntity::getName)).collect(Collectors.toSet())
                 );
             } else {

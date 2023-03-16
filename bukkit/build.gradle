@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.10.26'
+version = '4.10.27'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -109,6 +109,7 @@ nmsGen {
     var ClientboundEntityEventPacket = reqClass("net.minecraft.network.protocol.game.ClientboundEntityEventPacket")
     var ClientboundChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPacket")
     var ClientboundSetPlayerTeamPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket")
+    var ClientboundSetPlayerTeamPacketParameters = reqClass('net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket$Parameters')
     var ClientboundSetDisplayChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetDisplayChatPreviewPacket")
     var ClientboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ClientboundChatPreviewPacket")
     var ClientboundPlayerChatPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerChatPacket")
@@ -417,6 +418,8 @@ nmsGen {
             .reqField("players")
             .reqField("method")
             .reqField("options")
+    ClientboundSetPlayerTeamPacketParameters
+            .reqConstructor(PlayerTeam)
     ClientboundSetDisplayChatPreviewPacket
             .reqConstructor(boolean)
             .reqMethod("enabled")
