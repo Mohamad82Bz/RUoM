@@ -342,7 +342,7 @@ public class PacketUtils {
                     parameters = Optional.empty();
                 }
 
-                packet   = ClientboundSetPlayerTeamPacketAccessor.getConstructor0().newInstance(
+                packet = ClientboundSetPlayerTeamPacketAccessor.getConstructor0().newInstance(
                         name,
                         method,
                         parameters,
