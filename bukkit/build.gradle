@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.10.25'
+version = '4.10.26'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -227,6 +227,11 @@ nmsGen {
     var NonNullList = reqClass("net.minecraft.core.NonNullList")
     var MobEffectInstance = reqClass("net.minecraft.world.effect.MobEffectInstance")
     var MobEffect = reqClass("net.minecraft.world.effect.MobEffect")
+    var Scoreboard = reqClass("net.minecraft.world.scores.Scoreboard")
+    var PlayerTeam = reqClass("net.minecraft.world.scores.PlayerTeam")
+    var Team = reqClass("net.minecraft.world.scores.Team")
+    var CollisionRule = reqClass('net.minecraft.world.scores.Team$CollisionRule')
+    var Visibility = reqClass('net.minecraft.world.scores.Team$Visibility')
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -996,6 +1001,31 @@ nmsGen {
             .reqMethod("getDisplayName")
             .reqMethod("getCategory")
             .reqMethod("getColor")
+    PlayerTeam
+            .reqConstructor(Scoreboard, String)
+            .reqField("scoreboard")
+            .reqField("name")
+            .reqField("players")
+            .reqField("displayName")
+            .reqField("playerPrefix")
+            .reqField("playerSuffix")
+            .reqField("allowFriendlyFire")
+            .reqField("seeFriendlyInvisibles")
+            .reqField("nameTagVisibility")
+            .reqField("deathMessageVisibility")
+            .reqField("color")
+            .reqField("collisionRule")
+            .reqField("displayNameStyle")
+    CollisionRule
+            .reqEnumField("ALWAYS")
+            .reqEnumField("NEVER")
+            .reqEnumField("PUSH_OTHER_TEAMS")
+            .reqEnumField("PUSH_OWN_TEAM")
+    Visibility
+            .reqEnumField("ALWAYS")
+            .reqEnumField("NEVER")
+            .reqEnumField("HIDE_FOR_OTHER_TEAMS")
+            .reqEnumField("HIDE_FOR_OWN_TEAM")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)

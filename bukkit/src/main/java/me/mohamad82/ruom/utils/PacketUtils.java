@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -325,8 +326,28 @@ public class PacketUtils {
         try {
             Object packet;
             if (ServerVersion.supports(17)) {
-                //TODO 1.17 team packets
-                packet = null;
+                Optional<Object> playerTeamOptional;
+                if (method == 0 || method == 2) {
+                    Object playerTeam = PlayerTeamAccessor.getConstructor0().newInstance(null, name);
+                    PlayerTeamAccessor.getFieldPlayerPrefix().set(playerTeam, MinecraftComponentSerializer.get().serialize(playerPrefix == null ? Component.empty() : playerPrefix));
+                    PlayerTeamAccessor.getFieldPlayerSuffix().set(playerTeam, MinecraftComponentSerializer.get().serialize(playerSuffix == null ? Component.empty() : playerSuffix));
+                    PlayerTeamAccessor.getFieldNameTagVisibility().set(playerTeam, nameTagVisibility.modernNmsObject);
+                    PlayerTeamAccessor.getFieldCollisionRule().set(playerTeam, collisionRule.modernNmsObject);
+                    PlayerTeamAccessor.getFieldColor().set(playerTeam, ChatFormattingAccessor.class.getMethod("getField" + color.name()).invoke(null));
+                    ((Set<String>) PlayerTeamAccessor.getFieldPlayers().get(playerTeam)).addAll(players.stream().map(HumanEntity::getName).collect(Collectors.toSet()));
+                    PlayerTeamAccessor.getFieldSeeFriendlyInvisibles().set(playerTeam, canSeeFriendlyInvisible);
+
+                    playerTeamOptional = Optional.of(playerTeam);
+                } else {
+                    playerTeamOptional = Optional.empty();
+                }
+
+                packet = ClientboundSetPlayerTeamPacketAccessor.getConstructor0().newInstance(
+                        name,
+                        method,
+                        playerTeamOptional,
+                        players.stream().map((HumanEntity::getName)).collect(Collectors.toSet())
+                );
             } else {
                 packet = ClientboundSetPlayerTeamPacketAccessor.getConstructor1().newInstance();
 
@@ -472,28 +493,32 @@ public class PacketUtils {
     }
 
     public enum NameTagVisibility {
-        ALWAYS("always"),
-        HIDE_FOR_OTHER_TEAMS("hideForOtherTeams"),
-        HIDE_FOR_OWN_TEAM("hideForOwnTeam"),
-        NEVER("never");
+        ALWAYS("always", Team_i_VisibilityAccessor.getFieldALWAYS()),
+        HIDE_FOR_OTHER_TEAMS("hideForOtherTeams", Team_i_VisibilityAccessor.getFieldHIDE_FOR_OTHER_TEAMS()),
+        HIDE_FOR_OWN_TEAM("hideForOwnTeam", Team_i_VisibilityAccessor.getFieldHIDE_FOR_OWN_TEAM()),
+        NEVER("never", Team_i_VisibilityAccessor.getFieldNEVER());
 
         private final String nmsName;
+        private final Object modernNmsObject; //1.17 and above
 
-        NameTagVisibility(String nmsName) {
+        NameTagVisibility(String nmsName, Object modernNmsObject) {
             this.nmsName = nmsName;
+            this.modernNmsObject = modernNmsObject;
         }
     }
 
     public enum CollisionRule {
-        ALWAYS("always"),
-        PUSH_OTHER_TEAMS("pushOtherTeams"),
-        PUSH_OWN_TEAM("pushOwnTeam"),
-        NEVER("never");
+        ALWAYS("always", Team_i_CollisionRuleAccessor.getFieldALWAYS()),
+        PUSH_OTHER_TEAMS("pushOtherTeams", Team_i_CollisionRuleAccessor.getFieldPUSH_OTHER_TEAMS()),
+        PUSH_OWN_TEAM("pushOwnTeam", Team_i_CollisionRuleAccessor.getFieldPUSH_OWN_TEAM()),
+        NEVER("never", Team_i_CollisionRuleAccessor.getFieldNEVER());
 
         private final String nmsName;
+        private final Object modernNmsObject; //1.17 and above
 
-        CollisionRule(String nmsName) {
+        CollisionRule(String nmsName, Object modernNmsObject) {
             this.nmsName = nmsName;
+            this.modernNmsObject = modernNmsObject;
         }
     }
 
