@@ -2,6 +2,7 @@ package me.mohamad82.ruom.utils;
 
 import com.cryptomorin.xseries.XMaterial;
 import kotlin.Pair;
+import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
@@ -17,10 +18,7 @@ import xyz.xenondevs.particle.ParticleBuilder;
 import xyz.xenondevs.particle.ParticleEffect;
 import xyz.xenondevs.particle.data.texture.ItemTexture;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class PlayerUtils {
 
@@ -130,7 +128,7 @@ public class PlayerUtils {
         }
     }
 
-    public static void spawnFoodEatParticles(Location location, Material foodMaterial) {
+    public static void spawnFoodEatParticles(Location location, Material foodMaterial, Collection<Player> viewers) {
         final Random random = new Random();
         final Location rightArm = getRightHandLocation(location).add(0, -0.25, 0);
         ParticleBuilder particleBuilder = new ParticleBuilder(ParticleEffect.ITEM_CRACK, rightArm).setParticleData(new ItemTexture(new ItemStack(foodMaterial)));
@@ -144,6 +142,11 @@ public class PlayerUtils {
             particleBuilder.setOffset(a1, 1, a2);
             particleBuilder.setSpeed((float) 0.23 + a3);
         }
+        particleBuilder.display(viewers);
+    }
+
+    public static void spawnFoodEatParticles(Location location, Material foodMaterial) {
+        spawnFoodEatParticles(location, foodMaterial, Ruom.getOnlinePlayers());
     }
 
     public static Location getRightHandLocation(Location location) {
