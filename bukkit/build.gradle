@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.10.27'
+version = '4.10.28'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -42,7 +42,7 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
@@ -73,7 +73,12 @@ sourceSets.main.java.srcDirs = ['src/generated/java', 'src/main/java']
 nmsGen {
     basePackage = 'me.mohamad82.ruom.nmsaccessors'
     sourceSet = 'src/generated/java'
+
     minMinecraftVersion = '1.8.8'
+
+    nullableAnnotation = "org.jetbrains.annotations.Nullable"
+    notNullAnnotation = "org.jetbrains.annotations.NotNull"
+
     cleanOnRebuild = true
 
     var ClientboundPlayerInfoPacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket")
