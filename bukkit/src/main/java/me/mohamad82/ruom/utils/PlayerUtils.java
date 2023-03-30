@@ -141,8 +141,8 @@ public class PlayerUtils {
             particleBuilder.setAmount(1);
             particleBuilder.setOffset(a1, 1, a2);
             particleBuilder.setSpeed((float) 0.23 + a3);
+            particleBuilder.display(viewers);
         }
-        particleBuilder.display(viewers);
     }
 
     public static void spawnFoodEatParticles(Location location, Material foodMaterial) {
