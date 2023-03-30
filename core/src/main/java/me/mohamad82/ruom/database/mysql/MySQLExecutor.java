@@ -56,6 +56,7 @@ public abstract class MySQLExecutor extends Database {
                     removedQueries.add(query);
             }
             queries.removeAll(removedQueries);
+            queue.get(priority).removeAll(removedQueries);
 
             for (Query query : queries) {
                 if (query.hasDoneRequirements() && query.getStatusCode() != Query.StatusCode.RUNNING.getCode()) {
