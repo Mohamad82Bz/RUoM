@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.10.31'
+version = '4.11.0'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -180,7 +180,10 @@ nmsGen {
     var PotionUtils = reqClass("net.minecraft.world.item.alchemy.PotionUtils")
     var SynchedEntityData = reqClass("net.minecraft.network.syncher.SynchedEntityData")
     var DataItem = reqClass('net.minecraft.network.syncher.SynchedEntityData$DataItem')
+    var Tag = reqClass("net.minecraft.nbt.Tag")
     var CompoundTag = reqClass("net.minecraft.nbt.CompoundTag")
+    var ListTag = reqClass("net.minecraft.nbt.ListTag")
+    var StringTag = reqClass("net.minecraft.nbt.StringTag")
     var TagParser = reqClass("net.minecraft.nbt.TagParser")
     var EntityDataSerializer = reqClass("net.minecraft.network.syncher.EntityDataSerializer")
     var EntityDataSerializers = reqClass("net.minecraft.network.syncher.EntityDataSerializers")
@@ -726,6 +729,18 @@ nmsGen {
             .reqMethod("getItemCategory")
     ItemStack
             .reqConstructor(CompoundTag)
+            .reqField("EMPTY")
+            .reqField("TAG_ENCH")
+            .reqField("TAG_DISPLAY")
+            .reqField("TAG_DISPLAY_NAME")
+            .reqField("TAG_LORE")
+            .reqField("TAG_DAMAGE")
+            .reqField("TAG_COLOR")
+            .reqField("TAG_UNBREAKABLE")
+            .reqField("TAG_REPAIR_COST")
+            .reqField("TAG_CAN_DESTROY_BLOCK_LIST")
+            .reqField("TAG_CAN_PLACE_ON_BLOCK_LIST")
+            .reqField("TAG_HIDE_FLAGS")
             .reqMethod("of", CompoundTag)
             .reqMethod("spigot:createStack:1.10.2", CompoundTag)
             .reqMethod("getTag")
@@ -735,7 +750,6 @@ nmsGen {
             .reqMethod("getDisplayName")
             .reqMethod("getItem")
             .reqMethod("save", CompoundTag)
-            .reqField("EMPTY")
     Potion
             .reqField("name")
     PotionUtils
@@ -764,9 +778,43 @@ nmsGen {
             .reqMethod("getValue")
             .reqMethod("isSetToDefault")
             .reqMethod("value")
+    Tag
+            .reqField("OBJECT_HEADER")
+            .reqField("ARRAY_HEADER")
+            .reqField("OBJECT_REFERENCE")
+            .reqField("STRING_SIZE")
+            .reqField("TAG_END")
+            .reqField("TAG_BYTE")
+            .reqField("TAG_SHORT")
+            .reqField("TAG_INT")
+            .reqField("TAG_LONG")
+            .reqField("TAG_FLOAT")
+            .reqField("TAG_DOUBLE")
+            .reqField("TAG_BYTE_ARRAY")
+            .reqField("TAG_STRING")
+            .reqField("TAG_LIST")
+            .reqField("TAG_COMPOUND")
+            .reqField("TAG_INT_ARRAY")
+            .reqField("TAG_LONG_ARRAY")
+            .reqField("TAG_ANY_NUMERIC")
+            .reqField("MAX_DEPTH")
     CompoundTag
             .reqConstructor()
+            .reqMethod("getAllKeys")
+            .reqMethod("size")
+            .reqMethod("put", String, Tag)
+            .reqMethod("putString", String, String)
+            .reqMethod("get", String)
+            .reqMethod("getList", String, int)
             .reqMethod("getString", String)
+            .reqMethod("getCompound", String)
+            .reqMethod("remove", String)
+            .reqMethod("copy")
+    ListTag
+            .reqConstructor(List, byte)
+            .reqConstructor()
+    StringTag
+            .reqConstructor(String)
     TagParser
             .reqMethod("parseTag", String)
     EntityDataSerializer

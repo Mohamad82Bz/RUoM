@@ -11,3 +11,11 @@ fun ItemStack.toComponent(): Component {
 fun ItemStack.toJson(): String {
     return NMSUtils.getItemStackNBTJson(this)
 }
+
+fun ItemStack.withDisplayName(displayName: Component): ItemStack {
+    return NMSUtils.setDisplayName(this, displayName)
+}
+
+fun ItemStack.withLore(lines: List<Component>): ItemStack {
+    return NMSUtils.setLore(this, lines)
+}

@@ -2,8 +2,10 @@ package me.mohamad82.ruom.itemstack;
 
 import com.cryptomorin.xseries.XMaterial;
 import io.th0rgal.oraxen.items.OraxenItems;
+import me.mohamad82.ruom.adventure.ComponentUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
 import net.Indyuce.mmoitems.MMOItems;
+import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -149,8 +151,21 @@ public class ItemReader {
                     if (str.contains(":")) {
                         String[] strSplit = str.split(":", 2);
                         if (strSplit[0].equalsIgnoreCase("NAME")) {
-                            itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', strSplit[1]));
+                            itemStack.setItemMeta(itemMeta);
+                            itemStack = NMSUtils.setDisplayName(itemStack, ComponentUtils.parse(strSplit[1]));
+                            itemMeta = itemStack.getItemMeta();
                         } else if (strSplit[0].equalsIgnoreCase("LORE")) {
+                            List<Component> lore = new ArrayList<>();
+                            String[] lores = strSplit[1].split("\\|");
+                            for (String loreString : lores) {
+                                lore.add(ComponentUtils.parse(loreString));
+                            }
+                            itemStack.setItemMeta(itemMeta);
+                            itemStack = NMSUtils.setLore(itemStack, lore);
+                            itemMeta = itemStack.getItemMeta();
+                        } else if (strSplit[0].equalsIgnoreCase("LEGACY_NAME")) {
+                            itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', strSplit[1]));
+                        } else if (strSplit[0].equalsIgnoreCase("LEGACY_LORE")) {
                             List<String> lore = new ArrayList<>();
                             String[] lores = strSplit[1].split("\\|");
                             for (String loreString : lores) {

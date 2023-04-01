@@ -8,6 +8,8 @@ import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -160,6 +162,41 @@ public class NMSUtils {
     public static String getItemCategory(ItemStack item) {
         try {
             return (String) CreativeModeTabAccessor.getFieldLangId().get(ItemAccessor.getMethodGetItemCategory1().invoke(ItemStackAccessor.getMethodGetItem1().invoke(getNmsItemStack(item))));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static ItemStack setDisplayName(ItemStack item, Component component) {
+        try {
+            Object nmsItem = NMSUtils.getNmsItemStack(item);
+            CompoundTagAccessor.getMethodPutString1().invoke(getDisplayTag(nmsItem), ItemStackAccessor.getFieldTAG_DISPLAY_NAME().get(null), GsonComponentSerializer.gson().serialize(component.decoration(TextDecoration.ITALIC, false)));
+            return NMSUtils.getBukkitItemStack(nmsItem);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static ItemStack setLore(ItemStack item, List<Component> lines) {
+        try {
+            Object nmsItem = NMSUtils.getNmsItemStack(item);
+            List<Object> stringTagList = new ArrayList<>();
+            for (Component line : lines) {
+                stringTagList.add(StringTagAccessor.getConstructor0().newInstance(GsonComponentSerializer.gson().serialize(line.decoration(TextDecoration.ITALIC, false))));
+            }
+            CompoundTagAccessor.getMethodPut1().invoke(getDisplayTag(nmsItem), ItemStackAccessor.getFieldTAG_LORE().get(null), ListTagAccessor.getConstructor0().newInstance(stringTagList, TagAccessor.getFieldTAG_STRING().get(StringTagAccessor.getConstructor0().newInstance(""))));
+            return NMSUtils.getBukkitItemStack(nmsItem);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static Object getDisplayTag(Object nmsItem) {
+        try {
+            return CompoundTagAccessor.getMethodGetCompound1().invoke(ItemStackAccessor.getMethodGetTag1().invoke(nmsItem), ItemStackAccessor.getFieldTAG_DISPLAY().get(null));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
