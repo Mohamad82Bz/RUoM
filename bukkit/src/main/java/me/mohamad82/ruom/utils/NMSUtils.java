@@ -18,6 +18,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -170,6 +171,11 @@ public class NMSUtils {
 
     public static ItemStack setDisplayName(ItemStack item, Component component) {
         try {
+            //applying a sample displayname for item to initialize its display tags
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName("temp");
+            item.setItemMeta(meta);
+
             Object nmsItem = NMSUtils.getNmsItemStack(item);
             CompoundTagAccessor.getMethodPutString1().invoke(getDisplayTag(nmsItem), ItemStackAccessor.getFieldTAG_DISPLAY_NAME().get(null), GsonComponentSerializer.gson().serialize(component.decoration(TextDecoration.ITALIC, false)));
             return NMSUtils.getBukkitItemStack(nmsItem);
@@ -181,6 +187,11 @@ public class NMSUtils {
 
     public static ItemStack setLore(ItemStack item, List<Component> lines) {
         try {
+            //applying a sample displayname for item to initialize its display tags (there's no difference in adding displayname or lore, but anyway)
+            ItemMeta meta = item.getItemMeta();
+            meta.setLore(ListUtils.toList("temp"));
+            item.setItemMeta(meta);
+
             Object nmsItem = NMSUtils.getNmsItemStack(item);
             List<Object> stringTagList = new ArrayList<>();
             for (Component line : lines) {
