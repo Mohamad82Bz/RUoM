@@ -187,7 +187,7 @@ public class NMSUtils {
 
     public static ItemStack setLore(ItemStack item, List<Component> lines) {
         try {
-            //applying a sample displayname for item to initialize its display tags (there's no difference in adding displayname or lore, but anyway)
+            //applying a sample lore for item to initialize its display tags (there's no difference in adding displayname or lore, but anyway)
             ItemMeta meta = item.getItemMeta();
             meta.setLore(ListUtils.toList("temp"));
             item.setItemMeta(meta);
