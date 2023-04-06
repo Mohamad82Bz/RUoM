@@ -26,10 +26,10 @@ repositories {
 dependencies {
     implementation project(path: ':core', configuration: 'shadow')
 
-    implementation 'net.kyori:adventure-api:4.11.0'
-    implementation 'net.kyori:adventure-text-minimessage:4.11.0'
-    implementation 'net.kyori:adventure-platform-bukkit:4.1.2'
-    implementation 'com.github.cryptomorin:XSeries:9.0.0'
+    implementation 'net.kyori:adventure-api:4.13.0'
+    implementation 'net.kyori:adventure-text-minimessage:4.13.0'
+    implementation 'net.kyori:adventure-platform-bukkit:4.3.0'
+    implementation 'com.github.cryptomorin:XSeries:9.3.1'
     implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
     implementation 'xyz.xenondevs:particle:1.8.3'
 
@@ -42,7 +42,7 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
