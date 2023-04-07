@@ -49,7 +49,7 @@ public class PacketUtils {
 
     public static Object getPlayerInfoPacket(Object serverPlayer, PlayerInfoAction action) {
         try {
-            if (ServerVersion.supports(20) || ServerVersion.getCompleteVersion().equals("v1_19_R2")) {
+            if (ServerVersion.supports(20) || ServerVersion.getCompleteVersion().equals("v1_19_R2") || ServerVersion.getCompleteVersion().equals("v1_19_R3")) {
                 if (action.equals(PlayerInfoAction.REMOVE_PLAYER)) {
                     return ClientboundPlayerInfoRemovePacketAccessor.getConstructor0().newInstance(ListUtils.toList(EntityAccessor.getMethodGetUUID1().invoke(serverPlayer)));
                 } else {
