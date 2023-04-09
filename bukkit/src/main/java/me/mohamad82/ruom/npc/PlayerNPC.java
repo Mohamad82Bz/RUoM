@@ -25,10 +25,12 @@ public class PlayerNPC extends LivingEntityNPC {
 
     private static Field listNameField;
 
+    private final String name;
     private final float yaw;
 
     protected PlayerNPC(String name, Location location, Optional<MinecraftSkin> skin) {
         super(createServerPlayerObject(name, location.getWorld(), skin), location, NPCType.PLAYER);
+        this.name = name;
         this.yaw = location.getYaw();
         if (skin.isPresent())
             setModelParts(ModelPart.values());
@@ -79,6 +81,10 @@ public class PlayerNPC extends LivingEntityNPC {
 
     public static PlayerNPC playerNPC(String name, Location location, @Nullable MinecraftSkin skin) {
         return new PlayerNPC(name, location, skin == null ? Optional.empty() : Optional.of(skin));
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setModelParts(ModelPart... modelParts) {
