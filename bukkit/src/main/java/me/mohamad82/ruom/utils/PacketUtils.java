@@ -322,7 +322,7 @@ public class PacketUtils {
         }
     }
 
-    public static Object getPlayerTeamPacket(String name, @Nullable Component playerPrefix, @Nullable Component playerSuffix, NameTagVisibility nameTagVisibility, CollisionRule collisionRule, ChatColor color, Collection<Player> players, boolean canSeeFriendlyInvisible, int method) {
+    public static Object getPlayerTeamPacket(String name, @Nullable Component playerPrefix, @Nullable Component playerSuffix, NameTagVisibility nameTagVisibility, CollisionRule collisionRule, ChatColor color, Collection<String> players, boolean canSeeFriendlyInvisible, int method) {
         try {
             Object packet;
             if (ServerVersion.supports(17)) {
@@ -334,7 +334,7 @@ public class PacketUtils {
                     PlayerTeamAccessor.getFieldNameTagVisibility().set(playerTeam, nameTagVisibility.modernNmsObject);
                     PlayerTeamAccessor.getFieldCollisionRule().set(playerTeam, collisionRule.modernNmsObject);
                     PlayerTeamAccessor.getFieldColor().set(playerTeam, ChatFormattingAccessor.class.getMethod("getField" + color.name()).invoke(null));
-                    ((Set<String>) PlayerTeamAccessor.getFieldPlayers().get(playerTeam)).addAll(players.stream().map(HumanEntity::getName).collect(Collectors.toSet()));
+                    ((Set<String>) PlayerTeamAccessor.getFieldPlayers().get(playerTeam)).addAll(players);
                     PlayerTeamAccessor.getFieldSeeFriendlyInvisibles().set(playerTeam, canSeeFriendlyInvisible);
 
                     parameters = Optional.of(ClientboundSetPlayerTeamPacket_i_ParametersAccessor.getConstructor0().newInstance(playerTeam));
@@ -346,7 +346,7 @@ public class PacketUtils {
                         name,
                         method,
                         parameters,
-                        players.stream().map((HumanEntity::getName)).collect(Collectors.toSet())
+                        players
                 );
             } else {
                 packet = ClientboundSetPlayerTeamPacketAccessor.getConstructor1().newInstance();
@@ -354,7 +354,7 @@ public class PacketUtils {
                 ClientboundSetPlayerTeamPacketAccessor.getFieldName().set(packet, name);
                 ClientboundSetPlayerTeamPacketAccessor.getFieldNametagVisibility().set(packet, nameTagVisibility.nmsName);
                 ClientboundSetPlayerTeamPacketAccessor.getFieldColor().set(packet, ChatFormattingAccessor.class.getMethod("getField" + color.name()).invoke(null));
-                ClientboundSetPlayerTeamPacketAccessor.getFieldPlayers().set(packet, players.stream().map(Player::getName).collect(Collectors.toCollection(ArrayList::new)));
+                ClientboundSetPlayerTeamPacketAccessor.getFieldPlayers().set(packet, players);
                 ClientboundSetPlayerTeamPacketAccessor.getFieldMethod().set(packet, method);
                 int options = 0;
                 if (canSeeFriendlyInvisible) {
@@ -378,7 +378,7 @@ public class PacketUtils {
         }
     }
 
-    public static Object getTeamCreatePacket(String name, @Nullable Component playerPrefix, @Nullable Component playerSuffix, NameTagVisibility nameTagVisibility, CollisionRule collisionRule, ChatColor color, Collection<Player> players, boolean canSeeFriendlyInvisible) {
+    public static Object getTeamCreatePacket(String name, @Nullable Component playerPrefix, @Nullable Component playerSuffix, NameTagVisibility nameTagVisibility, CollisionRule collisionRule, ChatColor color, Collection<String> players, boolean canSeeFriendlyInvisible) {
         return getPlayerTeamPacket(name, playerPrefix, playerSuffix, nameTagVisibility, collisionRule, color, players, canSeeFriendlyInvisible, 0);
     }
 
@@ -390,11 +390,11 @@ public class PacketUtils {
         return getPlayerTeamPacket(name, playerPrefix, playerSuffix, nameTagVisibility, collisionRule, color, Collections.emptyList(), canSeeFriendlyInvisible, 2);
     }
 
-    public static Object getTeamAddPlayerPacket(String name, Collection<Player> players) {
+    public static Object getTeamAddPlayerPacket(String name, Collection<String> players) {
         return getPlayerTeamPacket(name, null, null, NameTagVisibility.ALWAYS, CollisionRule.ALWAYS, ChatColor.RESET, players, false, 3);
     }
 
-    public static Object getTeamRemovePlayerPacket(String name, Collection<Player> players) {
+    public static Object getTeamRemovePlayerPacket(String name, Collection<String> players) {
         return getPlayerTeamPacket(name, null, null, NameTagVisibility.ALWAYS, CollisionRule.ALWAYS, ChatColor.RESET, players, false, 4);
     }
 
