@@ -3,6 +3,7 @@ package me.mohamad82.ruom.utils;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public abstract class Viewable {
         onPostAddViewers(players);
     }
 
-    public void addViewers(Set<Player> players) {
+    public void addViewers(Collection<Player> players) {
         addViewers(players.toArray(new Player[0]));
     }
 
@@ -52,7 +53,7 @@ public abstract class Viewable {
         onPostRemoveViewers(players);
     }
 
-    public void removeViewers(Set<Player> players) {
+    public void removeViewers(Collection<Player> players) {
         removeViewers(players.toArray(new Player[0]));
     }
 
