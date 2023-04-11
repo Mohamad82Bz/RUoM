@@ -9,15 +9,12 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PacketUtils {
 
@@ -53,7 +50,7 @@ public class PacketUtils {
                 if (action.equals(PlayerInfoAction.REMOVE_PLAYER)) {
                     return ClientboundPlayerInfoRemovePacketAccessor.getConstructor0().newInstance(ListUtils.toList(EntityAccessor.getMethodGetUUID1().invoke(serverPlayer)));
                 } else {
-                    return ClientboundPlayerInfoUpdatePacketAccessor.getConstructor0().newInstance(action.modernNmsObject, serverPlayer);
+                    return ClientboundPlayerInfoUpdatePacketAccessor.getMethodCreatePlayerInitializing1().invoke(null, ListUtils.toList(serverPlayer));
                 }
             } else {
                 Object serverPlayerArray = Array.newInstance(ServerPlayerAccessor.getType(), 1);

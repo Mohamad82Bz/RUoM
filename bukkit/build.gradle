@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.2'
+version = '4.13.3'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -273,6 +273,7 @@ nmsGen {
             .reqEnumField("REMOVE_PLAYER")
     ClientboundPlayerInfoUpdatePacket
             .reqConstructor(ClientboundPlayerInfoUpdatePacketAction, ServerPlayer)
+            .reqMethod("createPlayerInitializing", Collection)
     ClientboundPlayerInfoRemovePacket
             .reqConstructor(List)
     ClientboundPlayerInfoUpdatePacketAction
