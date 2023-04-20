@@ -175,4 +175,12 @@ public class ArmorStandNPC extends EntityNPC {
         return small;
     }
 
+    public float getyBodyRot() {
+        return yBodyRot;
+    }
+
+    public float getyHeadRot() {
+        return yHeadRot;
+    }
+
 }
