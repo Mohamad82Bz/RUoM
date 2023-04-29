@@ -2,9 +2,11 @@ package me.mohamad82.ruom.test;
 
 import com.cryptomorin.xseries.XMaterial;
 import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.adventure.ComponentUtils;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
+import me.mohamad82.ruom.npc.TablistComponent;
 import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
 import me.mohamad82.ruom.utils.ListUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
@@ -39,6 +41,25 @@ public class TestCommand implements CommandExecutor {
                     Ruom.broadcast(test_nmsUtils((Player) sender) + "");
                     break;
                 }
+                case "debug1": {
+                    TablistComponent tablist = TablistComponent.tablistComponent(ComponentUtils.parse("<rainbow>Testtttt"), "Name111", Optional.empty());
+                    tablist.addViewers(Ruom.getOnlinePlayers());
+                    break;
+                }
+                case "debug2": {
+                    Player player = (Player) sender;
+                    Object packet = PacketUtils.getTeamCreatePacket(
+                            "team1",
+                            ComponentUtils.parse("<gold>TEAM 1"),
+                            ComponentUtils.parse(""),
+                            PacketUtils.NameTagVisibility.ALWAYS,
+                            PacketUtils.CollisionRule.ALWAYS,
+                            ChatColor.BLUE,
+                            ListUtils.toList("Name111", "Mohamad82"),
+                            true
+                    );
+                    NMSUtils.sendPacket(player, packet);
+                }
             }
         }
         return true;
@@ -46,7 +67,7 @@ public class TestCommand implements CommandExecutor {
 
     public boolean test_packetUtils() {
         assert PacketUtils.getOpenScreenPacket(0, 9, Component.empty()) != null;
-        assert PacketUtils.getRespawnPacket(NMSUtils.getServerLevel(Bukkit.getWorlds().get(0)), GameMode.SURVIVAL, GameMode.SURVIVAL, true, true) != null;
+        assert PacketUtils.getRespawnPacket(NMSUtils.getServerLevel(Bukkit.getWorlds().get(0)), GameMode.SURVIVAL, GameMode.SURVIVAL, true) != null;
         Object serverPlayer = PlayerNPC.createServerPlayerObject("", Bukkit.getWorlds().get(0), Optional.empty());
         assert PacketUtils.getPlayerInfoPacket(serverPlayer, PacketUtils.PlayerInfoAction.ADD_PLAYER) != null;
         assert PacketUtils.getPlayerInfoPacket(serverPlayer, PacketUtils.PlayerInfoAction.REMOVE_PLAYER) != null;
