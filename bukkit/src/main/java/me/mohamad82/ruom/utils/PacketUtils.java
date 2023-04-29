@@ -44,7 +44,7 @@ public class PacketUtils {
                         nmsOldGameMode,
                         false,
                         isFlat,
-                        0,
+                        (byte) 0,
                         Optional.empty()
                 );
             } else {
