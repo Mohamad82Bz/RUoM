@@ -44,7 +44,8 @@ public class PacketUtils {
                         nmsOldGameMode,
                         false,
                         isFlat,
-                        0
+                        0,
+                        Optional.empty()
                 );
             } else {
                 return ClientboundRespawnPacketAccessor.getConstructor0().newInstance(
