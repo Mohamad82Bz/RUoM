@@ -33,8 +33,8 @@ public class PacketUtils {
 
     public static Object getRespawnPacket(Object serverLevel, GameMode newGameMode, GameMode oldGameMode, boolean isFlat, boolean copyMetadata) {
         try {
-            Object nmsNewGameMode = GameTypeAccessor.getType().getField(newGameMode.toString().toUpperCase()).get(null);
-            Object nmsOldGameMode = GameTypeAccessor.getType().getField(oldGameMode.toString().toUpperCase()).get(null);
+            Object nmsNewGameMode = GameTypeAccessor.class.getMethod("getField" + newGameMode.toString().toUpperCase()).invoke(null);
+            Object nmsOldGameMode = GameTypeAccessor.class.getMethod("getField" + oldGameMode.toString().toUpperCase()).invoke(null);
             return ClientboundRespawnPacketAccessor.getConstructor0().newInstance(LevelAccessor.getMethodDimensionType1().invoke(serverLevel),
                     LevelAccessor.getMethodDimension1().invoke(serverLevel), ServerLevelAccessor.getMethodGetSeed1().invoke(serverLevel),
                     nmsNewGameMode, nmsOldGameMode, false, isFlat, copyMetadata);
