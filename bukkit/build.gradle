@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.5'
+version = '4.13.6'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -404,6 +404,7 @@ nmsGen {
             .reqConstructor(int, String, Component, int)
     ClientboundRespawnPacket
             .reqConstructor(DimensionType, ResourceKey, long, GameType, GameType, boolean, boolean, boolean)
+            .reqConstructor(ResourceKey, ResourceKey, long, GameType, GameType, boolean, boolean, byte, java.util.Optional)
     ClientboundEntityEventPacket
             .reqConstructor(Entity, byte)
     ClientboundChatPacket
@@ -508,6 +509,7 @@ nmsGen {
             .reqMethod("getLightEngine")
             .reqMethod("dimension")
             .reqMethod("dimensionType")
+            .reqMethod("dimensionTypeId")
             .reqMethod("getBlockEntity", BlockPos)
             .reqMethod("getCurrentDifficultyAt", BlockPos)
     LevelChunk

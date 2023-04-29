@@ -31,13 +31,32 @@ public class PacketUtils {
         }
     }
 
-    public static Object getRespawnPacket(Object serverLevel, GameMode newGameMode, GameMode oldGameMode, boolean isFlat, boolean copyMetadata) {
+    public static Object getRespawnPacket(Object serverLevel, GameMode newGameMode, GameMode oldGameMode, boolean isFlat) {
         try {
             Object nmsNewGameMode = GameTypeAccessor.class.getMethod("getField" + newGameMode.toString().toUpperCase()).invoke(null);
             Object nmsOldGameMode = GameTypeAccessor.class.getMethod("getField" + oldGameMode.toString().toUpperCase()).invoke(null);
-            return ClientboundRespawnPacketAccessor.getConstructor0().newInstance(LevelAccessor.getMethodDimensionType1().invoke(serverLevel),
-                    LevelAccessor.getMethodDimension1().invoke(serverLevel), ServerLevelAccessor.getMethodGetSeed1().invoke(serverLevel),
-                    nmsNewGameMode, nmsOldGameMode, false, isFlat, copyMetadata);
+            if (ServerVersion.supports(19)) {
+                return ClientboundRespawnPacketAccessor.getConstructor1().newInstance(
+                        LevelAccessor.getMethodDimensionTypeId1().invoke(serverLevel),
+                        LevelAccessor.getMethodDimension1().invoke(serverLevel),
+                        ServerLevelAccessor.getMethodGetSeed1().invoke(serverLevel),
+                        nmsNewGameMode,
+                        nmsOldGameMode,
+                        false,
+                        isFlat,
+                        0
+                );
+            } else {
+                return ClientboundRespawnPacketAccessor.getConstructor0().newInstance(
+                        LevelAccessor.getMethodDimensionType1().invoke(serverLevel),
+                        LevelAccessor.getMethodDimension1().invoke(serverLevel),
+                        ServerLevelAccessor.getMethodGetSeed1().invoke(serverLevel),
+                        nmsNewGameMode,
+                        nmsOldGameMode,
+                        false,
+                        isFlat
+                );
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return new Error(e);
