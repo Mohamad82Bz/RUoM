@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.6'
+version = '4.13.7'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
