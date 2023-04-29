@@ -3,7 +3,6 @@ package me.mohamad82.ruom.skin;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.nmsaccessors.GameTypeAccessor;
 import me.mohamad82.ruom.nmsaccessors.PlayerAccessor;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
@@ -32,8 +31,6 @@ public class MinecraftSkin {
                 GameProfile gameProfile = (GameProfile) PlayerAccessor.getMethodGetGameProfile1().invoke(serverPlayer);
                 gameProfile.getProperties().removeAll("textures");
                 gameProfile.getProperties().put("textures", new Property("textures", texture, signature));
-
-                Object gameMode = GameTypeAccessor.getType().getField(player.getGameMode().toString().toUpperCase()).get(null);
 
                 NMSUtils.sendPacket(Ruom.getOnlinePlayers(),
                         PacketUtils.getPlayerInfoPacket(serverPlayer, PacketUtils.PlayerInfoAction.ADD_PLAYER),
