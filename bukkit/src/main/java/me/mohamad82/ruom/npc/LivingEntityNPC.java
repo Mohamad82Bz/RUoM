@@ -71,7 +71,6 @@ public abstract class LivingEntityNPC extends EntityNPC {
      */
     public void setStingerCount(int stingerCount) {
         if (!ServerVersion.supports(15)) return;
-        if (!ServerVersion.supports(15)) return;
         Ruom.run(() -> LivingEntityAccessor.getMethodSetStingerCount1().invoke(entity));
         sendEntityData();
     }
