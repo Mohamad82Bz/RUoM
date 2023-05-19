@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.8'
+version = '4.13.9'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -132,6 +132,7 @@ nmsGen {
     var ServerboundInteractPacketActionInteract = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAction')
     var ServerboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ServerboundChatPreviewPacket")
     var ServerboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ServerboundKeepAlivePacket")
+    var ServerboundClientInformationPacket = ("net.minecraft.network.protocol.game.ServerboundClientInformationPacket")
 
     var ServerPlayer = reqClass("net.minecraft.server.level.ServerPlayer")
     var Player = reqClass("net.minecraft.world.entity.player.Player")
