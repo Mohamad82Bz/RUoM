@@ -154,8 +154,8 @@ public class PlayerNPC extends LivingEntityNPC {
 
         public static byte getAllBitMasks() {
             byte bytes = 0;
-            for (EntityMetadata.PlayerSkin playerSkin : EntityMetadata.PlayerSkin.values()) {
-                bytes += playerSkin.getMask();
+            for (ModelPart modelPart : values()) {
+                bytes += modelPart.getMask();
             }
             return bytes;
         }
