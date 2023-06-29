@@ -28,7 +28,7 @@ public class BiomeEditSession {
             Object holder = HolderAccessor.getMethodDirect1().invoke(null, biome);
             for (Location location : locations) {
                 executor.submit(() -> {
-                    Object nmsChunk = NMSUtils.getLevelChunk(location.getChunk());
+                    Object nmsChunk = NMSUtils.getLevelChunk(location.getChunk(), "BIOMES"); //TODO: We don't know if BIOMES should be uppercase or not. test later
                     Ruom.run(() -> BiomeRegistry.CHUNK_SET_BLOCK_METHOD.invoke(
                             nmsChunk,
                             location.getBlockX() >> 2,

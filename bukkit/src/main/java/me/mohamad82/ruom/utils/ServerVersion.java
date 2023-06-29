@@ -5,17 +5,24 @@ import com.cryptomorin.xseries.ReflectionUtils;
 public class ServerVersion {
 
     /**
-     * @return The server's version without "1.", That would be an integer.
+     * @return The server's version without "1.", That would be an integer. Example return: 1.19 -> 19
      */
     public static int getVersion() {
-        return ReflectionUtils.VER;
+        return ReflectionUtils.MINOR_NUMBER;
     }
 
     /**
      * @return The complete server's version. Example return: "v1_19_R2" which is 1.19.3
      */
     public static String getCompleteVersion() {
-        return ReflectionUtils.VERSION;
+        return ReflectionUtils.NMS_VERSION;
+    }
+
+    /**
+     * @return The server's patch number. Example return: 1.19.3 -> 3
+     */
+    public static int getPatchNumber() {
+        return ReflectionUtils.PATCH_NUMBER;
     }
 
     /**

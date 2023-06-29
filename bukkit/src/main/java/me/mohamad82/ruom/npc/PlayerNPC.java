@@ -41,7 +41,7 @@ public class PlayerNPC extends LivingEntityNPC {
             Object serverLevel = NMSUtils.getServerLevel(world);
             GameProfile profile = new GameProfile(UUID.randomUUID(), name);
             Object entity;
-            if (ServerVersion.supports(19) && !ServerVersion.getCompleteVersion().equals("v1_19_R2") && !ServerVersion.getCompleteVersion().equals("v1_19_R3")) {
+            if (ServerVersion.getVersion() == 19 && ServerVersion.getPatchNumber() < 2) {
                 entity = ServerPlayerAccessor.getConstructor2().newInstance(
                         NMSUtils.getDedicatedServer(),
                         serverLevel,

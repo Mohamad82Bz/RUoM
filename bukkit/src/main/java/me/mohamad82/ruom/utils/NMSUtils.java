@@ -83,7 +83,11 @@ public class NMSUtils {
                     CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
                     CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
                 }
-                CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle");
+                if (ServerVersion.supports(20)) {
+                    CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle", ChunkStatusAccessor.getType());
+                } else {
+                    CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle");
+                }
             }
             {
                 if (ServerVersion.supports(13)) {
@@ -492,7 +496,24 @@ public class NMSUtils {
 
     public static Object getLevelChunk(Chunk chunk) {
         try {
-            return CRAFT_CHUNK_GET_HANDLE_METHOD.invoke(chunk);
+            if (ServerVersion.supports(20)) {
+                return CRAFT_CHUNK_GET_HANDLE_METHOD.invoke(chunk, ChunkStatusAccessor.getFieldFULL().get(null));
+            } else {
+                return CRAFT_CHUNK_GET_HANDLE_METHOD.invoke(chunk);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Object getLevelChunk(Chunk chunk, String chunkStatus) {
+        try {
+            if (ServerVersion.supports(20)) {
+                return CRAFT_CHUNK_GET_HANDLE_METHOD.invoke(chunk, ChunkStatusAccessor.getMethodByName1().invoke(null, chunkStatus));
+            } else {
+                return CRAFT_CHUNK_GET_HANDLE_METHOD.invoke(chunk);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;

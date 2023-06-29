@@ -2,6 +2,7 @@ package me.mohamad82.ruom.npc;
 
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
+import me.mohamad82.ruom.math.vector.Vector3Utils;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
 import me.mohamad82.ruom.metadata.entity.V1_12_EntityMeta;
 import me.mohamad82.ruom.metadata.entity.V1_8_EntityMeta;
@@ -14,6 +15,7 @@ import me.mohamad82.ruom.utils.ServerVersion;
 import me.mohamad82.ruom.utils.Viewable;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -21,11 +23,20 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.patheloper.api.pathing.Pathfinder;
+import org.patheloper.api.pathing.rules.PathingRuleSet;
+import org.patheloper.api.pathing.strategy.strategies.WalkablePathfinderStrategy;
+import org.patheloper.api.wrapper.PathPosition;
+import org.patheloper.mapping.PatheticMapper;
+import org.patheloper.mapping.bukkit.BukkitMapper;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public abstract class NPC extends Viewable {
+
+    private static boolean patheticMapperInitialized = false;
 
     protected final Map<EquipmentSlot, Object> equipments = new HashMap<>();
     private final Set<Pose> poses = new HashSet<>();
@@ -38,6 +49,11 @@ public abstract class NPC extends Viewable {
     protected boolean discarded = false;
 
     protected NPC() {
+        if (!patheticMapperInitialized) {
+            PatheticMapper.initialize(Ruom.getPlugin());
+            patheticMapperInitialized = true;
+        }
+
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
             equipments.put(equipmentSlot, NMSUtils.getNmsEmptyItemStack());
         }
@@ -85,7 +101,7 @@ public abstract class NPC extends Viewable {
         return true;
     }
 
-    public CompletableFuture<Boolean> move(Vector3 vector, final int inTicks) {
+    public CompletableFuture<Boolean> move(Vector3 vector, int inTicks) {
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
         new BukkitRunnable() {
             int i = 0;
@@ -107,6 +123,56 @@ public abstract class NPC extends Viewable {
             }
         }.runTaskTimerAsynchronously(Ruom.getPlugin(), 0, 1);
         return completableFuture;
+    }
+
+    public void moveTo(Location destination, int tickPerBlock, Consumer<Boolean> callback) {
+        Pathfinder pathFinder = PatheticMapper.newPathfinder(
+                PathingRuleSet.createAsyncRuleSet()
+                        .withStrategy(WalkablePathfinderStrategy.class)
+                        .withAllowingDiagonal(true)
+                        .withAllowingFailFast(true)
+                        .withAllowingFallback(false)
+                        .withLoadingChunks(true)
+                        .withAsync(true)
+        );
+        pathFinder.findPath(
+                BukkitMapper.toPathPosition(Vector3UtilsBukkit.toLocation(destination.getWorld(), getPosition())),
+                BukkitMapper.toPathPosition(destination)
+        ).thenAccept(result -> {
+            if (!result.successful()) {
+                callback.accept(false);
+            } else {
+                List<Vector3> vectors = new ArrayList<>();
+                List<Float> looks = new ArrayList<>();
+                Vector3 previousVector = getPosition();
+                for (PathPosition position : result.getPath().getPositions()) {
+                    Vector3 vector = Vector3.at(position.getX(), position.getY(), position.getZ());
+                    Vector3 travelVector = Vector3Utils.getTravelDistance(previousVector, vector);
+                    previousVector = vector;
+                    for (int i = 0; i < tickPerBlock; i++) {
+                        vectors.add(Vector3.at(
+                                travelVector.getX() / tickPerBlock,
+                                travelVector.getY() / tickPerBlock,
+                                travelVector.getZ() / tickPerBlock
+                        ));
+                        looks.add(new Vector(0, 0, 0).angle(new Vector(0, 0, 0)));
+                    }
+                }
+                new BukkitRunnable() {
+                    int index = 0;
+                    public void run() {
+                        if (index >= vectors.size()) {
+                            cancel();
+                            callback.accept(true);
+                            return;
+                        }
+                        moveAndLook(vectors.get(index), looks.get(index), 0f);
+                        Bukkit.broadcastMessage("yaw: " + looks.get(index));
+                        index++;
+                    }
+                }.runTaskTimerAsynchronously(Ruom.getPlugin(), 0, 1);
+            }
+        });
     }
 
     public boolean moveAndLook(Vector3 vector, float yaw, float pitch) {

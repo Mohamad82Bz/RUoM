@@ -59,6 +59,16 @@ public class TestCommand implements CommandExecutor {
                             true
                     );
                     NMSUtils.sendPacket(player, packet);
+                    break;
+                }
+                case "npc": {
+                    Player player = (Player) sender;
+                    PlayerNPC npc = PlayerNPC.playerNPC("Mamad", player.getLocation(), Optional.empty());
+                    npc.addViewers(player);
+                    npc.moveTo(player.getLocation().clone().add(5, 0, 5), Integer.parseInt(args[1]), (bool) -> {
+                        player.sendMessage("Completed " + bool);
+                    });
+                    break;
                 }
             }
         }

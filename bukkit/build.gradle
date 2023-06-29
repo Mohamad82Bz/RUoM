@@ -6,7 +6,7 @@ import java.util.function.Function
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.9'
+version = '4.13.14'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -26,12 +26,12 @@ repositories {
 dependencies {
     implementation project(path: ':core', configuration: 'shadow')
 
-    implementation 'net.kyori:adventure-api:4.13.0'
-    implementation 'net.kyori:adventure-text-minimessage:4.13.0'
+    implementation 'net.kyori:adventure-api:4.14.0'
+    implementation 'net.kyori:adventure-text-minimessage:4.14.0'
     implementation 'net.kyori:adventure-platform-bukkit:4.3.0'
-    implementation 'com.github.cryptomorin:XSeries:9.3.1'
-    implementation 'com.github.MadMartian:hydrazine-path-finding:1.6.0'
+    implementation 'com.github.cryptomorin:XSeries:9.4.0'
     implementation 'xyz.xenondevs:particle:1.8.3'
+    implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.1.5'
 
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
@@ -132,7 +132,7 @@ nmsGen {
     var ServerboundInteractPacketActionInteract = reqClass('net.minecraft.network.protocol.game.ServerboundInteractPacket$InteractionAction')
     var ServerboundChatPreviewPacket = reqClass("net.minecraft.network.protocol.game.ServerboundChatPreviewPacket")
     var ServerboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ServerboundKeepAlivePacket")
-    var ServerboundClientInformationPacket = ("net.minecraft.network.protocol.game.ServerboundClientInformationPacket")
+    var ServerboundClientInformationPacket = reqClass("net.minecraft.network.protocol.game.ServerboundClientInformationPacket")
 
     var ServerPlayer = reqClass("net.minecraft.server.level.ServerPlayer")
     var Player = reqClass("net.minecraft.world.entity.player.Player")
@@ -143,6 +143,7 @@ nmsGen {
     var LevelWriter = reqClass("net.minecraft.world.level.LevelWriter")
     var LevelChunk = reqClass("net.minecraft.world.level.chunk.LevelChunk")
     var ChunkAccess = reqClass("net.minecraft.world.level.chunk.ChunkAccess")
+    var ChunkStatus = reqClass("net.minecraft.world.level.chunk.ChunkStatus")
     var LevelLightEngine = reqClass("net.minecraft.world.level.lighting.LevelLightEngine")
     var Packet = reqClass("net.minecraft.network.protocol.Packet")
     var ServerGamePacketListenerImpl = reqClass("net.minecraft.server.network.ServerGamePacketListenerImpl")
@@ -521,6 +522,11 @@ nmsGen {
             .reqMethod("getLevel")
     ChunkAccess
             .reqMethod("getPos")
+    ChunkStatus
+            .reqField("EMPTY")
+            .reqField("FULL")
+            .reqField("BIOMES")
+            .reqMethod("byName", String)
     LevelLightEngine
             .reqMethod("checkBlock", BlockPos)
             .reqMethod("hasLightWork")
