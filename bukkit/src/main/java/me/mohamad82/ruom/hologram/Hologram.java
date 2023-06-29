@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class Hologram extends Viewable {
 
-    private List<HoloLine> lines = new ArrayList<>();
+    private final List<HoloLine> lines = new ArrayList<>();
     private final Map<HoloLine, Location> lineLocations = new HashMap<>();
     private Location location;
 
@@ -80,7 +80,8 @@ public class Hologram extends Viewable {
     }
 
     public void setLines(List<HoloLine> lines) {
-        this.lines = lines;
+        this.lines.clear();
+        this.lines.addAll(lines);
 
         reload();
     }
