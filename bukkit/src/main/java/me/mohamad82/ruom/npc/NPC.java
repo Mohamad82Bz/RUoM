@@ -50,8 +50,10 @@ public abstract class NPC extends Viewable {
 
     protected NPC() {
         if (!patheticMapperInitialized) {
-            PatheticMapper.initialize(Ruom.getPlugin());
             patheticMapperInitialized = true;
+            try {
+                PatheticMapper.initialize(Ruom.getPlugin());
+            } catch (IllegalStateException ignore) {}
         }
 
         for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {

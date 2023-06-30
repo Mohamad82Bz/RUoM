@@ -80,10 +80,7 @@ public class Hologram extends Viewable {
     }
 
     public void setLines(List<HoloLine> lines) {
-        this.lines.clear();
-        this.lines.addAll(lines);
-
-        reload();
+        reload(lines, location);
     }
 
     public boolean setLine(int index, HoloLine line) {
