@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.function.UnaryOperator;
 
 public class NMSUtils {
 
@@ -357,17 +358,93 @@ public class NMSUtils {
         }
     }
 
-    public static void setSignLine(Sign sign, int line, Component component) {
+    public static void setSignLine(Sign sign, boolean isFront, int line, Component component) {
         try {
             Object nmsComponent = MinecraftComponentSerializer.get().serialize(component);
             Object nmsSign = getNmsSign(sign);
-            if (ServerVersion.supports(13)) {
+
+            if (ServerVersion.supports(20)) {
+                boolean result = (boolean) SignBlockEntityAccessor.getMethodUpdateText1().invoke(
+                    nmsSign,
+                    (UnaryOperator<Object>) (signText) -> {
+                        Object updatedText;
+                        try {
+                             updatedText = SignTextAccessor.getMethodSetMessage1().invoke(
+                                    signText,
+                                    line,
+                                    MinecraftComponentSerializer.get().serialize(component)
+                            );
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            updatedText = null;
+                        }
+                        return updatedText;
+                    },
+                    isFront
+                );
+            } else if (ServerVersion.supports(13)) {
                 SignBlockEntityAccessor.getMethodSetMessage2().invoke(nmsSign, line - 1, nmsComponent);
             } else {
                 Object[] lines = (Object[]) SignBlockEntityAccessor.getFieldMessages().get(nmsSign);
                 lines[line - 1] = nmsComponent;
                 SignBlockEntityAccessor.getFieldMessages().set(nmsSign, lines);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void setSignLine(Sign sign, int line, Component component) {
+        setSignLine(sign, true, line, component);
+    }
+
+    /**
+     * @apiNote >= 1.20
+     */
+    public static void setSignGlowing(Sign sign, boolean isFront, boolean glowing) {
+        if (!ServerVersion.supports(20)) return;
+        try {
+            Object nmsSign = getNmsSign(sign);
+
+            SignBlockEntityAccessor.getMethodUpdateText1().invoke(
+                    nmsSign,
+                    (UnaryOperator<Object>) (signText) -> {
+                        Ruom.run(() -> {
+                            SignTextAccessor.getMethodSetHasGlowingText1().invoke(
+                                    signText,
+                                    glowing
+                            );
+                        });
+                        return signText;
+                    },
+                    isFront
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @apiNote >= 1.20
+     */
+    public static void setSignColor(Sign sign, boolean isFront, DyeColor color) {
+        if (!ServerVersion.supports(20)) return;
+        try {
+            Object nmsSign = getNmsSign(sign);
+
+            SignBlockEntityAccessor.getMethodUpdateText1().invoke(
+                    nmsSign,
+                    (UnaryOperator<Object>) (signText) -> {
+                        Ruom.run(() -> {
+                            SignTextAccessor.getMethodSetColor1().invoke(
+                                    signText,
+                                    ((Field) DyeColorAccessor.class.getMethod("getField" + color.name()).invoke(null)).get(null)
+                            );
+                        });
+                        return signText;
+                    },
+                    isFront
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }

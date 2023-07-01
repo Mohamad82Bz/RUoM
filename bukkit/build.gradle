@@ -2,11 +2,12 @@
 
 import java.time.Instant
 import java.util.function.Function
+import java.util.function.UnaryOperator
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.17'
+version = '4.13.21'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -42,7 +43,7 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
@@ -243,6 +244,8 @@ nmsGen {
     var Team = reqClass("net.minecraft.world.scores.Team")
     var CollisionRule = reqClass('net.minecraft.world.scores.Team$CollisionRule')
     var Visibility = reqClass('net.minecraft.world.scores.Team$Visibility')
+    var DyeColor = reqClass("net.minecraft.world.item.DyeColor")
+    var SignText = reqClass("net.minecraft.world.level.block.entity.SignText")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -1092,6 +1095,20 @@ nmsGen {
             .reqEnumField("NEVER")
             .reqEnumField("HIDE_FOR_OTHER_TEAMS")
             .reqEnumField("HIDE_FOR_OWN_TEAM")
+    DyeColor
+            .reqAllEnumFieldsOfVersion(latestMinecraftVersion)
+            .reqMethod("getName")
+            .reqMethod("getFireworkColor")
+            .reqMethod("byId", int)
+    SignText
+            .reqConstructor(Component.array(), Component.array(), DyeColor, boolean)
+            .reqMethod("emptyMessages")
+            .reqMethod("hasGlowingText")
+            .reqMethod("setHasGlowingText", boolean)
+            .reqMethod("getColor")
+            .reqMethod("setColor", DyeColor)
+            .reqMethod("getMessage", int, boolean)
+            .reqMethod("setMessage", int, Component)
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)
@@ -1192,6 +1209,7 @@ nmsGen {
             .reqConstructor(EntityType, Level)
     SignBlockEntity
             .reqConstructor(BlockPos, BlockState)
+            .reqMethod("updateText", UnaryOperator, boolean)
             .reqMethod("getMessage", int, boolean)
             .reqMethod("setMessage", int, Component, Component)
             .reqMethod("setMessage", int, Component)
