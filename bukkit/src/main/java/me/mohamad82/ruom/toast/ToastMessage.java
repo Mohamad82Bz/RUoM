@@ -65,7 +65,13 @@ public class ToastMessage {
             Object advancementResourceLocation = NMSUtils.createResourceLocation("ruom_toasts_" + UUID.randomUUID());
             Object advancementBuilder;
             if (ServerVersion.supports(13)) {
-                advancementBuilder = Advancement_i_BuilderAccessor.getMethodFromJson1().invoke(null, jsonAdvancement, DeserializationContextAccessor.getConstructor0().newInstance(advancementResourceLocation, PredicateManagerAccessor.getConstructor0().newInstance()));
+                Object deserializationContext;
+                if (ServerVersion.supports(20)) {
+                    deserializationContext = DeserializationContextAccessor.getConstructor1().newInstance(advancementResourceLocation, LootDataManagerAccessor.getConstructor0().newInstance());
+                } else {
+                    deserializationContext = DeserializationContextAccessor.getConstructor0().newInstance(advancementResourceLocation, PredicateManagerAccessor.getConstructor0().newInstance());
+                }
+                advancementBuilder = Advancement_i_BuilderAccessor.getMethodFromJson1().invoke(null, jsonAdvancement, deserializationContext);
             } else {
                 advancementBuilder = GsonHelperAccessor.getMethodFromJson1().invoke(null, ServerAdvancementManagerAccessor.getFieldGSON().get(null), GsonUtils.get().toJson(jsonAdvancement), Advancement_i_BuilderAccessor.getType());
             }

@@ -7,7 +7,7 @@ import java.util.function.UnaryOperator
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.21'
+version = '4.13.26'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.19"
@@ -200,6 +200,7 @@ nmsGen {
     var FrameType = reqClass("net.minecraft.advancements.FrameType")
     var DeserializationContext = reqClass("net.minecraft.advancements.critereon.DeserializationContext")
     var PredicateManager = reqClass("net.minecraft.world.level.storage.loot.PredicateManager")
+    var LootDataManager = reqClass("net.minecraft.world.level.storage.loot.LootDataManager") //1.20.1 and above
     var GsonHelper = reqClass("net.minecraft.util.GsonHelper")
     var CreativeModeTab = reqClass("net.minecraft.world.item.CreativeModeTab")
     var AbstractContainerMenu = reqClass("net.minecraft.world.inventory.AbstractContainerMenu")
@@ -887,7 +888,10 @@ nmsGen {
             .reqField("GSON")
     DeserializationContext
             .reqConstructor(ResourceLocation, PredicateManager)
+            .reqConstructor(ResourceLocation, LootDataManager)
     PredicateManager
+            .reqConstructor()
+    LootDataManager
             .reqConstructor()
     GsonHelper
             .reqMethod("fromJson", "com.google.gson.Gson", String, Class)
