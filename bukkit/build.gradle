@@ -7,10 +7,10 @@ import java.util.function.UnaryOperator
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.26'
+version = '4.13.30'
 compileJava.options.encoding = "UTF-8"
 
-var latestMinecraftVersion = "1.19"
+var latestMinecraftVersion = "1.20"
 
 repositories {
     maven {
@@ -34,7 +34,7 @@ dependencies {
     implementation 'xyz.xenondevs:particle:1.8.3'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.1.5'
 
-    compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
+    //compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
     compileOnly 'com.intellectualsites.fawe:FAWE-Bukkit:1.16-637'
@@ -43,6 +43,7 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
+    compileOnly 'org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT:remapped-mojang'
     testCompileOnly 'org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
@@ -781,6 +782,7 @@ nmsGen {
             .reqMethod("defineId", Class, EntityDataSerializer)
             .reqMethod("set", EntityDataAccessor, Object)
             .reqMethod("get", EntityDataAccessor)
+            .reqMethod("getItem", EntityDataAccessor)
             .reqMethod("obfuscated:a:1.8.8", int, Object)
             .reqMethod("spigot:add:1.8.8", int, int)
             .reqMethod("spigot:watch:1.8.8", int, Object)

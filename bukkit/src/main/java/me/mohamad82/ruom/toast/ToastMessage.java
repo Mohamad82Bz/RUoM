@@ -105,8 +105,10 @@ public class ToastMessage {
 
         Ruom.runEAsync(() -> {
             NMSUtils.sendPacketSync(playersSet, addPacket);
-            revokeCriteria();
-            NMSUtils.sendPacketSync(playersSet, removePacket);
+            Ruom.runAsync(() -> {
+                revokeCriteria();
+                NMSUtils.sendPacketSync(playersSet, removePacket);
+            }, 5);
         });
     }
 

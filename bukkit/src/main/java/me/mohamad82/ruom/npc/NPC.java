@@ -257,7 +257,7 @@ public abstract class NPC extends Viewable {
         return poses.contains(pose);
     }
 
-    public void setCustomName(Component component) {
+    public void setCustomName(@Nullable Component component) {
         this.customName = component;
         Object nmsComponent = MinecraftComponentSerializer.get().serialize(component);
         if (ServerVersion.supports(13)) {

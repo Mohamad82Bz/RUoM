@@ -424,6 +424,23 @@ public class PacketUtils {
         }
     }
 
+    public static Object getEntityCustomNameDataPacket(Object entity) {
+        try {
+            Object entityData = EntityAccessor.getMethodGetEntityData1().invoke(entity);
+
+            return ClientboundSetEntityDataPacketAccessor.getConstructor1().newInstance(
+                    EntityAccessor.getMethodGetId1().invoke(entity),
+                    ListUtils.toList(
+                            SynchedEntityDataAccessor.getMethodGetItem1().invoke(entityData, EntityAccessor.getFieldDATA_CUSTOM_NAME().get(null)),
+                            SynchedEntityDataAccessor.getMethodGetItem1().invoke(entityData, EntityAccessor.getFieldDATA_CUSTOM_NAME_VISIBLE().get(null))
+                    )
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
     public static Object getEntityDataPacket(Object entity) {
         try {
             if (ServerVersion.supports(20) || ServerVersion.getCompleteVersion().equals("v1_19_R2") || ServerVersion.getCompleteVersion().equals("v1_19_R3")) {

@@ -84,7 +84,7 @@ public class NMSUtils {
                     CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD = CRAFT_BLOCK_ENTITY_STATE.getDeclaredMethod("getTileEntity");
                     CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD.setAccessible(true);
                 }
-                if (ServerVersion.supports(20)) {
+                if (ServerVersion.supports(19)) {
                     CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle", ChunkStatusAccessor.getType());
                 } else {
                     CRAFT_CHUNK_GET_HANDLE_METHOD = CRAFT_CHUNK.getMethod("getHandle");

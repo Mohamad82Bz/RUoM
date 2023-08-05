@@ -8,6 +8,7 @@ import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
 import me.mohamad82.ruom.npc.TablistComponent;
 import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
+import me.mohamad82.ruom.toast.ToastMessage;
 import me.mohamad82.ruom.utils.ListUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
@@ -16,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,12 +28,33 @@ import java.util.Optional;
 
 public class TestCommand implements CommandExecutor {
 
+    PlayerNPC npc = null;
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
             sender.sendMessage("No argument.");
         } else {
             switch (args[0].toLowerCase()) {
+                case "npc": {
+                    npc = PlayerNPC.playerNPC("test", ((Player) sender).getLocation(), Optional.empty());
+                    npc.addViewers(((Player) sender));
+                    break;
+                }
+                case "customnameon": {
+                    npc.setCustomNameVisible(true);
+                    Ruom.broadcast("on");
+                    break;
+                }
+                case "customname": {
+                    npc.setCustomName(ComponentUtils.parse(args[1]));
+                    break;
+                }
+                case "toast": {
+                    ToastMessage.toastMessage(args[1], XMaterial.ACACIA_BOAT, ToastMessage.FrameType.TASK, true).send((Player) sender);
+                    sender.sendMessage("sent");
+                    break;
+                }
                 case "packetutils": {
                     Ruom.broadcast(test_packetUtils() + "");
                     break;
@@ -60,15 +81,6 @@ public class TestCommand implements CommandExecutor {
                             true
                     );
                     NMSUtils.sendPacket(player, packet);
-                    break;
-                }
-                case "npc": {
-                    Player player = (Player) sender;
-                    PlayerNPC npc = PlayerNPC.playerNPC("Mamad", player.getLocation(), Optional.empty());
-                    npc.addViewers(player);
-                    npc.moveTo(player.getLocation().clone().add(5, 0, 5), Integer.parseInt(args[1]), (bool) -> {
-                        player.sendMessage("Completed " + bool);
-                    });
                     break;
                 }
             }
