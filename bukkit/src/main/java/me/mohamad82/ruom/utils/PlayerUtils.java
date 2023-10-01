@@ -14,9 +14,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.xenondevs.particle.ParticleBuilder;
-import xyz.xenondevs.particle.ParticleEffect;
-import xyz.xenondevs.particle.data.texture.ItemTexture;
+import me.mohamad82.ruom.particle.ParticleBuilder;
+import me.mohamad82.ruom.particle.ParticleEffect;
+import me.mohamad82.ruom.particle.data.texture.ItemTexture;
 
 import java.util.*;
 

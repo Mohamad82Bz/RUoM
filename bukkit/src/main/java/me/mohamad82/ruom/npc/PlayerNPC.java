@@ -7,11 +7,13 @@ import me.mohamad82.ruom.nmsaccessors.ServerPlayerAccessor;
 import me.mohamad82.ruom.nmsaccessors.ServerPlayerGameModeAccessor;
 import me.mohamad82.ruom.nmsaccessors.SynchedEntityDataAccessor;
 import me.mohamad82.ruom.skin.MinecraftSkin;
+import me.mohamad82.ruom.utils.ListUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
 import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -26,7 +28,9 @@ public class PlayerNPC extends LivingEntityNPC {
     private static Field listNameField;
 
     private final String name;
+    private final String tabName16 = "[NPC] " + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
     private final float yaw;
+    private boolean collision = true;
 
     protected PlayerNPC(String name, Location location, Optional<MinecraftSkin> skin) {
         super(createServerPlayerObject(name, location.getWorld(), skin), location, NPCType.PLAYER);
@@ -79,12 +83,13 @@ public class PlayerNPC extends LivingEntityNPC {
         return new PlayerNPC(name, location, skin);
     }
 
-    public static PlayerNPC playerNPC(String name, Location location, @Nullable MinecraftSkin skin) {
-        return new PlayerNPC(name, location, skin == null ? Optional.empty() : Optional.of(skin));
-    }
-
     public String getName() {
         return name;
+    }
+
+    public void setCollision(boolean collision) {
+        this.collision = collision;
+        NMSUtils.sendPacket(getViewers(), createModifyPlayerTeamPacket());
     }
 
     public void setModelParts(ModelPart... modelParts) {
@@ -107,7 +112,9 @@ public class PlayerNPC extends LivingEntityNPC {
         NMSUtils.sendPacket(player,
                 PacketUtils.getPlayerInfoPacket(entity, PacketUtils.PlayerInfoAction.ADD_PLAYER),
                 PacketUtils.getAddPlayerPacket(entity),
-                PacketUtils.getHeadRotatePacket(entity, this.yaw));
+                PacketUtils.getHeadRotatePacket(entity, this.yaw),
+                createPlayerTeamPacket()
+                );
     }
 
     @Override
@@ -115,6 +122,31 @@ public class PlayerNPC extends LivingEntityNPC {
         NMSUtils.sendPacket(player,
                 PacketUtils.getPlayerInfoPacket(entity, PacketUtils.PlayerInfoAction.REMOVE_PLAYER),
                 PacketUtils.getRemoveEntitiesPacket(id));
+    }
+
+    private Object createPlayerTeamPacket() {
+        return PacketUtils.getTeamCreatePacket(
+                tabName16,
+                Component.empty(),
+                Component.empty(),
+                PacketUtils.NameTagVisibility.NEVER,
+                collision ? PacketUtils.CollisionRule.ALWAYS : PacketUtils.CollisionRule.NEVER,
+                ChatColor.BLUE,
+                ListUtils.toList(name),
+                false
+        );
+    }
+
+    private Object createModifyPlayerTeamPacket() {
+        return PacketUtils.getTeamModifyPacket(
+                tabName16,
+                Component.empty(),
+                Component.empty(),
+                PacketUtils.NameTagVisibility.NEVER,
+                collision ? PacketUtils.CollisionRule.ALWAYS : PacketUtils.CollisionRule.NEVER,
+                ChatColor.BLUE,
+                false
+        );
     }
 
     static {

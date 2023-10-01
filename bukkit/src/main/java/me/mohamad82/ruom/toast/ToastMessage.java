@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ToastMessage {
 
@@ -133,6 +134,7 @@ public class ToastMessage {
 
         input = input.replace(String.valueOf(ignoreChar), ".");
         String modifiedInput = replaceTokensWithIgnoreChar(input);
+
         int i = 0;
         int j = 0;
         for (char character : modifiedInput.toCharArray()) {
@@ -149,12 +151,16 @@ public class ToastMessage {
         return input;
     }
 
-    @SuppressWarnings("SuspiciousRegexArgument")
     private String replaceTokensWithIgnoreChar(final String richMessage) {
         final StringBuilder sb = new StringBuilder();
         final Matcher matcher = AdventureApi.escapeTokenPattern.matcher(richMessage);
         int lastEnd = 0;
+        int i = 0;
         while (matcher.find()) {
+            i++;
+            if (i > 20) {
+                break;
+            }
             final int startIndex = matcher.start();
             final int endIndex = matcher.end();
 

@@ -7,7 +7,7 @@ import java.util.function.UnaryOperator
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.13.30'
+version = '4.14.0'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -31,10 +31,11 @@ dependencies {
     implementation 'net.kyori:adventure-text-minimessage:4.14.0'
     implementation 'net.kyori:adventure-platform-bukkit:4.3.0'
     implementation 'com.github.cryptomorin:XSeries:9.4.0'
-    implementation 'xyz.xenondevs:particle:1.8.3'
+    //Moved to ruom itself
+    //implementation 'xyz.xenondevs:particle:1.8.3'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.1.5'
 
-    //compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
     compileOnly 'com.intellectualsites.fawe:FAWE-Bukkit:1.16-637'
@@ -43,7 +44,6 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    compileOnly 'org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT:remapped-mojang'
     testCompileOnly 'org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
@@ -58,7 +58,8 @@ shadowJar {
     relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
     relocate('com.extollit', 'me.mohamad82.ruom.hydrazine')
-    relocate('xyz.xenondevs.particle', 'me.mohamad82.ruom.particle')
+    //Moved to ruom itself
+    //relocate('me.mohamad82.ruom.particle', 'me.mohamad82.ruom.particle')
 
     //:core relocations
     relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')
@@ -124,6 +125,7 @@ nmsGen {
     var ClientboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundKeepAlivePacket")
     var ClientboundSetCameraPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetCameraPacket")
     var ClientboundContainerSetContentPacket = reqClass("net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket")
+    var ClientboundLevelParticlesPacket = reqClass("net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -217,10 +219,12 @@ nmsGen {
     var ChatFormatting = reqClass("net.minecraft.ChatFormatting")
     var BoatType = reqClass('net.minecraft.world.entity.vehicle.Boat$Type')
     var Registry = reqClass('net.minecraft.core.Registry')
+    var BuiltInRegistries = reqClass("net.minecraft.core.registries.BuiltInRegistries")
     var MappedRegistry = reqClass('net.minecraft.core.MappedRegistry')
     var WritableRegistry = reqClass('net.minecraft.core.WritableRegistry')
     var RegistryAccess = reqClass('net.minecraft.core.RegistryAccess')
     var BuiltinRegistries = reqClass('net.minecraft.data.BuiltinRegistries')
+    var CoreBuiltInRegistries = reqClass("net.minecraft.core.registries.BuiltInRegistries")
     var Holder = reqClass('net.minecraft.core.Holder')
     var Biome = reqClass('net.minecraft.world.level.biome.Biome')
     var BiomeBuilder = reqClass('net.minecraft.world.level.biome.Biome$BiomeBuilder')
@@ -248,6 +252,20 @@ nmsGen {
     var Visibility = reqClass('net.minecraft.world.scores.Team$Visibility')
     var DyeColor = reqClass("net.minecraft.world.item.DyeColor")
     var SignText = reqClass("net.minecraft.world.level.block.entity.SignText")
+    var EnumParticle = reqClass("spigot:EnumParticle")
+    var ParticleType = reqClass("net.minecraft.core.particles.ParticleType")
+    var PositionSource = reqClass("net.minecraft.world.level.gameevent.PositionSource")
+    var BlockPositionSource = reqClass("net.minecraft.world.level.gameevent.BlockPositionSource")
+    var EntityPositionSource = reqClass("net.minecraft.world.level.gameevent.EntityPositionSource")
+    var VibrationPath = reqClass("net.minecraft.world.level.gameevent.vibrations.VibrationPath")
+    var DustParticleOptions = reqClass("net.minecraft.core.particles.DustParticleOptions")
+    var DustColorTransitionOptions = reqClass("net.minecraft.core.particles.DustColorTransitionOptions")
+    var BlockParticleOption = reqClass("net.minecraft.core.particles.BlockParticleOption")
+    var ItemParticleOption = reqClass("net.minecraft.core.particles.ItemParticleOption")
+    var VibrationParticleOption = reqClass("net.minecraft.core.particles.VibrationParticleOption")
+    var ShriekParticleOption = reqClass("net.minecraft.core.particles.ShriekParticleOption")
+    var SculkChargeParticleOptions = reqClass("net.minecraft.core.particles.SculkChargeParticleOptions")
+    var Vector3f = reqClass("com.mojang.math.Vector3f")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -460,6 +478,10 @@ nmsGen {
             .reqField("cameraId")
     ClientboundContainerSetContentPacket
             .reqConstructor(int, int, NonNullList, ItemStack)
+    ClientboundLevelParticlesPacket
+            .reqConstructor(EnumParticle, boolean, float, float, float, float, float, float, float, int, int[]) //1.8.8 - 1.12.2
+            .reqConstructor(ParticleOptions, boolean, float, float, float, float, float, float, float, int) //1.13 - 1.14.4
+            .reqConstructor(ParticleOptions, boolean, double, double, double, float, float, float, float, int) //1.15 and above
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -977,6 +999,8 @@ nmsGen {
             .reqEnumField("DARK_OAK")
     Registry
             .reqField("BIOME_REGISTRY")
+            .reqField("PARTICLE_TYPE")
+            .reqField("BLOCK")
             .reqMethod("getOrThrow", ResourceKey)
             .reqMethod("get", ResourceKey)
             .reqMethod("get", ResourceLocation)
@@ -991,6 +1015,9 @@ nmsGen {
     BuiltinRegistries
             .reqField("BIOME")
             .reqMethod("register", Registry, ResourceKey, Object)
+    CoreBuiltInRegistries
+            .reqField("PARTICLE_TYPE")
+            .reqField("BLOCK")
     Holder
             .reqMethod("direct", Object)
     Biome
@@ -1115,6 +1142,31 @@ nmsGen {
             .reqMethod("setColor", DyeColor)
             .reqMethod("getMessage", int, boolean)
             .reqMethod("setMessage", int, Component)
+    BlockPositionSource
+            .reqConstructor(BlockPos)
+    EntityPositionSource
+            .reqConstructor(int)
+            .reqConstructor(Entity, float)
+    VibrationPath
+            .reqConstructor(BlockPos, PositionSource, int)
+    DustParticleOptions
+            .reqConstructor(float, float, float, float)
+            .reqConstructor("org.joml.Vector3f", float)
+            .reqConstructor(Vector3f, float)
+    DustColorTransitionOptions
+            .reqConstructor("org.joml.Vector3f", "org.joml.Vector3f", float)
+            .reqConstructor(Vector3f, Vector3f, float)
+    BlockParticleOption
+            .reqConstructor(ParticleType, BlockState)
+    ItemParticleOption
+            .reqConstructor(ParticleType, ItemStack)
+    VibrationParticleOption
+            .reqConstructor(VibrationPath)
+            .reqConstructor(PositionSource, int)
+    ShriekParticleOption
+            .reqConstructor(int)
+    SculkChargeParticleOptions
+            .reqConstructor(float)
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)

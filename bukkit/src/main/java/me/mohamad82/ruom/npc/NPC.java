@@ -90,8 +90,9 @@ public abstract class NPC extends Viewable {
     }
 
     public void lookAt(Vector3 location) {
+        Location targetLocation = Vector3UtilsBukkit.toLocation(null, location);
         Location dirLocation = Vector3UtilsBukkit.toLocation(null, getPosition());
-        dirLocation.setDirection(new Vector(location.getX(), location.getY(), location.getZ()));
+        dirLocation.setDirection(targetLocation.subtract(dirLocation).toVector());
         look(dirLocation.getYaw(), dirLocation.getPitch());
     }
 

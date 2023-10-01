@@ -8,9 +8,9 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import xyz.xenondevs.particle.ParticleBuilder;
-import xyz.xenondevs.particle.ParticleEffect;
-import xyz.xenondevs.particle.data.texture.BlockTexture;
+import me.mohamad82.ruom.particle.ParticleBuilder;
+import me.mohamad82.ruom.particle.ParticleEffect;
+import me.mohamad82.ruom.particle.data.texture.BlockTexture;
 
 import java.util.List;
 import java.util.Optional;

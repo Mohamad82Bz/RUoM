@@ -8,15 +8,16 @@ import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
 import me.mohamad82.ruom.npc.TablistComponent;
 import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
+import me.mohamad82.ruom.skin.MinecraftSkin;
+import me.mohamad82.ruom.skin.SkinBuilder;
+import me.mohamad82.ruom.skin.exceptions.NoSuchAccountNameException;
 import me.mohamad82.ruom.toast.ToastMessage;
+import me.mohamad82.ruom.utils.BlockUtils;
 import me.mohamad82.ruom.utils.ListUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 public class TestCommand implements CommandExecutor {
 
@@ -36,18 +38,67 @@ public class TestCommand implements CommandExecutor {
             sender.sendMessage("No argument.");
         } else {
             switch (args[0].toLowerCase()) {
+                case "p": {
+                    Player player = (Player) sender;
+                    BlockUtils.spawnBlockBreakParticles(player.getTargetBlock(null, 5).getLocation(), Material.GRASS);
+
+                    break;
+                }
                 case "npc": {
-                    npc = PlayerNPC.playerNPC("test", ((Player) sender).getLocation(), Optional.empty());
+                    npc = PlayerNPC.playerNPC("test", ((sender instanceof Player) ? ((Player) sender).getLocation() : new Location(Bukkit.getWorlds().get(0), 0, 0, 0)), Optional.of(
+                            new MinecraftSkin(
+                                    "ewogICJ0aW1lc3RhbXAiIDogMTY4MjQzOTEzMjQ1OCwKICAicHJvZmlsZUlkIiA6ICI0NmY3N2NjNmQ2MjU0NjEzYjc2NmYyZDRmMDM2MzZhNiIsCiAgInByb2ZpbGVOYW1lIiA6ICJNaXNzV29sZiIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9lM2QyZThkZGU0Yzc2ZDJkMDVhNTgwOTQ0NjMwYTdjYWRmYzE2YThiZjkwNWY1NDRiNGRmZDRiN2VjMjFlZTU5IgogICAgfQogIH0KfQ==",
+                                    "lEa0S+JWwUBL516ewtRM976YKVkDSLSHVqAb/9nF/G3y7eJ7vOJgynrdlif2kYT+F9ei0QomIa9qVXxjh26p0CFdZoOgomTKz/UHUJ8iSR1WkfO7BcVn50cXq41ZKCi0FV2juduUuJXWqaaKAnQ2oWEJpyQ1wLEUvItMBjbRg/PshbWRXdiq25xqtqwGNspqJ8WH5cgEPocwPaX5H+QEulFtqtCrLLU9y2QpIsxfAEgBhqClBu5UbHtdPR4nz0l3/Qw7s9lTQXM16c14PLE1zAlHkBoigxRp8ZMH5zlS5IPlvp3u2OG4SqVOLsMx6HBJES99ef09s2qSmV5+5HYkrpxDxOWUC7qm7+xrGFakPTGb/ojQdZLRIolzcEZywtomuqoCy1m2jZxu07jDT8cpFnDCX5qyr21LX7TQJV0UFCj514HJvGsMqF4xNXuaVqeT6oY3JUZVuIRvts5y8O2qbkcK20kNn00gk3HLAzFclu7pngXAywPFgxvd5FLsuOyuQ/L2VBzAaKRMR87ws90oKlf0hfZglWGRcnvAJ88JvFKcdQUrt3Z/qsAAPG+tobJN/aS9AE52a+z+P0A46XVnmcKRNzC66iamR+8mJUFwxhEkA8f5uVRGEX3vf5PVDz//HwtVFtvApfVz8ze+a0ZviVbYw0+EmHEIRUOnaEGbqFY="
+                            )
+                    ));
                     npc.addViewers(((Player) sender));
+                    Ruom.runSync(() -> {
+                        npc.setModelParts(PlayerNPC.ModelPart.values());
+                    }, Integer.parseInt(args[1]));
+                    break;
+                }
+                case "npc2": {
+                    npc = PlayerNPC.playerNPC("test", ((sender instanceof Player) ? ((Player) sender).getLocation() : new Location(Bukkit.getWorlds().get(0), 0, 0, 0)), Optional.of(
+                            new MinecraftSkin(
+                                    "ewogICJ0aW1lc3RhbXAiIDogMTY4MjQzOTEzMjQ1OCwKICAicHJvZmlsZUlkIiA6ICI0NmY3N2NjNmQ2MjU0NjEzYjc2NmYyZDRmMDM2MzZhNiIsCiAgInByb2ZpbGVOYW1lIiA6ICJNaXNzV29sZiIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9lM2QyZThkZGU0Yzc2ZDJkMDVhNTgwOTQ0NjMwYTdjYWRmYzE2YThiZjkwNWY1NDRiNGRmZDRiN2VjMjFlZTU5IgogICAgfQogIH0KfQ==",
+                                    "lEa0S+JWwUBL516ewtRM976YKVkDSLSHVqAb/9nF/G3y7eJ7vOJgynrdlif2kYT+F9ei0QomIa9qVXxjh26p0CFdZoOgomTKz/UHUJ8iSR1WkfO7BcVn50cXq41ZKCi0FV2juduUuJXWqaaKAnQ2oWEJpyQ1wLEUvItMBjbRg/PshbWRXdiq25xqtqwGNspqJ8WH5cgEPocwPaX5H+QEulFtqtCrLLU9y2QpIsxfAEgBhqClBu5UbHtdPR4nz0l3/Qw7s9lTQXM16c14PLE1zAlHkBoigxRp8ZMH5zlS5IPlvp3u2OG4SqVOLsMx6HBJES99ef09s2qSmV5+5HYkrpxDxOWUC7qm7+xrGFakPTGb/ojQdZLRIolzcEZywtomuqoCy1m2jZxu07jDT8cpFnDCX5qyr21LX7TQJV0UFCj514HJvGsMqF4xNXuaVqeT6oY3JUZVuIRvts5y8O2qbkcK20kNn00gk3HLAzFclu7pngXAywPFgxvd5FLsuOyuQ/L2VBzAaKRMR87ws90oKlf0hfZglWGRcnvAJ88JvFKcdQUrt3Z/qsAAPG+tobJN/aS9AE52a+z+P0A46XVnmcKRNzC66iamR+8mJUFwxhEkA8f5uVRGEX3vf5PVDz//HwtVFtvApfVz8ze+a0ZviVbYw0+EmHEIRUOnaEGbqFY="
+                            )
+                    ));
+                    npc.addViewers(((Player) sender));
+                    npc.setModelParts(PlayerNPC.ModelPart.values());
+                    Ruom.runSync(() -> {
+                        npc.setTabList(null);
+                    }, 10);
                     break;
                 }
                 case "customnameon": {
-                    npc.setCustomNameVisible(true);
-                    Ruom.broadcast("on");
+                    npc.setCustomNameVisible(Boolean.parseBoolean(args[1]));
+                    Ruom.broadcast("set");
                     break;
                 }
                 case "customname": {
-                    npc.setCustomName(ComponentUtils.parse(args[1]));
+                    NMSUtils.sendPacketSync(
+                            ((Player) sender),
+                            PacketUtils.getTeamCreatePacket(
+                                    UUID.randomUUID().toString().replace("-", "").substring(0, 15),
+                                    ComponentUtils.parse("prefix"),
+                                    ComponentUtils.parse("suffix"),
+                                    PacketUtils.NameTagVisibility.NEVER,
+                                    PacketUtils.CollisionRule.NEVER,
+                                    ChatColor.BLUE,
+                                    ListUtils.toList(
+                                            "test3"
+                                    ),
+                                    false
+                            )
+                    );
+                    /*npc.displayName(ListUtils.toList(
+                            org.screamingsandals.lib.spectator.Component.text("first line", Color.AQUA),
+                            org.screamingsandals.lib.spectator.Component.text("second line", Color.AQUA),
+                            org.screamingsandals.lib.spectator.Component.text("third line", Color.AQUA),
+                            org.screamingsandals.lib.spectator.Component.text("fourth line", Color.AQUA)
+                    ));*/
+                    //npc.setCustomName(ComponentUtils.parse(args[1]));
                     break;
                 }
                 case "toast": {
