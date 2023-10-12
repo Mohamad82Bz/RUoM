@@ -7,7 +7,7 @@ import java.util.function.UnaryOperator
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.14.0'
+version = '4.14.2'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -58,6 +58,7 @@ shadowJar {
     relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
     relocate('com.extollit', 'me.mohamad82.ruom.hydrazine')
+    relocate('org.patheloper', 'me.mohamad82.ruom.pathetic')
     //Moved to ruom itself
     //relocate('me.mohamad82.ruom.particle', 'me.mohamad82.ruom.particle')
 
