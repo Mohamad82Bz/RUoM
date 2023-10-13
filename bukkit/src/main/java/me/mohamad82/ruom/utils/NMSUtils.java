@@ -359,6 +359,7 @@ public class NMSUtils {
     }
 
     public static void setSignLine(Sign sign, boolean isFront, int line, Component component) {
+        int finalLine = ServerVersion.supports(20) ? line : line + 1;
         try {
             Object nmsComponent = MinecraftComponentSerializer.get().serialize(component);
             Object nmsSign = getNmsSign(sign);
@@ -371,7 +372,7 @@ public class NMSUtils {
                         try {
                              updatedText = SignTextAccessor.getMethodSetMessage1().invoke(
                                     signText,
-                                    line,
+                                    finalLine,
                                     MinecraftComponentSerializer.get().serialize(component)
                             );
                         } catch (Exception e) {
@@ -383,10 +384,10 @@ public class NMSUtils {
                     isFront
                 );
             } else if (ServerVersion.supports(13)) {
-                SignBlockEntityAccessor.getMethodSetMessage2().invoke(nmsSign, line - 1, nmsComponent);
+                SignBlockEntityAccessor.getMethodSetMessage2().invoke(nmsSign, finalLine - 1, nmsComponent);
             } else {
                 Object[] lines = (Object[]) SignBlockEntityAccessor.getFieldMessages().get(nmsSign);
-                lines[line - 1] = nmsComponent;
+                lines[finalLine - 1] = nmsComponent;
                 SignBlockEntityAccessor.getFieldMessages().set(nmsSign, lines);
             }
         } catch (Exception e) {
