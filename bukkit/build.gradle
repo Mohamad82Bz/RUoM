@@ -7,7 +7,7 @@ import java.util.function.UnaryOperator
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.14.4'
+version = '4.14.5'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"

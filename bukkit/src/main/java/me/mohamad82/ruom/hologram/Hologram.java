@@ -5,6 +5,7 @@ import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.utils.Viewable;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.math.vector.Vector3UtilsBukkit;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -88,6 +89,14 @@ public class Hologram extends Viewable {
         lines.set(index, line);
 
         reload();
+        return true;
+    }
+
+    public boolean setLine(int index, Component newComponent) {
+        if (index < 0 || index >= lines.size()) return false;
+        if (!(lines.get(index) instanceof HologramLine)) return false;
+
+        ((HologramLine) lines.get(index)).setComponent(newComponent);
         return true;
     }
 
