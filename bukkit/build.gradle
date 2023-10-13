@@ -7,7 +7,7 @@ import java.util.function.UnaryOperator
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.14.2'
+version = '4.14.4'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -22,6 +22,10 @@ repositories {
     maven {
         url = uri('https://repo.screamingsandals.org/releases/')
     }
+    // Cloud SNAPSHOT (Dev repository)
+    maven {
+        url = uri('https://repo.masmc05.dev/repository/maven-snapshots/')
+    }
 }
 
 dependencies {
@@ -34,6 +38,9 @@ dependencies {
     //Moved to ruom itself
     //implementation 'xyz.xenondevs:particle:1.8.3'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.1.5'
+
+    implementation 'cloud.commandframework:cloud-paper:tooltips-SNAPSHOT'
+    implementation 'cloud.commandframework:cloud-minecraft-extras:tooltips-SNAPSHOT'
 
     compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
@@ -59,6 +66,7 @@ shadowJar {
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
     relocate('com.extollit', 'me.mohamad82.ruom.hydrazine')
     relocate('org.patheloper', 'me.mohamad82.ruom.pathetic')
+    relocate('cloud.commandframework', 'me.mohamad82.ruom.commandframework')
     //Moved to ruom itself
     //relocate('me.mohamad82.ruom.particle', 'me.mohamad82.ruom.particle')
 
