@@ -37,7 +37,7 @@ public abstract class Database {
     /**
      * Queues a query.
      * @param query Statement that is going to run.
-     * @param priority Priority of the query in queue. Higher priorities will be ran sooner in the queue.
+     * @param priority Priority of the query in queue. Higher priorities will be run sooner in the queue.
      * @return Query class that contains CompletableFuture with ResultSet callback. Useful when you need the results of a query.
      * @see Query
      */
@@ -56,6 +56,8 @@ public abstract class Database {
         queue.get(Priority.NORMAL).add(query);
         return query;
     }
+
+    public abstract void runQuery(Query query);
 
     /**
      * Sets the maximum allowed query failures.

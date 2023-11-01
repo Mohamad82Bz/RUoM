@@ -76,44 +76,56 @@ public abstract class MySQLExecutor extends Database {
         }
     }
 
+    @Override
+    public void runQuery(Query query) {
+        executeQuerySync(query);
+    }
+
+    public Query.StatusCode executeQuerySync(Query query) {
+        Connection connection = createConnection();
+        try {
+            PreparedStatement preparedStatement = query.createPreparedStatement(connection);
+            ResultSet resultSet = null;
+
+            if (query.getStatement().startsWith("INSERT") ||
+                    query.getStatement().startsWith("UPDATE") ||
+                    query.getStatement().startsWith("DELETE") ||
+                    query.getStatement().startsWith("CREATE")||
+                    query.getStatement().startsWith("ALTER"))
+                preparedStatement.executeUpdate();
+            else
+                resultSet = preparedStatement.executeQuery();
+
+            query.complete(resultSet);
+
+            closeConnection(connection);
+
+            return Query.StatusCode.FINISHED;
+        } catch (SQLException e) {
+            onQueryFail(query);
+            e.printStackTrace();
+
+            query.increaseFailedAttempts();
+            if (query.getFailedAttempts() > failAttemptRemoval) {
+                closeConnection(connection);
+                onQueryRemoveDueToFail(query);
+
+                return Query.StatusCode.FINISHED;
+            }
+
+            closeConnection(connection);
+
+            return Query.StatusCode.FAILED;
+        }
+    }
+
     protected CompletableFuture<Integer> executeQuery(Query query) {
         CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                Connection connection = createConnection();
-                try {
-                    PreparedStatement preparedStatement = query.createPreparedStatement(connection);
-                    ResultSet resultSet = null;
-
-                    if (query.getStatement().startsWith("INSERT") ||
-                            query.getStatement().startsWith("UPDATE") ||
-                            query.getStatement().startsWith("DELETE") ||
-                            query.getStatement().startsWith("CREATE")||
-                            query.getStatement().startsWith("ALTER"))
-                        preparedStatement.executeUpdate();
-                    else
-                        resultSet = preparedStatement.executeQuery();
-
-                    query.getCompletableFuture().complete(resultSet);
-
-                    closeConnection(connection);
-                    completableFuture.complete(Query.StatusCode.FINISHED.getCode());
-                } catch (SQLException e) {
-                    onQueryFail(query);
-                    e.printStackTrace();
-
-                    query.increaseFailedAttempts();
-                    if (query.getFailedAttempts() > failAttemptRemoval) {
-                        closeConnection(connection);
-                        completableFuture.complete(Query.StatusCode.FINISHED.getCode());
-                        onQueryRemoveDueToFail(query);
-                    }
-
-                    closeConnection(connection);
-                    completableFuture.complete(Query.StatusCode.FAILED.getCode());
-                }
+                completableFuture.complete(executeQuerySync(query).getCode());
             }
         };
 

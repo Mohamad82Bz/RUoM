@@ -9,6 +9,9 @@ public class TestMain extends RUoMPlugin {
     public void onEnable() {
         getCommand("ruom").setExecutor(new TestCommand());
         Ruom.setDebug(true);
+
+        Ruom.initializeAdventure();
+        Ruom.initializePacketListener();
     }
 
 }

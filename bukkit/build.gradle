@@ -7,7 +7,7 @@ import java.util.function.UnaryOperator
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-version = '4.14.6'
+version = '4.15.0'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -33,10 +33,9 @@ dependencies {
 
     implementation 'net.kyori:adventure-api:4.14.0'
     implementation 'net.kyori:adventure-text-minimessage:4.14.0'
-    implementation 'net.kyori:adventure-platform-bukkit:4.3.0'
+    implementation 'net.kyori:adventure-platform-bukkit:4.3.1'
+
     implementation 'com.github.cryptomorin:XSeries:9.4.0'
-    //Moved to ruom itself
-    //implementation 'xyz.xenondevs:particle:1.8.3'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.1.5'
 
     implementation 'cloud.commandframework:cloud-paper:tooltips-SNAPSHOT'
@@ -67,8 +66,6 @@ shadowJar {
     relocate('com.extollit', 'me.mohamad82.ruom.hydrazine')
     relocate('org.patheloper', 'me.mohamad82.ruom.pathetic')
     relocate('cloud.commandframework', 'me.mohamad82.ruom.commandframework')
-    //Moved to ruom itself
-    //relocate('me.mohamad82.ruom.particle', 'me.mohamad82.ruom.particle')
 
     //:core relocations
     relocate('com.zaxxer.hikari', 'me.mohamad82.ruom.hikari')

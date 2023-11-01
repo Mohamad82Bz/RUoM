@@ -1,7 +1,6 @@
 package me.mohamad82.ruom.npc.entity;
 
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.nmsaccessors.EntityAccessor;
 import me.mohamad82.ruom.nmsaccessors.FireworkRocketEntityAccessor;
 import me.mohamad82.ruom.nmsaccessors.SynchedEntityDataAccessor;
 import me.mohamad82.ruom.npc.EntityNPC;

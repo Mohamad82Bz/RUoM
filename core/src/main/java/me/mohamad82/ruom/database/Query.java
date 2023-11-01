@@ -9,12 +9,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class Query {
 
     protected final Map<Integer, Object> statementValues = new HashMap<>();
     protected final Set<Query> requirements = new HashSet<>();
     protected final CompletableFuture<ResultSet> completableFuture;
+    protected Consumer<ResultSet> consumer;
     protected final String statement;
     protected int failedAttempts = 0;
 
@@ -36,6 +38,18 @@ public class Query {
 
     public Set<Query> getRequirements() {
         return requirements;
+    }
+
+    /**
+     * @apiNote internal
+     */
+    public void complete(ResultSet result) {
+        completableFuture.complete(result);
+        consumer.accept(result);
+    }
+
+    public void onComplete(Consumer<ResultSet> consumer) {
+        this.consumer = consumer;
     }
 
     public boolean hasDoneRequirements() {

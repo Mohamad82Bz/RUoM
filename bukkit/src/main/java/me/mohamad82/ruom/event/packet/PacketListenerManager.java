@@ -4,7 +4,7 @@ import io.netty.channel.*;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.npc.LivingEntityNPC;
-import me.mohamad82.ruom.utils.ListUtils;
+import me.mohamad82.ruom.utils.MilliCounter;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
 import me.mohamad82.ruom.math.vector.Vector3;
@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class PacketListenerManager implements Listener {
@@ -99,6 +98,10 @@ public class PacketListenerManager implements Listener {
         ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
             @Override
             public void channelRead(ChannelHandlerContext context, Object packet) {
+                MilliCounter counter = new MilliCounter();
+                MilliCounter counter2 = new MilliCounter();
+                counter.start();
+                counter2.start();
                 try {
                     PacketContainer packetContainer = new PacketContainer(packet);
                     boolean isCancelled = false;
@@ -114,8 +117,17 @@ public class PacketListenerManager implements Listener {
                     }
 
                     if (!isCancelled) {
-                        if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType()) && !actionEvents.isEmpty()) {
-                            Ruom.runAsync(() -> {
+
+                        try {
+                            super.channelRead(context, packet);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        counter2.stop();
+
+                        Ruom.runEAsync(() -> {
+                            if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType()) && !actionEvents.isEmpty()) {
                                 try {
                                     Object action = ServerboundPlayerActionPacketAccessor.getMethodGetAction1().invoke(packet);
                                     Object nmsBlockPos = ServerboundPlayerActionPacketAccessor.getMethodGetPos1().invoke(packet);
@@ -144,9 +156,7 @@ public class PacketListenerManager implements Listener {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                            });
-                        } else if (packet.getClass().equals(ServerboundInteractPacketAccessor.getType()) && !interactEvents.isEmpty()) {
-                            Ruom.runAsync(() -> {
+                            } else if (packet.getClass().equals(ServerboundInteractPacketAccessor.getType()) && !interactEvents.isEmpty()) {
                                 try {
                                     int entityId = (int) ServerboundInteractPacketAccessor.getFieldEntityId().get(packet);
                                     Object action = ServerboundInteractPacketAccessor.getFieldAction().get(packet);
@@ -210,9 +220,7 @@ public class PacketListenerManager implements Listener {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                            });
-                        } else if (ServerVersion.supports(19) && packet.getClass().equals(ServerboundChatPreviewPacketAccessor.getType())) {
-                            Ruom.runAsync(() -> {
+                            } else if (ServerVersion.supports(19) && packet.getClass().equals(ServerboundChatPreviewPacketAccessor.getType())) {
                                 try {
                                     int queryId = (int) ServerboundChatPreviewPacketAccessor.getMethodQueryId1().invoke(packet);
                                     String message = (String) ServerboundChatPreviewPacketAccessor.getMethodQuery1().invoke(packet);
@@ -220,19 +228,20 @@ public class PacketListenerManager implements Listener {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                            });
-                        }
-                        try {
-                            super.channelRead(context, packet);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                            }
+                        });
                     }
                 } catch (IllegalArgumentException ignored) {}
+                counter.stop();
+                if (counter.get() > 5f) {
+                    Ruom.log("Packet read took " + counter2.get() + " and the processing took " + counter.get());
+                }
             }
 
             @Override
             public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
+                MilliCounter counter = new MilliCounter();
+                counter.start();
                 try {
                     PacketContainer packetContainer = new PacketContainer(packet);
                     boolean isCancelled = false;
@@ -255,6 +264,10 @@ public class PacketListenerManager implements Listener {
                         }
                     }
                 } catch (IllegalArgumentException ignored) {}
+                counter.stop();
+                if (counter.get() > 10f) {
+                    Ruom.log("Packet write took " + counter.get() + packet.getClass().toString());
+                }
             }
         };
 

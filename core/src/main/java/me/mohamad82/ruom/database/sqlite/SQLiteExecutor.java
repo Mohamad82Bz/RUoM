@@ -45,6 +45,40 @@ public abstract class SQLiteExecutor extends Database {
         }
     }
 
+    @Override
+    public void runQuery(Query query) {
+        executeQuerySync(query);
+    }
+
+    public boolean executeQuerySync(Query query) {
+        try {
+            PreparedStatement preparedStatement = query.createPreparedStatement(connection);
+            ResultSet resultSet = null;
+
+            if (query.getStatement().startsWith("INSERT") ||
+                    query.getStatement().startsWith("UPDATE") ||
+                    query.getStatement().startsWith("DELETE") ||
+                    query.getStatement().startsWith("CREATE")||
+                    query.getStatement().startsWith("ALTER"))
+                preparedStatement.executeUpdate();
+            else
+                resultSet = preparedStatement.executeQuery();
+
+            query.complete(resultSet);
+            return true;
+        } catch (SQLException e) {
+            onQueryFail(query);
+            e.printStackTrace();
+
+            query.increaseFailedAttempts();
+            if (query.getFailedAttempts() > failAttemptRemoval) {
+                onQueryRemoveDueToFail(query);
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected void tick() {
         List<Priority> priorities = new ArrayList<>(Arrays.asList(Priority.values()));
 
@@ -54,30 +88,8 @@ public abstract class SQLiteExecutor extends Database {
 
             Query query = queries.get(0);
 
-            try {
-                PreparedStatement preparedStatement = query.createPreparedStatement(connection);
-                ResultSet resultSet = null;
-
-                if (query.getStatement().startsWith("INSERT") ||
-                        query.getStatement().startsWith("UPDATE") ||
-                        query.getStatement().startsWith("DELETE") ||
-                        query.getStatement().startsWith("CREATE")||
-                        query.getStatement().startsWith("ALTER"))
-                    preparedStatement.executeUpdate();
-                else
-                    resultSet = preparedStatement.executeQuery();
-
-                query.getCompletableFuture().complete(resultSet);
+            if (executeQuerySync(query)) {
                 queries.remove(0);
-            } catch (SQLException e) {
-                onQueryFail(query);
-                e.printStackTrace();
-
-                query.increaseFailedAttempts();
-                if (query.getFailedAttempts() > failAttemptRemoval) {
-                    queries.remove(0);
-                    onQueryRemoveDueToFail(query);
-                }
             }
             break;
         }

@@ -68,53 +68,6 @@ public class MySQLDatabase extends MySQLExecutor {
         return VRuom.getServer().getScheduler().buildTask(VRUoMPlugin.get(), runnable).schedule();
     }
 
-    protected CompletableFuture<Integer> executeQuery(Query query) {
-        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
-
-        Runnable runnable = () -> {
-            Connection connection = createConnection();
-            try {
-                PreparedStatement preparedStatement = query.createPreparedStatement(connection);
-                ResultSet resultSet = null;
-
-                if (query.getStatement().startsWith("INSERT") ||
-                        query.getStatement().startsWith("UPDATE") ||
-                        query.getStatement().startsWith("DELETE") ||
-                        query.getStatement().startsWith("CREATE")||
-                        query.getStatement().startsWith("ALTER"))
-                    preparedStatement.executeUpdate();
-                else
-                    resultSet = preparedStatement.executeQuery();
-
-                query.getCompletableFuture().complete(resultSet);
-
-                closeConnection(connection);
-                completableFuture.complete(Query.StatusCode.FINISHED.getCode());
-            } catch (SQLException e) {
-                VRuom.error("Failed to perform a query in the sqlite database. Stacktrace:");
-                VRuom.debug("Statement: " + query.getStatement());
-                e.printStackTrace();
-
-                query.increaseFailedAttempts();
-                if (query.getFailedAttempts() > failAttemptRemoval) {
-                    closeConnection(connection);
-                    completableFuture.complete(Query.StatusCode.FINISHED.getCode());
-                    VRuom.warn("This query has been removed from the queue as it exceeded the maximum failures." +
-                            " It's more likely to see some stuff break because of this failure, Please report" +
-                            " this bug to the developers.\n" +
-                            "Developer" + (VRuom.getDescription().authors().length > 1 ? "s" : "") + " of this plugin: " + Arrays.toString(VRuom.getDescription().authors()));
-                }
-
-                closeConnection(connection);
-                completableFuture.complete(Query.StatusCode.FAILED.getCode());
-            }
-        };
-
-        threadPool.submit(runnable);
-
-        return completableFuture;
-    }
-
     public void tick(Runnable runnable) {
         VRuom.runAsync(runnable, 10, TimeUnit.MILLISECONDS);
     }
