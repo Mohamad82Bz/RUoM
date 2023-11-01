@@ -1,7 +1,6 @@
 package me.mohamad82.ruom.utils;
 
 import com.google.common.collect.Lists;
-import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -35,21 +34,6 @@ public class ClassUtils {
                 field.set(newObject, fieldObject);
             }
             return newObject;
-        } catch (Exception e) {
-            throw new Error(e);
-        }
-    }
-
-    public static void setFinalField(Class<?> clazz, Field fieldName, Object value) {
-        try {
-            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-            unsafeField.setAccessible(true);
-            Unsafe unsafe = (Unsafe) unsafeField.get(null);
-
-            Field ourField = clazz.getDeclaredField("fieldName");
-            Object staticFiledBase = unsafe.staticFieldBase(ourField);
-            long staticFieldOffSet = unsafe.staticFieldOffset(ourField);
-            unsafe.putObject(staticFiledBase, staticFieldOffSet, value);
         } catch (Exception e) {
             throw new Error(e);
         }
