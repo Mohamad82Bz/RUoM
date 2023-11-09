@@ -6,8 +6,9 @@ import java.util.function.UnaryOperator
 
 apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.15.0'
+version = '4.15.1'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -72,8 +73,19 @@ shadowJar {
 }
 
 tasks {
+    runServer {
+        minecraftVersion("1.20.1")
+        serverJar(file("run/paper-1.20.1-196.jar"))
+    }
+
     test {
         useJUnitPlatform()
+    }
+}
+
+java {
+    if (!gradle.startParameter.getTaskNames().asImmutable().isEmpty() && gradle.startParameter.getTaskNames().asImmutable().contains("runServer")) {
+        toolchain.languageVersion = JavaLanguageVersion.of(17)
     }
 }
 

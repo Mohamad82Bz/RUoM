@@ -45,7 +45,9 @@ public class Query {
      */
     public void complete(ResultSet result) {
         completableFuture.complete(result);
-        consumer.accept(result);
+        if (consumer != null) {
+            consumer.accept(result);
+        }
     }
 
     public void onComplete(Consumer<ResultSet> consumer) {

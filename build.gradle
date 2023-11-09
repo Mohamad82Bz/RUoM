@@ -1,9 +1,10 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version "1.8.10"
+    id 'org.jetbrains.kotlin.jvm' version "1.9.10"
     id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
     id 'org.screamingsandals.nms-mapper' version '1.4.5' apply false
+    id 'xyz.jpenilla.run-paper' version '2.2.0' apply false
 }
 
 group = 'me.mohamad82'
@@ -35,10 +36,6 @@ subprojects {
 
     java {
         toolchain.languageVersion = JavaLanguageVersion.of(8)
-    }
-
-    dependencies {
-        compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     }
 
     shadowJar {

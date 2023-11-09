@@ -8,6 +8,7 @@ public class GsonUtils {
 
     private final static Gson GSON = new GsonBuilder().create();
     private final static Gson GSON_PRETTY = new GsonBuilder().setPrettyPrinting().create();
+    @SuppressWarnings("deprecation")
     private final static JsonParser JSON_PARSER = new JsonParser();
 
     public static Gson get() {

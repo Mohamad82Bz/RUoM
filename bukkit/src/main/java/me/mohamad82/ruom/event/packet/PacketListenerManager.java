@@ -2,12 +2,11 @@ package me.mohamad82.ruom.event.packet;
 
 import io.netty.channel.*;
 import me.mohamad82.ruom.Ruom;
+import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.npc.LivingEntityNPC;
-import me.mohamad82.ruom.utils.MilliCounter;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
-import me.mohamad82.ruom.math.vector.Vector3;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -98,10 +97,6 @@ public class PacketListenerManager implements Listener {
         ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
             @Override
             public void channelRead(ChannelHandlerContext context, Object packet) {
-                MilliCounter counter = new MilliCounter();
-                MilliCounter counter2 = new MilliCounter();
-                counter.start();
-                counter2.start();
                 try {
                     PacketContainer packetContainer = new PacketContainer(packet);
                     boolean isCancelled = false;
@@ -123,8 +118,6 @@ public class PacketListenerManager implements Listener {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-
-                        counter2.stop();
 
                         Ruom.runEAsync(() -> {
                             if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType()) && !actionEvents.isEmpty()) {
@@ -232,16 +225,10 @@ public class PacketListenerManager implements Listener {
                         });
                     }
                 } catch (IllegalArgumentException ignored) {}
-                counter.stop();
-                if (counter.get() > 5f) {
-                    Ruom.log("Packet read took " + counter2.get() + " and the processing took " + counter.get());
-                }
             }
 
             @Override
             public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) {
-                MilliCounter counter = new MilliCounter();
-                counter.start();
                 try {
                     PacketContainer packetContainer = new PacketContainer(packet);
                     boolean isCancelled = false;
@@ -264,10 +251,6 @@ public class PacketListenerManager implements Listener {
                         }
                     }
                 } catch (IllegalArgumentException ignored) {}
-                counter.stop();
-                if (counter.get() > 10f) {
-                    Ruom.log("Packet write took " + counter.get() + packet.getClass().toString());
-                }
             }
         };
 
