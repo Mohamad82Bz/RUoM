@@ -441,6 +441,49 @@ public class PacketUtils {
         }
     }
 
+    public static Object getSetScorePacket(String id, String name, int score) {
+        try {
+            return ClientboundSetScorePacketAccessor.getConstructor0().newInstance(
+                    ServerScoreboard_i_MethodAccessor.getFieldCHANGE(),
+                    id,
+                    name,
+                    score
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
+    /**
+     * @param objective nms objective
+     * @param method 0: Create, 1: Remove, 2: Change
+     * @return packet
+     */
+    public static Object getSetObjectivePacket(Object objective, int method) {
+        try {
+            return ClientboundSetObjectivePacketAccessor.getConstructor0().newInstance(
+                    objective,
+                    method
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
+    public static Object getSetDisplayObjectivePacket(Object objective) {
+        try {
+            return ClientboundSetDisplayObjectivePacketAccessor.getConstructor0().newInstance(
+                    1,
+                    objective
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
     public static Object getEntityDataPacket(Object entity) {
         try {
             if (ServerVersion.supports(20) || ServerVersion.getCompleteVersion().equals("v1_19_R2") || ServerVersion.getCompleteVersion().equals("v1_19_R3")) {

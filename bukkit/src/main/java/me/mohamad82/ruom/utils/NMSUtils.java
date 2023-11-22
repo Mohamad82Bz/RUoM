@@ -877,7 +877,6 @@ public class NMSUtils {
      */
     public static void sendPacketSync(Player player, Object... packets) {
         try {
-            Ruom.log(Ruom.getPlugin().getName() + " is sending packet to '" + player.getName() + "': " + packets.toString());
             Object connection = getServerGamePacketListener(player);
             for (Object packet : packets) {
                 ServerGamePacketListenerImplAccessor.getMethodSend1().invoke(connection, packet);

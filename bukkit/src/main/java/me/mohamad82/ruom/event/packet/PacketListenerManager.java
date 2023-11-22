@@ -5,6 +5,7 @@ import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.npc.LivingEntityNPC;
+import me.mohamad82.ruom.utils.MilliCounter;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
 import org.bukkit.entity.Player;
@@ -112,15 +113,8 @@ public class PacketListenerManager implements Listener {
                     }
 
                     if (!isCancelled) {
-
-                        try {
-                            super.channelRead(context, packet);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        Ruom.runEAsync(() -> {
-                            if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType()) && !actionEvents.isEmpty()) {
+                        if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType()) && !actionEvents.isEmpty()) {
+                            Ruom.runAsync(() -> {
                                 try {
                                     Object action = ServerboundPlayerActionPacketAccessor.getMethodGetAction1().invoke(packet);
                                     Object nmsBlockPos = ServerboundPlayerActionPacketAccessor.getMethodGetPos1().invoke(packet);
@@ -149,7 +143,9 @@ public class PacketListenerManager implements Listener {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                            } else if (packet.getClass().equals(ServerboundInteractPacketAccessor.getType()) && !interactEvents.isEmpty()) {
+                            });
+                        } else if (packet.getClass().equals(ServerboundInteractPacketAccessor.getType()) && !interactEvents.isEmpty()) {
+                            Ruom.runAsync(() -> {
                                 try {
                                     int entityId = (int) ServerboundInteractPacketAccessor.getFieldEntityId().get(packet);
                                     Object action = ServerboundInteractPacketAccessor.getFieldAction().get(packet);
@@ -213,16 +209,14 @@ public class PacketListenerManager implements Listener {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                            } else if (ServerVersion.supports(19) && packet.getClass().equals(ServerboundChatPreviewPacketAccessor.getType())) {
-                                try {
-                                    int queryId = (int) ServerboundChatPreviewPacketAccessor.getMethodQueryId1().invoke(packet);
-                                    String message = (String) ServerboundChatPreviewPacketAccessor.getMethodQuery1().invoke(packet);
-                                    chatPreviewEvents.forEach(chatPreviewEvent -> chatPreviewEvent.onPreviewRequest(player, queryId, message));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
+                            });
+                        }
+
+                        try {
+                            super.channelRead(context, packet);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 } catch (IllegalArgumentException ignored) {}
             }

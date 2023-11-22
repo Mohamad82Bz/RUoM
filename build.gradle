@@ -34,6 +34,10 @@ subprojects {
         }
     }
 
+    dependencies {
+        compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    }
+
     java {
         toolchain.languageVersion = JavaLanguageVersion.of(8)
     }

@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.15.1'
+version = '4.16.0'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -37,7 +37,7 @@ dependencies {
     implementation 'net.kyori:adventure-platform-bukkit:4.3.1'
 
     implementation 'com.github.cryptomorin:XSeries:9.4.0'
-    implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.1.5'
+    implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.2.0'
 
     implementation 'cloud.commandframework:cloud-paper:tooltips-SNAPSHOT'
     implementation 'cloud.commandframework:cloud-minecraft-extras:tooltips-SNAPSHOT'
@@ -144,6 +144,9 @@ nmsGen {
     var ClientboundSetCameraPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetCameraPacket")
     var ClientboundContainerSetContentPacket = reqClass("net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket")
     var ClientboundLevelParticlesPacket = reqClass("net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket")
+    var ClientboundSetDisplayObjectivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket")
+    var ClientboundSetObjectivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetObjectivePacket")
+    var ClientboundSetScorePacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetScorePacket")
 
     var ServerboundPlayerActionPacket = reqClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     var ServerboundPlayerActionPacketAction = reqClass('net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action')
@@ -284,6 +287,10 @@ nmsGen {
     var ShriekParticleOption = reqClass("net.minecraft.core.particles.ShriekParticleOption")
     var SculkChargeParticleOptions = reqClass("net.minecraft.core.particles.SculkChargeParticleOptions")
     var Vector3f = reqClass("com.mojang.math.Vector3f")
+    var Objective = reqClass("net.minecraft.world.scores.Objective")
+    var ObjectiveCriteria = reqClass("net.minecraft.world.scores.criteria.ObjectiveCriteria")
+    var ObjectiveCriteriaRenderType = reqClass('net.minecraft.world.scores.criteria.ObjectiveCriteria$RenderType')
+    var ServerScoreboardMethod = reqClass('net.minecraft.server.ServerScoreboard$Method')
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -500,6 +507,13 @@ nmsGen {
             .reqConstructor(EnumParticle, boolean, float, float, float, float, float, float, float, int, int[]) //1.8.8 - 1.12.2
             .reqConstructor(ParticleOptions, boolean, float, float, float, float, float, float, float, int) //1.13 - 1.14.4
             .reqConstructor(ParticleOptions, boolean, double, double, double, float, float, float, float, int) //1.15 and above
+    ClientboundSetDisplayObjectivePacket
+            .reqConstructor(int, Objective)
+            .reqMethod("getObjectiveName")
+    ClientboundSetObjectivePacket
+            .reqConstructor(Objective, int)
+    ClientboundSetScorePacket
+            .reqConstructor(ServerScoreboardMethod, String, String, int)
 
     ServerboundPlayerActionPacket
             .reqMethod("getPos")
@@ -1121,6 +1135,16 @@ nmsGen {
             .reqMethod("getDisplayName")
             .reqMethod("getCategory")
             .reqMethod("getColor")
+    Scoreboard
+            .reqConstructor()
+            .reqMethod("hasObjective", String)
+            .reqMethod("getOrCreateObjective", String)
+            .reqMethod("getObjective", String)
+            .reqMethod("addObjective", String, ObjectiveCriteria, Component, ObjectiveCriteriaRenderType)
+            .reqMethod("getOrCreatePlayerScore", String, Objective)
+            .reqMethod("getTrackedPlayers")
+            .reqMethod("resetPlayerScore", String, Objective)
+            .reqMethod("removeObjective", Objective)
     PlayerTeam
             .reqConstructor(Scoreboard, String)
             .reqField("scoreboard")
@@ -1185,6 +1209,24 @@ nmsGen {
             .reqConstructor(int)
     SculkChargeParticleOptions
             .reqConstructor(float)
+    Objective
+            .reqConstructor(Scoreboard, String, ObjectiveCriteria, Component, ObjectiveCriteriaRenderType)
+    ObjectiveCriteria
+            .reqField("TRIGGER")
+            .reqField("HEALTH")
+            .reqField("FOOD")
+            .reqField("AIR")
+            .reqField("ARMOR")
+            .reqField("EXPERIENCE")
+            .reqField("LEVEL")
+            .reqField("TEAM_KILL")
+            .reqField("KILLED_BY_TEAM")
+    ObjectiveCriteriaRenderType
+            .reqField("INTEGER")
+            .reqField("HEARTS")
+    ServerScoreboardMethod
+            .reqEnumField("CHANGE")
+            .reqEnumField("REMOVE")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)

@@ -131,7 +131,6 @@ public abstract class NPC extends Viewable {
     public void moveTo(Location destination, int tickPerBlock, Consumer<Boolean> callback) {
         Pathfinder pathFinder = PatheticMapper.newPathfinder(
                 PathingRuleSet.createAsyncRuleSet()
-                        .withStrategy(WalkablePathfinderStrategy.class)
                         .withAllowingDiagonal(true)
                         .withAllowingFailFast(true)
                         .withAllowingFallback(false)
@@ -140,7 +139,8 @@ public abstract class NPC extends Viewable {
         );
         pathFinder.findPath(
                 BukkitMapper.toPathPosition(Vector3UtilsBukkit.toLocation(destination.getWorld(), getPosition())),
-                BukkitMapper.toPathPosition(destination)
+                BukkitMapper.toPathPosition(destination),
+                new WalkablePathfinderStrategy()
         ).thenAccept(result -> {
             if (!result.successful()) {
                 callback.accept(false);
