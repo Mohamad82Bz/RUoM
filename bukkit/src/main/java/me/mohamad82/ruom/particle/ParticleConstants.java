@@ -290,7 +290,7 @@ public final class ParticleConstants {
         MINECRAFT_KEY_CLASS = ResourceLocationAccessor.getType();
         VECTOR_3FA_CLASS = version < 17 ? RotationsAccessor.getType() : (version < 19.3 ? getClassSafe("com.mojang.math.Vector3fa") : getClassSafe("org.joml.Vector3f"));
         REGISTRY_CLASS = RegistryAccessor.getType();
-        BUILT_IN_REGISTRIES_CLASS = BuiltInRegistriesAccessor_1.getType();
+        BUILT_IN_REGISTRIES_CLASS = BuiltInRegistriesAccessor_2.getType();
         BLOCK_CLASS = BlockAccessor.getType();
         BLOCK_POSITION_CLASS = BlockPosAccessor.getType();
         BLOCK_DATA_INTERFACE = BlockStateAccessor.getType();
@@ -374,17 +374,17 @@ public final class ParticleConstants {
             PARTICLE_PARAM_VIBRATION_CONSTRUCTOR = VibrationParticleOptionAccessor.getConstructor1();
         PARTICLE_PARAM_SHRIEK_CONSTRUCTOR = version < 19 ? null : ShriekParticleOptionAccessor.getConstructor0();
         PARTICLE_PARAM_SCULK_CHARGE_CONSTRUCTOR = version < 19 ? null : SculkChargeParticleOptionsAccessor.getConstructor0();
-        
+
         // Constants
         PARTICLE_TYPE_REGISTRY = readField(
             version < 19.3
                 ? RegistryAccessor.getFieldPARTICLE_TYPE()
-                    : BuiltInRegistriesAccessor_1.getFieldPARTICLE_TYPE(),
+                    : BuiltInRegistriesAccessor_2.getFieldPARTICLE_TYPE(),
             null);
         BLOCK_REGISTRY = readField(
             version < 19.3
                 ? RegistryAccessor.getFieldBLOCK()
-                : BuiltInRegistriesAccessor_1.getFieldBLOCK(),
+                : BuiltInRegistriesAccessor_2.getFieldBLOCK(),
             null);
     }
     

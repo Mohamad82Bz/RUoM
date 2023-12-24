@@ -523,11 +523,6 @@ public final class ReflectionUtils {
      */
     public static void sendPacket(Player player, Object packet) {
         NMSUtils.sendPacket(player, packet);
-        /*try {
-            Object connection = PLAYER_CONNECTION_CACHE.getConnection(player);
-            ParticleConstants.PLAYER_CONNECTION_SEND_PACKET_METHOD.invoke(connection, packet);
-        } catch (Exception ignored) {
-        }*/
     }
     
     /**

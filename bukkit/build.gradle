@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.16.0'
+version = '4.16.7'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -36,7 +36,7 @@ dependencies {
     implementation 'net.kyori:adventure-text-minimessage:4.14.0'
     implementation 'net.kyori:adventure-platform-bukkit:4.3.1'
 
-    implementation 'com.github.cryptomorin:XSeries:9.4.0'
+    implementation 'com.github.cryptomorin:XSeries:9.8.0'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.2.0'
 
     implementation 'cloud.commandframework:cloud-paper:tooltips-SNAPSHOT'
@@ -51,7 +51,7 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.20.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
@@ -75,7 +75,7 @@ shadowJar {
 tasks {
     runServer {
         minecraftVersion("1.20.1")
-        serverJar(file("run/paper-1.20.1-196.jar"))
+        serverJar(file("run/paper-1.20.2.jar"))
     }
 
     test {
@@ -172,6 +172,7 @@ nmsGen {
     var LevelLightEngine = reqClass("net.minecraft.world.level.lighting.LevelLightEngine")
     var Packet = reqClass("net.minecraft.network.protocol.Packet")
     var ServerGamePacketListenerImpl = reqClass("net.minecraft.server.network.ServerGamePacketListenerImpl")
+    var ServerCommonPacketListenerImpl = reqClass("net.minecraft.server.network.ServerCommonPacketListenerImpl") //1.20.2 and above
     var Connection = reqClass("net.minecraft.network.Connection")
     var MinecraftServer = reqClass("net.minecraft.server.MinecraftServer")
     var GameType = reqClass("net.minecraft.world.level.GameType")
@@ -218,8 +219,10 @@ nmsGen {
     var ResourceLocation = reqClass("net.minecraft.resources.ResourceLocation")
     var ResourceKey = reqClass("net.minecraft.resources.ResourceKey")
     var Advancement = reqClass("net.minecraft.advancements.Advancement")
+    var AdvancementHolder = reqClass("net.minecraft.advancements.AdvancementHolder") //1.20.2 and above
     var AdvancementBuilder = reqClass('net.minecraft.advancements.Advancement$Builder')
     var AdvancementProgress = reqClass("net.minecraft.advancements.AdvancementProgress")
+    var AdvancementRequirements = reqClass("net.minecraft.advancements.AdvancementRequirements")
     var ServerAdvancementManager = reqClass("net.minecraft.server.ServerAdvancementManager")
     var FrameType = reqClass("net.minecraft.advancements.FrameType")
     var DeserializationContext = reqClass("net.minecraft.advancements.critereon.DeserializationContext")
@@ -603,6 +606,9 @@ nmsGen {
     ServerGamePacketListenerImpl
             .reqMethod("send", Packet)
             .reqField("connection")
+    ServerCommonPacketListenerImpl
+            .reqMethod("send", Packet)
+            .reqField("connection")
     Connection
             .reqMethod("disconnect", Component)
             .reqMethod("connectToServer", InetSocketAddress, boolean)
@@ -923,23 +929,35 @@ nmsGen {
             .reqMethod("getDisplay")
             .reqMethod("getRewards")
             .reqMethod("getCriteria")
+            .reqMethod("criteria")
             .reqMethod("toString")
             .reqMethod("getId")
             .reqMethod("getRequirements")
+            .reqMethod("requirements")
             .reqMethod("getChatComponent")
+            .reqMethod("fromJson", "com.google.gson.JsonObject", DeserializationContext)
+            .reqMethod("serializeToJson")
+    AdvancementHolder
+            .reqConstructor(ResourceLocation, Advancement)
     AdvancementBuilder
             .reqMethod("advancement")
             .reqMethod("parent", Advancement)
             .reqMethod("parent", ResourceLocation)
             .reqMethod("serializeToJson")
             .reqMethod("fromJson", "com.google.gson.JsonObject", DeserializationContext)
-            .reqMethod("build", ResourceLocation)
+            .reqMethod("mojang:build:1.20.1", ResourceLocation) //1.12 - 1.20.1
     AdvancementProgress
             .reqConstructor()
             .reqMethod("update", Map, "java.lang.String[][]")
+            .reqMethod("update", AdvancementRequirements) //1.20.2 and above
             .reqMethod("isDone")
             .reqMethod("grantProgress", String)
             .reqMethod("revokeProgress", String)
+            .reqMethod("getRemainingCriteria")
+    AdvancementRequirements
+            .reqConstructor("java.lang.String[][]")
+            .reqMethod("mojang:requirements:1.20.2")
+            .reqMethod("requirements")
     ServerAdvancementManager
             .reqField("GSON")
     DeserializationContext

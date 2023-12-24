@@ -36,7 +36,7 @@ public class NMSUtils {
             CRAFT_CHUNK;
 
     private static Method CRAFT_ITEM_STACK_AS_NMS_COPY, CRAFT_ITEM_STACK_AS_BUKKIT_COPY, CRAFT_PLAYER_GET_HANDLE_METHOD, CRAFT_WORLD_GET_HANDLE_METHOD,
-            CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD2,
+            CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD,
             CRAFT_PARTICLE_TO_BUKKIT_METHOD, CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD, CRAFT_ENTITY_GET_HANDLE_METHOD, ENTITY_GET_BUKKIT_ENTITY_METHOD,
             CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD, CRAFT_CHUNK_GET_HANDLE_METHOD;
 
@@ -71,9 +71,16 @@ public class NMSUtils {
                     CRAFT_BLOCK_STATE_GET_HANDLE_METHOD = CRAFT_BLOCK_STATE.getMethod("getHandle");
                 }
                 if (ServerVersion.supports(9)) {
-                    CRAFT_PARTICLE_TO_NMS_METHOD = CRAFT_PARTICLE.getMethod("toNMS", Particle.class);
-                    if (ServerVersion.supports(13)) {
-                        CRAFT_PARTICLE_TO_NMS_METHOD2 = CRAFT_PARTICLE.getMethod("toNMS", Particle.class, Object.class);
+                    if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                        //TODO 1.20.2
+
+                    } else {
+                        CRAFT_PARTICLE_TO_NMS_METHOD = CRAFT_PARTICLE.getMethod("toNMS", Particle.class);
+                    }
+                    if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                        //TODO 1.20.2
+
+                    } else if (ServerVersion.supports(13)) {
                         CRAFT_PARTICLE_TO_BUKKIT_METHOD = CRAFT_PARTICLE.getMethod("toBukkit", ParticleOptionsAccessor.getType());
                     }
                 }
@@ -264,21 +271,6 @@ public class NMSUtils {
     public static Object getParticleOptions(Particle particle) {
         try {
             return CRAFT_PARTICLE_TO_NMS_METHOD.invoke(null, particle);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * @apiNote >= 1.13
-     * @param particle The bukkit particle
-     * @param data Data of the bukkit particle
-     * @return Nms particle
-     */
-    public static Object getParticleOptions(Particle particle, Object data) {
-        try {
-            return CRAFT_PARTICLE_TO_NMS_METHOD2.invoke(null, particle, data);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -681,7 +673,12 @@ public class NMSUtils {
 
     public static Object getConnection(Player player) {
         try {
-            return ServerGamePacketListenerImplAccessor.getFieldConnection().get(getServerGamePacketListener(player));
+            Object packetListener = getServerGamePacketListener(player);
+            if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                return ServerCommonPacketListenerImplAccessor.getFieldConnection().get(packetListener);
+            } else {
+                return ServerGamePacketListenerImplAccessor.getFieldConnection().get(packetListener);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -877,9 +874,14 @@ public class NMSUtils {
      */
     public static void sendPacketSync(Player player, Object... packets) {
         try {
-            Object connection = getServerGamePacketListener(player);
+            //ReflectionUtils.sendPacketSync(player, packets);
+            Object commonGameConnection = getServerGamePacketListener(player);
             for (Object packet : packets) {
-                ServerGamePacketListenerImplAccessor.getMethodSend1().invoke(connection, packet);
+                if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                    ServerCommonPacketListenerImplAccessor.getMethodSend1().invoke(commonGameConnection, packet);
+                } else {
+                    ServerGamePacketListenerImplAccessor.getMethodSend1().invoke(commonGameConnection, packet);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

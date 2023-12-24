@@ -23,6 +23,7 @@ public class ToastMessage {
     private final char ignoreChar = 'ˑ';
 
     private Object addPacket;
+    private Object updatePacket;
     private Object removePacket;
     private Object advancementProgress;
 
@@ -42,7 +43,9 @@ public class ToastMessage {
         iconJson.addProperty("item", "minecraft:" + icon.parseMaterial().toString().toLowerCase());
         if (!ServerVersion.supports(13))
             iconJson.addProperty("data", icon.getData());
+
         descJson.addProperty("text", "");
+
         displayJson.add("title", parseTitle(title, trimCharacters));
         displayJson.add("icon", iconJson);
         displayJson.add("description", descJson);
@@ -63,7 +66,8 @@ public class ToastMessage {
 
         Ruom.run(() -> {
             Object advancementResourceLocation = NMSUtils.createResourceLocation("ruom_toasts_" + UUID.randomUUID());
-            Object advancementBuilder;
+            Object advancementBuilder = null;
+            Object advancement = null;
             if (ServerVersion.supports(13)) {
                 Object deserializationContext;
                 if (ServerVersion.supports(20)) {
@@ -71,22 +75,62 @@ public class ToastMessage {
                 } else {
                     deserializationContext = DeserializationContextAccessor.getConstructor0().newInstance(advancementResourceLocation, PredicateManagerAccessor.getConstructor0().newInstance());
                 }
-                advancementBuilder = Advancement_i_BuilderAccessor.getMethodFromJson1().invoke(null, jsonAdvancement, deserializationContext);
+                if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                    advancement = AdvancementAccessor.getMethodFromJson1().invoke(null, jsonAdvancement, deserializationContext);
+                } else {
+                    advancementBuilder = Advancement_i_BuilderAccessor.getMethodFromJson1().invoke(null, jsonAdvancement, deserializationContext);
+                }
             } else {
                 advancementBuilder = GsonHelperAccessor.getMethodFromJson1().invoke(null, ServerAdvancementManagerAccessor.getFieldGSON().get(null), GsonUtils.get().toJson(jsonAdvancement), Advancement_i_BuilderAccessor.getType());
             }
-            Object advancement = Advancement_i_BuilderAccessor.getMethodBuild1().invoke(advancementBuilder, advancementResourceLocation);
+            if (advancement == null) {
+                advancement = Advancement_i_BuilderAccessor.getMethodBuild1().invoke(advancementBuilder, advancementResourceLocation);
+            }
+
+            Object advancementRequirements = null; //For 1.20.2
+            Object requirements = null;
+
+            if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                advancementRequirements = AdvancementAccessor.getMethodRequirements1().invoke(advancement);
+                if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() == 2)) {
+                    requirements = AdvancementRequirementsAccessor.getMethodRequirements1().invoke(advancementRequirements);
+                } else {
+                    //TODO 1.20.3 and above support
+
+                }
+            } else {
+                requirements = AdvancementAccessor.getMethodGetRequirements1().invoke(advancement);
+            }
 
             this.advancementProgress = AdvancementProgressAccessor.getConstructor0().newInstance();
-            AdvancementProgressAccessor.getMethodUpdate1().invoke(advancementProgress,
-                    AdvancementAccessor.getMethodGetCriteria1().invoke(advancement),
-                    AdvancementAccessor.getMethodGetRequirements1().invoke(advancement)
-            );
+
+            if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+
+                AdvancementProgressAccessor.getMethodUpdate2().invoke(
+                        advancementProgress,
+                        advancementRequirements
+                );
+            } else {
+                AdvancementProgressAccessor.getMethodUpdate1().invoke(
+                        advancementProgress,
+                        AdvancementAccessor.getMethodGetCriteria1().invoke(advancement),
+                        requirements
+                );
+            }
 
             Collection<Object> toAddSet = new HashSet<>();
-            toAddSet.add(advancement);
+            if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                toAddSet.add(AdvancementHolderAccessor.getConstructor0().newInstance(
+                        advancementResourceLocation,
+                        advancement
+                ));
+            } else {
+                toAddSet.add(advancement);
+            }
+
             Map<Object, Object> progressMap = new HashMap<>();
             progressMap.put(advancementResourceLocation, advancementProgress);
+
             Set<Object> toRemoveSet = new HashSet<>();
             toRemoveSet.add(advancementResourceLocation);
 

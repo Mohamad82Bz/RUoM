@@ -23,7 +23,7 @@ public class BiomeRegistry {
     public void register(Biome biome) {
         try {
             MappedRegistryAccessor.getFieldFrozen().set(REGISTRY, false);
-            BuiltinRegistriesAccessor.getMethodRegister1().invoke(null, BuiltinRegistriesAccessor.getFieldBIOME().get(null), biome.getNmsKey(), biome.getNmsBiome());
+            BuiltinRegistriesAccessor_1.getMethodRegister1().invoke(null, BuiltinRegistriesAccessor_1.getFieldBIOME().get(null), biome.getNmsKey(), biome.getNmsBiome());
             WritableRegistryAccessor.getMethodRegister1().invoke(REGISTRY, biome.getNmsKey(), biome.getNmsBiome(), Lifecycle.stable());
             MappedRegistryAccessor.getFieldFrozen().set(REGISTRY, true);
 
