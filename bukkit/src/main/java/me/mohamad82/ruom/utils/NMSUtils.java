@@ -183,13 +183,13 @@ public class NMSUtils {
 
     public static ItemStack setDisplayName(ItemStack item, Component component) {
         try {
-            //applying a sample displayname for item to initialize its display tags
+            //applying a temporary displayname for item to initialize its display tags
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName("temp");
             item.setItemMeta(meta);
 
             Object nmsItem = NMSUtils.getNmsItemStack(item);
-            CompoundTagAccessor.getMethodPutString1().invoke(getDisplayTag(nmsItem), ItemStackAccessor.getFieldTAG_DISPLAY_NAME().get(null), GsonComponentSerializer.gson().serialize(component.decoration(TextDecoration.ITALIC, false)));
+            CompoundTagAccessor.getMethodPutString1().invoke(getItemDisplayTag(nmsItem), getTagDisplayName(), GsonComponentSerializer.gson().serialize(component.decoration(TextDecoration.ITALIC, false)));
             return NMSUtils.getBukkitItemStack(nmsItem);
         } catch (Exception e) {
             e.printStackTrace();
@@ -209,7 +209,7 @@ public class NMSUtils {
             for (Component line : lines) {
                 stringTagList.add(StringTagAccessor.getConstructor0().newInstance(GsonComponentSerializer.gson().serialize(line.decoration(TextDecoration.ITALIC, false))));
             }
-            CompoundTagAccessor.getMethodPut1().invoke(getDisplayTag(nmsItem), ItemStackAccessor.getFieldTAG_LORE().get(null), ListTagAccessor.getConstructor0().newInstance(stringTagList, TagAccessor.getFieldTAG_STRING().get(StringTagAccessor.getConstructor0().newInstance(""))));
+            CompoundTagAccessor.getMethodPut1().invoke(getItemDisplayTag(nmsItem), getTagLore(), ListTagAccessor.getConstructor0().newInstance(stringTagList, getTagString()));
             return NMSUtils.getBukkitItemStack(nmsItem);
         } catch (Exception e) {
             e.printStackTrace();
@@ -217,9 +217,59 @@ public class NMSUtils {
         }
     }
 
-    private static Object getDisplayTag(Object nmsItem) {
+    private static String getTagDisplay() {
         try {
-            return CompoundTagAccessor.getMethodGetCompound1().invoke(ItemStackAccessor.getMethodGetTag1().invoke(nmsItem), ItemStackAccessor.getFieldTAG_DISPLAY().get(null));
+            if (ServerVersion.supports(17)) {
+                return (String) ItemStackAccessor.getFieldTAG_DISPLAY().get(null);
+            } else {
+                return "display";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static String getTagDisplayName() {
+        try {
+            if (ServerVersion.supports(17)) {
+                return (String) ItemStackAccessor.getFieldTAG_LORE().get(null);
+            } else {
+                return "Name";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static String getTagLore() {
+        try {
+            if (ServerVersion.supports(17)) {
+                return (String) ItemStackAccessor.getFieldTAG_LORE().get(null);
+            } else {
+                return "Lore";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static byte getTagString() {
+        try {
+            if (ServerVersion.supports(17)) {
+                return (byte) TagAccessor.getFieldTAG_STRING().get(StringTagAccessor.getConstructor0().newInstance(""));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 8;
+    }
+
+    private static Object getItemDisplayTag(Object nmsItem) {
+        try {
+            return CompoundTagAccessor.getMethodGetCompound1().invoke(ItemStackAccessor.getMethodGetTag1().invoke(nmsItem), getTagDisplay());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
