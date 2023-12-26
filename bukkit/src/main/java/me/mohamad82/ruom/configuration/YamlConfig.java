@@ -26,6 +26,16 @@ public class YamlConfig {
         saveDefaultConfig();
     }
 
+    public YamlConfig(File folder, String fileName, boolean saveDefaultConfig) {
+        this.folder = folder;
+
+        this.fileName = fileName;
+
+        if (saveDefaultConfig) {
+            saveDefaultConfig();
+        }
+    }
+
     public void reloadConfig() {
         if (this.configFile == null)
             this.configFile = new File(folder, fileName);
