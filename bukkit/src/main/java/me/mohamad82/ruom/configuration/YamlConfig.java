@@ -15,7 +15,7 @@ public class YamlConfig {
     private final String fileName;
 
     private FileConfiguration config = null;
-    private final File folder;
+    final File folder;
     private File configFile = null;
 
     public YamlConfig(File folder, String fileName) {
