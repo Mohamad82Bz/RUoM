@@ -233,7 +233,7 @@ public class NMSUtils {
     private static String getTagDisplayName() {
         try {
             if (ServerVersion.supports(17)) {
-                return (String) ItemStackAccessor.getFieldTAG_LORE().get(null);
+                return (String) ItemStackAccessor.getFieldTAG_DISPLAY().get(null);
             } else {
                 return "Name";
             }
