@@ -32,13 +32,27 @@ import java.util.function.UnaryOperator;
 
 public class NMSUtils {
 
-    private static Class<?> CRAFT_ITEM_STACK, CRAFT_PLAYER, CRAFT_WORLD, CRAFT_SERVER, CRAFT_BLOCK_STATE, CRAFT_PARTICLE, CRAFT_LIVING_ENTITY, CRAFT_ENTITY, CRAFT_BLOCK_ENTITY_STATE,
+    private static Class<?> CRAFT_ITEM_STACK,
+            CRAFT_PLAYER,
+            CRAFT_WORLD,
+            CRAFT_SERVER,
+            CRAFT_BLOCK_STATE,
+            CRAFT_LIVING_ENTITY,
+            CRAFT_ENTITY,
+            CRAFT_BLOCK_ENTITY_STATE,
             CRAFT_CHUNK;
 
-    private static Method CRAFT_ITEM_STACK_AS_NMS_COPY, CRAFT_ITEM_STACK_AS_BUKKIT_COPY, CRAFT_PLAYER_GET_HANDLE_METHOD, CRAFT_WORLD_GET_HANDLE_METHOD,
-            CRAFT_SERVER_GET_SERVER_METHOD, CRAFT_BLOCK_STATE_GET_HANDLE_METHOD, CRAFT_PARTICLE_TO_NMS_METHOD,
-            CRAFT_PARTICLE_TO_BUKKIT_METHOD, CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD, CRAFT_ENTITY_GET_HANDLE_METHOD, ENTITY_GET_BUKKIT_ENTITY_METHOD,
-            CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD, CRAFT_CHUNK_GET_HANDLE_METHOD;
+    private static Method CRAFT_ITEM_STACK_AS_NMS_COPY,
+            CRAFT_ITEM_STACK_AS_BUKKIT_COPY,
+            CRAFT_PLAYER_GET_HANDLE_METHOD,
+            CRAFT_WORLD_GET_HANDLE_METHOD,
+            CRAFT_SERVER_GET_SERVER_METHOD,
+            CRAFT_BLOCK_STATE_GET_HANDLE_METHOD,
+            CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD,
+            CRAFT_ENTITY_GET_HANDLE_METHOD,
+            ENTITY_GET_BUKKIT_ENTITY_METHOD,
+            CRAFT_BLOCK_ENTITY_STATE_GET_TITE_ENTITY_METHOD,
+            CRAFT_CHUNK_GET_HANDLE_METHOD;
 
     private static Field LIVING_ENTITY_DROPS_FIELD;
 
@@ -50,9 +64,6 @@ public class NMSUtils {
                 CRAFT_WORLD = ReflectionUtils.getCraftClass("CraftWorld");
                 CRAFT_SERVER = ReflectionUtils.getCraftClass("CraftServer");
                 CRAFT_BLOCK_STATE = ReflectionUtils.getCraftClass("block.CraftBlockState");
-                if (ServerVersion.supports(9)) {
-                    CRAFT_PARTICLE = ReflectionUtils.getCraftClass("CraftParticle");
-                }
                 CRAFT_LIVING_ENTITY = ReflectionUtils.getCraftClass("entity.CraftLivingEntity");
                 CRAFT_ENTITY = ReflectionUtils.getCraftClass("entity.CraftEntity");
                 if (ServerVersion.supports(9)) {
@@ -69,20 +80,6 @@ public class NMSUtils {
                 if (ServerVersion.supports(13)) {
                     //TODO: Find a way for 1.12 and below. LegacyVanillaEditSession won't work on 1.12 and below in this way.
                     CRAFT_BLOCK_STATE_GET_HANDLE_METHOD = CRAFT_BLOCK_STATE.getMethod("getHandle");
-                }
-                if (ServerVersion.supports(9)) {
-                    if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
-                        //TODO 1.20.2
-
-                    } else {
-                        CRAFT_PARTICLE_TO_NMS_METHOD = CRAFT_PARTICLE.getMethod("toNMS", Particle.class);
-                    }
-                    if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
-                        //TODO 1.20.2
-
-                    } else if (ServerVersion.supports(13)) {
-                        CRAFT_PARTICLE_TO_BUKKIT_METHOD = CRAFT_PARTICLE.getMethod("toBukkit", ParticleOptionsAccessor.getType());
-                    }
                 }
                 CRAFT_LIVING_ENTITY_GET_HANDLE_METHOD = CRAFT_LIVING_ENTITY.getMethod("getHandle");
                 CRAFT_ENTITY_GET_HANDLE_METHOD = CRAFT_ENTITY.getMethod("getHandle");
@@ -315,29 +312,6 @@ public class NMSUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
-        }
-    }
-
-    public static Object getParticleOptions(Particle particle) {
-        try {
-            return CRAFT_PARTICLE_TO_NMS_METHOD.invoke(null, particle);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * @apiNote >= 1.13
-     * @param particleOptions The nms particle
-     * @return Bukkit particle
-     */
-    public static Particle getBukkitParticle(Object particleOptions) {
-        try {
-            return (Particle) CRAFT_PARTICLE_TO_BUKKIT_METHOD.invoke(null, particleOptions);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
