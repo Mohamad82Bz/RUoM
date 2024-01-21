@@ -6,7 +6,6 @@ import me.mohamad82.ruom.npc.EntityNPC;
 import me.mohamad82.ruom.npc.NPCType;
 import me.mohamad82.ruom.utils.NMSUtils;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 
 /**
  * @apiNote > 1.9
@@ -55,26 +54,6 @@ public class AreaEffectCloudNPC extends EntityNPC {
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
-        }
-    }
-
-    /**
-     * @apiNote > 1.13
-     */
-    public void setParticle(Particle particle) {
-        Ruom.run(() -> AreaEffectCloudAccessor.getMethodSetParticle1().invoke(entity, NMSUtils.getParticleOptions(particle)));
-        sendEntityData();
-    }
-
-    /**
-     * @apiNote > 1.13
-     */
-    public Particle getParticle() {
-        try {
-            return NMSUtils.getBukkitParticle(AreaEffectCloudAccessor.getMethodGetParticle1().invoke(entity));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
