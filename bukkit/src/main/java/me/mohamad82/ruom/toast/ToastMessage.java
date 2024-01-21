@@ -75,6 +75,7 @@ public class ToastMessage {
                 } else {
                     deserializationContext = DeserializationContextAccessor.getConstructor0().newInstance(advancementResourceLocation, PredicateManagerAccessor.getConstructor0().newInstance());
                 }
+                //In 1.20.2 fromJson method was moved to "Advancement" class (previously was in "Advancement$Builder")
                 if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
                     advancement = AdvancementAccessor.getMethodFromJson1().invoke(null, jsonAdvancement, deserializationContext);
                 } else {
@@ -87,44 +88,27 @@ public class ToastMessage {
                 advancement = Advancement_i_BuilderAccessor.getMethodBuild1().invoke(advancementBuilder, advancementResourceLocation);
             }
 
-            Object advancementRequirements = null; //For 1.20.2
-            Object requirements = null;
-
-            if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
-                advancementRequirements = AdvancementAccessor.getMethodRequirements1().invoke(advancement);
-                if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() == 2)) {
-                    requirements = AdvancementRequirementsAccessor.getMethodRequirements1().invoke(advancementRequirements);
-                } else {
-                    //TODO 1.20.3 and above support
-
-                }
-            } else {
-                requirements = AdvancementAccessor.getMethodGetRequirements1().invoke(advancement);
-            }
-
             this.advancementProgress = AdvancementProgressAccessor.getConstructor0().newInstance();
+            Collection<Object> toAddSet = new HashSet<>();
 
+            //In 1.20.2 and above, "AdvancementRequirements" was added. In older versions, requirements was just a 2d string array (String[][])
             if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
-
                 AdvancementProgressAccessor.getMethodUpdate2().invoke(
                         advancementProgress,
-                        advancementRequirements
+                        AdvancementAccessor.getMethodRequirements1().invoke(advancement) //returns AdvancementRequirements
                 );
-            } else {
-                AdvancementProgressAccessor.getMethodUpdate1().invoke(
-                        advancementProgress,
-                        AdvancementAccessor.getMethodGetCriteria1().invoke(advancement),
-                        requirements
-                );
-            }
 
-            Collection<Object> toAddSet = new HashSet<>();
-            if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
                 toAddSet.add(AdvancementHolderAccessor.getConstructor0().newInstance(
                         advancementResourceLocation,
                         advancement
                 ));
             } else {
+                AdvancementProgressAccessor.getMethodUpdate1().invoke(
+                        advancementProgress,
+                        AdvancementAccessor.getMethodGetCriteria1().invoke(advancement),
+                        AdvancementAccessor.getMethodGetRequirements1().invoke(advancement) //returns String[][]
+                );
+
                 toAddSet.add(advancement);
             }
 
