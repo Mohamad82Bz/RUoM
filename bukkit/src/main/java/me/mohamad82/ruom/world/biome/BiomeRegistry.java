@@ -1,6 +1,5 @@
 package me.mohamad82.ruom.world.biome;
 
-import com.mojang.serialization.Lifecycle;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ResourceKey;
@@ -24,7 +23,7 @@ public class BiomeRegistry {
         try {
             MappedRegistryAccessor.getFieldFrozen().set(REGISTRY, false);
             BuiltinRegistriesAccessor_1.getMethodRegister1().invoke(null, BuiltinRegistriesAccessor_1.getFieldBIOME().get(null), biome.getNmsKey(), biome.getNmsBiome());
-            WritableRegistryAccessor.getMethodRegister1().invoke(REGISTRY, biome.getNmsKey(), biome.getNmsBiome(), Lifecycle.stable());
+            WritableRegistryAccessor.getMethodRegister1().invoke(REGISTRY, biome.getNmsKey(), biome.getNmsBiome(), Class.forName("com.mojang.serialization.Lifecycle").getMethod("stable").invoke(null));
             MappedRegistryAccessor.getFieldFrozen().set(REGISTRY, true);
 
             biomes.put(biome.getKey(), biome);

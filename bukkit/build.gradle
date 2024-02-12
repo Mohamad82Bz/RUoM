@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.16.14'
+version = '4.16.18'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -32,9 +32,9 @@ repositories {
 dependencies {
     implementation project(path: ':core', configuration: 'shadow')
 
-    implementation 'net.kyori:adventure-api:4.14.0'
-    implementation 'net.kyori:adventure-text-minimessage:4.14.0'
-    implementation 'net.kyori:adventure-platform-bukkit:4.3.1'
+    implementation 'net.kyori:adventure-api:4.15.0'
+    implementation 'net.kyori:adventure-text-minimessage:4.15.0'
+    implementation 'net.kyori:adventure-platform-bukkit:4.3.2'
 
     implementation 'com.github.cryptomorin:XSeries:9.8.0'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.2.0'
@@ -42,7 +42,7 @@ dependencies {
     implementation 'cloud.commandframework:cloud-paper:tooltips-SNAPSHOT'
     implementation 'cloud.commandframework:cloud-minecraft-extras:tooltips-SNAPSHOT'
 
-    compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
     compileOnly 'com.intellectualsites.fawe:FAWE-Bukkit:1.16-637'
@@ -51,7 +51,7 @@ dependencies {
     compileOnly files('libs/Oraxen-1.60.0.jar')
     compileOnly files('libs/SkinsRestorer-14.1.5.jar')
 
-    testCompileOnly 'org.spigotmc:spigot:1.20.2-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
@@ -63,6 +63,7 @@ dependencies {
 shadowJar {
     relocate('net.kyori.adventure', 'me.mohamad82.ruom.adventure')
     relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
+    relocate('net.kyori.option', 'me.mohamad82.ruom.adventure.option')
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
     relocate('com.extollit', 'me.mohamad82.ruom.hydrazine')
     relocate('org.patheloper', 'me.mohamad82.ruom.pathetic')
@@ -106,6 +107,7 @@ nmsGen {
     var ClientboundPlayerInfoPacketAction = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$Action')
     var ClientboundPlayerInfoPacketPlayerUpdate = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket$PlayerUpdate')
     var ClientboundPlayerInfoUpdatePacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket") //1.19.3 and above
+    var ClientboundPlayerInfoUpdatePacketEntry = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Entry')
     var ClientboundPlayerInfoRemovePacket = reqClass("net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket") //1.19.3 and above
     var ClientboundPlayerInfoUpdatePacketAction = reqClass('net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket$Action') //1.19.3 and above
     var ClientboundAddEntityPacket = reqClass("net.minecraft.network.protocol.game.ClientboundAddEntityPacket")
@@ -294,6 +296,7 @@ nmsGen {
     var ObjectiveCriteria = reqClass("net.minecraft.world.scores.criteria.ObjectiveCriteria")
     var ObjectiveCriteriaRenderType = reqClass('net.minecraft.world.scores.criteria.ObjectiveCriteria$RenderType')
     var ServerScoreboardMethod = reqClass('net.minecraft.server.ServerScoreboard$Method')
+    var RemoteChatSessionData = reqClass('net.minecraft.network.chat.RemoteChatSession$Data')
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -326,7 +329,11 @@ nmsGen {
             .reqEnumField("REMOVE_PLAYER")
     ClientboundPlayerInfoUpdatePacket
             .reqConstructor(ClientboundPlayerInfoUpdatePacketAction, ServerPlayer)
+            .reqField("entries")
             .reqMethod("createPlayerInitializing", Collection)
+            .reqMethod("entries")
+    ClientboundPlayerInfoUpdatePacketEntry
+            .reqConstructor(UUID, "com.mojang.authlib.GameProfile", boolean, int, GameType, Component, RemoteChatSessionData)
     ClientboundPlayerInfoRemovePacket
             .reqConstructor(List)
     ClientboundPlayerInfoUpdatePacketAction
@@ -609,6 +616,7 @@ nmsGen {
     ServerCommonPacketListenerImpl
             .reqMethod("send", Packet)
             .reqField("connection")
+            .reqMethod("latency")
     Connection
             .reqMethod("disconnect", Component)
             .reqMethod("connectToServer", InetSocketAddress, boolean)

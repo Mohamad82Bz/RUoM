@@ -1,6 +1,5 @@
 package me.mohamad82.ruom.utils;
 
-import com.mojang.datafixers.util.Pair;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.npc.NPC;
@@ -78,6 +77,43 @@ public class PacketUtils {
 
                 return ClientboundPlayerInfoPacketAccessor.getConstructor0().newInstance(action.legacyNmsObject, serverPlayerArray);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    }
+
+    public static Object getUpdateGameModePacket(Object serverPlayer, GameMode gameMode) {
+        try {
+            Object profile = PlayerAccessor.getMethodGetGameProfile1().invoke(serverPlayer);
+            Object infoPacket = getPlayerInfoPacket(serverPlayer, PlayerInfoAction.UPDATE_GAME_MODE);
+
+            List<Object> entries = new ArrayList<>((List<Object>) ClientboundPlayerInfoUpdatePacketAccessor.getMethodEntries1().invoke(infoPacket));
+
+            int ping;
+            if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                ping = (int) ServerCommonPacketListenerImplAccessor.getMethodLatency1().invoke(ServerPlayerAccessor.getFieldConnection().get(serverPlayer));
+            } else {
+                ping = (int) ServerPlayerAccessor.getFieldLatency().get(serverPlayer);
+            }
+
+            entries.add(
+                    ClientboundPlayerInfoUpdatePacket_i_EntryAccessor.getConstructor0().newInstance(
+                            EntityAccessor.getMethodGetUUID1().invoke(serverPlayer),
+                            profile,
+                            true,
+                            ping,
+                            GameTypeAccessor.class.getMethod("getField" + gameMode.name()).invoke(null),
+                            null,
+                            null
+                    )
+            );
+            ClientboundPlayerInfoUpdatePacketAccessor.getFieldEntries().set(
+                    infoPacket,
+                    entries
+            );
+
+            return infoPacket;
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
@@ -217,8 +253,8 @@ public class PacketUtils {
     public static Object getEntityEquipmentPacket(int id, NPC.EquipmentSlot equipmentSlot, Object nmsItem) {
         try {
             if (ServerVersion.supports(13)) {
-                Pair<Object, Object> pair = new Pair<>(equipmentSlot.getNmsSlot(), nmsItem);
-                List<Pair<Object, Object>> pairList = new ArrayList<>();
+                Object pair = Class.forName("com.mojang.datafixers.util.Pair").getConstructor(Object.class, Object.class).newInstance(equipmentSlot.getNmsSlot(), nmsItem);
+                List<Object> pairList = new ArrayList<>();
                 pairList.add(pair);
 
                 return ClientboundSetEquipmentPacketAccessor.getConstructor0().newInstance(id, pairList);
