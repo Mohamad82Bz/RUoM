@@ -2,10 +2,7 @@ package me.mohamad82.ruom.npc;
 
 import com.mojang.authlib.GameProfile;
 import me.mohamad82.ruom.Ruom;
-import me.mohamad82.ruom.nmsaccessors.PlayerAccessor;
-import me.mohamad82.ruom.nmsaccessors.ServerPlayerAccessor;
-import me.mohamad82.ruom.nmsaccessors.ServerPlayerGameModeAccessor;
-import me.mohamad82.ruom.nmsaccessors.SynchedEntityDataAccessor;
+import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.skin.MinecraftSkin;
 import me.mohamad82.ruom.utils.ListUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
@@ -45,7 +42,14 @@ public class PlayerNPC extends LivingEntityNPC {
             Object serverLevel = NMSUtils.getServerLevel(world);
             GameProfile profile = new GameProfile(UUID.randomUUID(), name);
             Object entity;
-            if (ServerVersion.getVersion() == 19 && ServerVersion.getPatchNumber() < 2) {
+            if (ServerVersion.supports(21) || (ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 2)) {
+                entity = ServerPlayerAccessor.getConstructor3().newInstance(
+                        NMSUtils.getDedicatedServer(),
+                        serverLevel,
+                        profile,
+                        ClientInformationAccessor.getMethodCreateDefault1().invoke(null)
+                );
+            } else if (ServerVersion.getVersion() == 19 && ServerVersion.getPatchNumber() < 2) {
                 entity = ServerPlayerAccessor.getConstructor2().newInstance(
                         NMSUtils.getDedicatedServer(),
                         serverLevel,

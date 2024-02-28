@@ -1,5 +1,6 @@
 package me.mohamad82.ruom.utils;
 
+import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.npc.NPC;
@@ -70,6 +71,11 @@ public class PacketUtils {
                     return ClientboundPlayerInfoRemovePacketAccessor.getConstructor0().newInstance(ListUtils.toList(EntityAccessor.getMethodGetUUID1().invoke(serverPlayer)));
                 } else {
                     return ClientboundPlayerInfoUpdatePacketAccessor.getMethodCreatePlayerInitializing1().invoke(null, ListUtils.toList(serverPlayer));
+                    //TODO: 1.20+ doesn't work
+                    /*return ClientboundPlayerInfoUpdatePacketAccessor.getConstructor1().newInstance(
+                            EnumSet.of((Enum) PlayerInfoAction.ADD_PLAYER.modernNmsObject),
+                            ListUtils.toList(serverPlayer)
+                    );*/
                 }
             } else {
                 Object serverPlayerArray = Array.newInstance(ServerPlayerAccessor.getType(), 1);
@@ -570,6 +576,7 @@ public class PacketUtils {
 
     public enum PlayerInfoAction {
         ADD_PLAYER(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldADD_PLAYER(), ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldADD_PLAYER()),
+        UPDATE_LISTED(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldUPDATE_LISTED(), null),
         UPDATE_GAME_MODE(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldUPDATE_GAME_MODE(), ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_GAME_MODE()),
         UPDATE_LATENCY(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldUPDATE_LATENCY(), ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_LATENCY()),
         UPDATE_DISPLAY_NAME(ClientboundPlayerInfoUpdatePacket_i_ActionAccessor.getFieldUPDATE_DISPLAY_NAME(), ClientboundPlayerInfoPacket_i_ActionAccessor.getFieldUPDATE_DISPLAY_NAME()),

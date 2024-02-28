@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.16.18'
+version = '4.16.19'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -75,8 +75,8 @@ shadowJar {
 
 tasks {
     runServer {
-        minecraftVersion("1.20.1")
-        serverJar(file("run/paper-1.20.2.jar"))
+        minecraftVersion("1.20.4")
+        serverJar(file("run/paper-1.20.4.jar"))
     }
 
     test {
@@ -297,6 +297,7 @@ nmsGen {
     var ObjectiveCriteriaRenderType = reqClass('net.minecraft.world.scores.criteria.ObjectiveCriteria$RenderType')
     var ServerScoreboardMethod = reqClass('net.minecraft.server.ServerScoreboard$Method')
     var RemoteChatSessionData = reqClass('net.minecraft.network.chat.RemoteChatSession$Data')
+    var ClientInformation = reqClass("net.minecraft.server.level.ClientInformation")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -329,6 +330,7 @@ nmsGen {
             .reqEnumField("REMOVE_PLAYER")
     ClientboundPlayerInfoUpdatePacket
             .reqConstructor(ClientboundPlayerInfoUpdatePacketAction, ServerPlayer)
+            .reqConstructor(EnumSet, Collection)
             .reqField("entries")
             .reqMethod("createPlayerInitializing", Collection)
             .reqMethod("entries")
@@ -562,6 +564,7 @@ nmsGen {
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile")
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ServerPlayerGameMode)
             .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ProfilePublicKey)
+            .reqConstructor(MinecraftServer, ServerLevel, "com.mojang.authlib.GameProfile", ClientInformation) //1.20.2 and above
             .reqMethod("setCamera", Entity)
             .reqMethod("refreshContainer", AbstractContainerMenu)
             .reqField("connection")
@@ -945,6 +948,7 @@ nmsGen {
             .reqMethod("getChatComponent")
             .reqMethod("fromJson", "com.google.gson.JsonObject", DeserializationContext)
             .reqMethod("serializeToJson")
+            .reqField("CODEC")
     AdvancementHolder
             .reqConstructor(ResourceLocation, Advancement)
     AdvancementBuilder
@@ -1253,6 +1257,8 @@ nmsGen {
     ServerScoreboardMethod
             .reqEnumField("CHANGE")
             .reqEnumField("REMOVE")
+    ClientInformation
+            .reqMethod("createDefault")
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)

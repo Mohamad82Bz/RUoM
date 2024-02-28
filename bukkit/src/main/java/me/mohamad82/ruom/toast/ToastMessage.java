@@ -4,6 +4,8 @@ import com.cryptomorin.xseries.XMaterial;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.mojang.serialization.JsonOps;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.adventure.AdventureApi;
 import me.mohamad82.ruom.adventure.ComponentUtils;
@@ -15,6 +17,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -69,16 +72,35 @@ public class ToastMessage {
             Object advancementBuilder = null;
             Object advancement = null;
             if (ServerVersion.supports(13)) {
-                Object deserializationContext;
+                Object deserializationContext = null;
                 if (ServerVersion.supports(20)) {
-                    deserializationContext = DeserializationContextAccessor.getConstructor1().newInstance(advancementResourceLocation, LootDataManagerAccessor.getConstructor0().newInstance());
+                    if ((ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 3) || ServerVersion.supports(21)) {
+                        //Extracted this method from bukkit's UnsafeValues
+                        Object jsonOps = Class.forName("com.mojang.serialization.JsonOps").getField("INSTANCE").get(null);
+                        Method decoderParse = Class.forName("com.mojang.serialization.Decoder").getMethod(
+                                "parse",
+                                Class.forName("com.mojang.serialization.DynamicOps"),
+                                Object.class
+                        );
+                        Method dataResultGet = Class.forName("com.mojang.serialization.DataResult").getMethod("result");
+                        advancement = ((Optional<?>) dataResultGet.invoke(decoderParse.invoke(
+                                AdvancementAccessor.getFieldCODEC().get(null),
+                                jsonOps,
+                                jsonAdvancement
+                        ))).get();
+                    } else {
+                        deserializationContext = DeserializationContextAccessor.getConstructor1().newInstance(advancementResourceLocation, LootDataManagerAccessor.getConstructor0().newInstance());
+                    }
                 } else {
                     deserializationContext = DeserializationContextAccessor.getConstructor0().newInstance(advancementResourceLocation, PredicateManagerAccessor.getConstructor0().newInstance());
                 }
                 //In 1.20.2 fromJson method was moved to "Advancement" class (previously was in "Advancement$Builder")
-                if ((ServerVersion.supports(20) && ServerVersion.getPatchNumber() >= 2) || ServerVersion.supports(21)) {
+                //In 1.20.3 and above, advancement is getting initialized above.
+                if ((ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() == 2)) {
+                    //1.20.2
                     advancement = AdvancementAccessor.getMethodFromJson1().invoke(null, jsonAdvancement, deserializationContext);
-                } else {
+                } else if (!ServerVersion.supports(21) && !(ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 2)) {
+                    //1.20.1 and lower
                     advancementBuilder = Advancement_i_BuilderAccessor.getMethodFromJson1().invoke(null, jsonAdvancement, deserializationContext);
                 }
             } else {
