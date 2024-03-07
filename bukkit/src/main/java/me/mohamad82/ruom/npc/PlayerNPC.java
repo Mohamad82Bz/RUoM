@@ -141,10 +141,10 @@ public class PlayerNPC extends LivingEntityNPC {
                         )
                 );*/
 
-                ReflectionFactory rf = ReflectionFactory.getReflectionFactory();
-                Constructor objDef = Object.class.getDeclaredConstructor();
-                Constructor intConstr = rf.newConstructorForSerialization(ServerGamePacketListenerImplAccessor.getType(), objDef);
-                Object instance = ServerGamePacketListenerImplAccessor.getType().cast(intConstr.newInstance());
+                ReflectionFactory reflectionFactory = ReflectionFactory.getReflectionFactory();
+                Constructor<?> objectConstructor = Object.class.getDeclaredConstructor();
+                Constructor<?> constructor = reflectionFactory.newConstructorForSerialization(ServerGamePacketListenerImplAccessor.getType(), objectConstructor);
+                Object instance = ServerGamePacketListenerImplAccessor.getType().cast(constructor.newInstance());
 
                 ServerPlayerAccessor.getFieldConnection().set(
                         serverPlayer, instance
