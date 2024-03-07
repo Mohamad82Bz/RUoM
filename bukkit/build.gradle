@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.16.19'
+version = '4.17.0'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -36,8 +36,8 @@ dependencies {
     implementation 'net.kyori:adventure-text-minimessage:4.15.0'
     implementation 'net.kyori:adventure-platform-bukkit:4.3.2'
 
-    implementation 'com.github.cryptomorin:XSeries:9.8.0'
-    implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.2.0'
+    implementation 'com.github.cryptomorin:XSeries:9.9.0'
+    implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.3'
 
     implementation 'cloud.commandframework:cloud-paper:tooltips-SNAPSHOT'
     implementation 'cloud.commandframework:cloud-minecraft-extras:tooltips-SNAPSHOT'
@@ -46,10 +46,8 @@ dependencies {
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
     compileOnly 'com.intellectualsites.fawe:FAWE-Bukkit:1.16-637'
-    compileOnly files('libs/MMOItems-6.5.1-SNAPSHOT.jar')
-    compileOnly files('libs/MMOLib-1.4.1.jar')
-    compileOnly files('libs/Oraxen-1.60.0.jar')
-    compileOnly files('libs/SkinsRestorer-14.1.5.jar')
+
+    compileOnly files(fileTree("/libs"))
 
     testCompileOnly 'org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
@@ -65,7 +63,6 @@ shadowJar {
     relocate('net.kyori.examination', 'me.mohamad82.ruom.adventure.examination')
     relocate('net.kyori.option', 'me.mohamad82.ruom.adventure.option')
     relocate('com.cryptomorin.xseries', 'me.mohamad82.ruom.xseries')
-    relocate('com.extollit', 'me.mohamad82.ruom.hydrazine')
     relocate('org.patheloper', 'me.mohamad82.ruom.pathetic')
     relocate('cloud.commandframework', 'me.mohamad82.ruom.commandframework')
 
@@ -76,7 +73,7 @@ shadowJar {
 tasks {
     runServer {
         minecraftVersion("1.20.4")
-        serverJar(file("run/paper-1.20.4.jar"))
+        //serverJar(file("run/paper-1.20.4.jar"))
     }
 
     test {
@@ -145,6 +142,7 @@ nmsGen {
     var ClientboundKeepAlivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundKeepAlivePacket")
     var ClientboundSetCameraPacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetCameraPacket")
     var ClientboundContainerSetContentPacket = reqClass("net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket")
+    var ClientboundContainerSetSlotPacket = reqClass("net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket")
     var ClientboundLevelParticlesPacket = reqClass("net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket")
     var ClientboundSetDisplayObjectivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket")
     var ClientboundSetObjectivePacket = reqClass("net.minecraft.network.protocol.game.ClientboundSetObjectivePacket")
@@ -298,6 +296,8 @@ nmsGen {
     var ServerScoreboardMethod = reqClass('net.minecraft.server.ServerScoreboard$Method')
     var RemoteChatSessionData = reqClass('net.minecraft.network.chat.RemoteChatSession$Data')
     var ClientInformation = reqClass("net.minecraft.server.level.ClientInformation")
+    var PacketFlow = reqClass("net.minecraft.network.protocol.PacketFlow")
+    var CommonListenerCookie = reqClass("net.minecraft.server.network.CommonListenerCookie")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
@@ -515,6 +515,11 @@ nmsGen {
             .reqField("cameraId")
     ClientboundContainerSetContentPacket
             .reqConstructor(int, int, NonNullList, ItemStack)
+            .reqField("items")
+    ClientboundContainerSetSlotPacket
+            .reqConstructor(int, int, int, ItemStack)
+            .reqField("slot")
+            .reqField("itemStack")
     ClientboundLevelParticlesPacket
             .reqConstructor(EnumParticle, boolean, float, float, float, float, float, float, float, int, int[]) //1.8.8 - 1.12.2
             .reqConstructor(ParticleOptions, boolean, float, float, float, float, float, float, float, int) //1.13 - 1.14.4
@@ -614,6 +619,7 @@ nmsGen {
             .reqMethod("getSeed")
             .reqMethod("addFreshEntity", Entity)
     ServerGamePacketListenerImpl
+            .reqConstructor(MinecraftServer, Connection, ServerPlayer, CommonListenerCookie)
             .reqMethod("send", Packet)
             .reqField("connection")
     ServerCommonPacketListenerImpl
@@ -621,12 +627,14 @@ nmsGen {
             .reqField("connection")
             .reqMethod("latency")
     Connection
+            .reqConstructor(PacketFlow)
             .reqMethod("disconnect", Component)
             .reqMethod("connectToServer", InetSocketAddress, boolean)
             .reqMethod("connectToLocalServer", SocketAddress)
             .reqMethod("getAverageReceivedPackets")
             .reqMethod("getAverageSentPackets")
             .reqField("channel")
+            .reqField("address")
     MinecraftServer
             .reqMethod("registryAccess")
     GameType
@@ -1259,6 +1267,11 @@ nmsGen {
             .reqEnumField("REMOVE")
     ClientInformation
             .reqMethod("createDefault")
+    PacketFlow
+            .reqEnumField("CLIENTBOUND")
+            .reqEnumField("SERVERBOUND")
+    CommonListenerCookie
+            .reqConstructor("com.mojang.authlib.GameProfile", int, ClientInformation)
 
     CrossbowItem
             .reqMethod("isCharged", ItemStack)

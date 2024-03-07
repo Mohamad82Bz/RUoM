@@ -3,25 +3,33 @@ package me.mohamad82.ruom.test;
 import com.cryptomorin.xseries.XMaterial;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.adventure.ComponentUtils;
+import me.mohamad82.ruom.gui.GUI;
 import me.mohamad82.ruom.math.vector.Vector3;
+import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.npc.NPC;
 import me.mohamad82.ruom.npc.PlayerNPC;
 import me.mohamad82.ruom.npc.TablistComponent;
 import me.mohamad82.ruom.npc.entity.ArmorStandNPC;
+import me.mohamad82.ruom.scoreboard.Scoreboard;
 import me.mohamad82.ruom.skin.MinecraftSkin;
 import me.mohamad82.ruom.toast.ToastMessage;
 import me.mohamad82.ruom.utils.BlockUtils;
 import me.mohamad82.ruom.utils.ListUtils;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
+import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,15 +38,104 @@ public class TestCommand implements CommandExecutor {
 
     PlayerNPC npc = null;
 
+    protected static final String[] COLOR_CODES = Arrays.stream(ChatColor.values())
+            .map(Object::toString)
+            .toArray(String[]::new);
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
             sender.sendMessage("No argument.");
         } else {
             switch (args[0].toLowerCase()) {
+                case "mount": {
+                    Player player = (Player) sender;
+
+                    ArmorStandNPC npc1 = ArmorStandNPC.armorStandNPC(player.getLocation());
+                    npc1.addViewers(Ruom.getOnlinePlayers());
+                    ArmorStandNPC npc2 = ArmorStandNPC.armorStandNPC(player.getLocation());
+                    npc2.addViewers(Ruom.getOnlinePlayers());
+                    NMSUtils.setPassengers(Ruom.getOnlinePlayers(), NMSUtils.getServerPlayer(player), npc1.getId());
+                    NMSUtils.setPassengers(Ruom.getOnlinePlayers(), npc1.getEntity(), npc2.getId());
+
+                    break;
+                }
+                case "gamemode": {
+                    Player player = (Player) sender;
+
+                    NMSUtils.sendPacket(player, PacketUtils.getUpdateGameModePacket(NMSUtils.getServerPlayer(player), GameMode.SPECTATOR));
+                    Ruom.broadcast("sent packet");
+                    break;
+                }
+                case "board": {
+                    Player player = (Player) sender;
+
+                    Scoreboard scoreboard = Scoreboard.scoreboard("testboard", ComponentUtils.parse("<gold>UwwU"));
+                    scoreboard.setLine(2, ComponentUtils.parse("<red>Fourth Line"));
+                    scoreboard.setLine(3, ComponentUtils.parse("<rainbow>5 Line"));
+                    scoreboard.setLine(4, ComponentUtils.parse("<red>6 Line"));
+                    scoreboard.setLine(5, ComponentUtils.parse("<red>7 Line"));
+                    scoreboard.setLine(6, ComponentUtils.parse("<red>8 Line"));
+                    scoreboard.setLine(7, ComponentUtils.parse("<red>9 Line"));
+                    scoreboard.setLine(13, ComponentUtils.parse("<red>BlaBla Line"));
+
+                    scoreboard.addViewers(player);
+
+                    break;
+                }
+                case "score": {
+                    Player player = (Player) sender;
+
+                    String id = "testboard";
+                    int score = 0;
+
+                    Ruom.run(() -> {
+                        Object scoreboard = ScoreboardAccessor.getConstructor0().newInstance();
+                        ScoreboardAccessor.getMethodAddObjective1().invoke(
+                                scoreboard,
+                                "test1",
+                                ObjectiveCriteriaAccessor.getFieldTRIGGER().get(null),
+                                MinecraftComponentSerializer.get().serialize(ComponentUtils.parse("<blue>Title")),
+                                ObjectiveCriteria_i_RenderTypeAccessor.getFieldINTEGER().get(null)
+                        );
+                        Object objective = ScoreboardAccessor.getMethodGetOrCreateObjective1().invoke(scoreboard, "test1");
+
+                        Object packet3 = ClientboundSetScorePacketAccessor.getConstructor0().newInstance(
+                                ServerScoreboard_i_MethodAccessor.getFieldCHANGE(),
+                                "test1",
+                                COLOR_CODES[score],
+                                score
+                        );
+
+                        Object packet = ClientboundSetObjectivePacketAccessor.getConstructor0().newInstance(
+                                objective,
+                                0
+                        );
+                        Object packet2 = ClientboundSetDisplayObjectivePacketAccessor.getConstructor0().newInstance(
+                                1,
+                                objective
+                        );
+
+                        Object packet4 = PacketUtils.getTeamCreatePacket(
+                                "test1",
+                                ComponentUtils.parse("<gold>prefix"),
+                                Component.empty(),
+                                PacketUtils.NameTagVisibility.ALWAYS,
+                                PacketUtils.CollisionRule.ALWAYS,
+                                ChatColor.GRAY,
+                                ListUtils.toList(COLOR_CODES[score]),
+                                false
+                        );
+
+                        NMSUtils.sendPacket(player, packet, packet2, packet3, packet4);
+
+                        player.sendMessage("sent");
+                    });
+                    break;
+                }
                 case "p": {
                     Player player = (Player) sender;
-                    BlockUtils.spawnBlockBreakParticles(player.getTargetBlock(null, 5).getLocation(), Material.GRASS);
+                    BlockUtils.spawnBlockBreakParticles(player.getTargetBlock(null, 5).getLocation(), XMaterial.GRASS_BLOCK.parseMaterial());
 
                     break;
                 }
@@ -49,10 +146,8 @@ public class TestCommand implements CommandExecutor {
                                     "lEa0S+JWwUBL516ewtRM976YKVkDSLSHVqAb/9nF/G3y7eJ7vOJgynrdlif2kYT+F9ei0QomIa9qVXxjh26p0CFdZoOgomTKz/UHUJ8iSR1WkfO7BcVn50cXq41ZKCi0FV2juduUuJXWqaaKAnQ2oWEJpyQ1wLEUvItMBjbRg/PshbWRXdiq25xqtqwGNspqJ8WH5cgEPocwPaX5H+QEulFtqtCrLLU9y2QpIsxfAEgBhqClBu5UbHtdPR4nz0l3/Qw7s9lTQXM16c14PLE1zAlHkBoigxRp8ZMH5zlS5IPlvp3u2OG4SqVOLsMx6HBJES99ef09s2qSmV5+5HYkrpxDxOWUC7qm7+xrGFakPTGb/ojQdZLRIolzcEZywtomuqoCy1m2jZxu07jDT8cpFnDCX5qyr21LX7TQJV0UFCj514HJvGsMqF4xNXuaVqeT6oY3JUZVuIRvts5y8O2qbkcK20kNn00gk3HLAzFclu7pngXAywPFgxvd5FLsuOyuQ/L2VBzAaKRMR87ws90oKlf0hfZglWGRcnvAJ88JvFKcdQUrt3Z/qsAAPG+tobJN/aS9AE52a+z+P0A46XVnmcKRNzC66iamR+8mJUFwxhEkA8f5uVRGEX3vf5PVDz//HwtVFtvApfVz8ze+a0ZviVbYw0+EmHEIRUOnaEGbqFY="
                             )
                     ));
+                    npc.setModelParts(PlayerNPC.ModelPart.values());
                     npc.addViewers(((Player) sender));
-                    Ruom.runSync(() -> {
-                        npc.setModelParts(PlayerNPC.ModelPart.values());
-                    }, Integer.parseInt(args[1]));
                     break;
                 }
                 case "npc2": {

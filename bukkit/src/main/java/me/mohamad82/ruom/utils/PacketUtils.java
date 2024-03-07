@@ -70,12 +70,12 @@ public class PacketUtils {
                 if (action.equals(PlayerInfoAction.REMOVE_PLAYER)) {
                     return ClientboundPlayerInfoRemovePacketAccessor.getConstructor0().newInstance(ListUtils.toList(EntityAccessor.getMethodGetUUID1().invoke(serverPlayer)));
                 } else {
-                    return ClientboundPlayerInfoUpdatePacketAccessor.getMethodCreatePlayerInitializing1().invoke(null, ListUtils.toList(serverPlayer));
+                    //return ClientboundPlayerInfoUpdatePacketAccessor.getMethodCreatePlayerInitializing1().invoke(null, ListUtils.toList(serverPlayer));
                     //TODO: 1.20+ doesn't work
-                    /*return ClientboundPlayerInfoUpdatePacketAccessor.getConstructor1().newInstance(
+                    return ClientboundPlayerInfoUpdatePacketAccessor.getConstructor1().newInstance(
                             EnumSet.of((Enum) PlayerInfoAction.ADD_PLAYER.modernNmsObject),
                             ListUtils.toList(serverPlayer)
-                    );*/
+                    );
                 }
             } else {
                 Object serverPlayerArray = Array.newInstance(ServerPlayerAccessor.getType(), 1);

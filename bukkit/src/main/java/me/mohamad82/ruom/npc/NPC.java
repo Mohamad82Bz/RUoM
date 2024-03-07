@@ -366,8 +366,12 @@ public abstract class NPC extends Viewable {
         return entity;
     }
 
+    public void sendEntityData(Player viewer) {
+        Ruom.run(() -> NMSUtils.sendPacket(viewer, PacketUtils.getEntityDataPacket(entity)));
+    }
+
     public void sendEntityData() {
-        Ruom.run(() -> NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityDataPacket(entity)));
+        Ruom.run(() -> getViewers().forEach(this::sendEntityData));
     }
 
     protected Object getEntityData() {
@@ -409,6 +413,9 @@ public abstract class NPC extends Viewable {
             if (!entry.getValue().equals(NMSUtils.getNmsEmptyItemStack())) {
                 NMSUtils.sendPacket(getViewers(), PacketUtils.getEntityEquipmentPacket(id, entry.getKey(), entry.getValue()));
             }
+        }
+        for (Player viewer : players) {
+            sendEntityData(viewer);
         }
     }
 

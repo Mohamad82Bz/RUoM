@@ -891,6 +891,15 @@ public class NMSUtils {
         spawnLightning(new HashSet<>(location.getWorld().getPlayers()), location, sound);
     }
 
+    public static Object createConnection() {
+        try {
+            return ConnectionAccessor.getConstructor0().newInstance(PacketFlowAccessor.getFieldSERVERBOUND());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * Sends one or more packets to a player.
      * @param player The player that is going to receive the packet(s).

@@ -37,16 +37,7 @@ public abstract class PlayerUseItemEvent {
                         }
                     } else {
                         if (!currentHolds.containsKey(player)) {
-                            boolean isMainHand;
-                            if (ServerVersion.supports(9)) {
-                                if (player.getInventory().getItemInOffHand() != null) {
-                                    isMainHand = !player.getInventory().getItemInOffHand().getType().isInteractable();
-                                } else {
-                                    isMainHand = true;
-                                }
-                            } else {
-                                isMainHand = true;
-                            }
+                            boolean isMainHand = isMainHand(player);
                             onStartUseItem(player, item, isMainHand);
                             
                             currentHolds.put(player, item);
@@ -54,6 +45,20 @@ public abstract class PlayerUseItemEvent {
                         }
                     }
                 }
+            }
+
+            private boolean isMainHand(Player player) {
+                boolean isMainHand;
+                if (ServerVersion.supports(9)) {
+                    if (player.getInventory().getItemInOffHand() != null) {
+                        isMainHand = !player.getInventory().getItemInOffHand().getType().isInteractable();
+                    } else {
+                        isMainHand = true;
+                    }
+                } else {
+                    isMainHand = true;
+                }
+                return isMainHand;
             }
         }.runTaskTimerAsynchronously(Ruom.getPlugin(), 0, 1);
     }
