@@ -40,14 +40,14 @@ public abstract class ContainerItemEvent implements PacketListener {
             if (packet.getClass().equals(ClientboundContainerSetSlotPacketAccessor.getType())) {
                 ItemStack item = NMSUtils.getBukkitItemStack(ClientboundContainerSetSlotPacketAccessor.getFieldItemStack().get(packet));
                 if (item == null || item.getType().isAir()) return;
-                ClientboundContainerSetSlotPacketAccessor.getFieldItemStack().set(packet, NMSUtils.getNmsItemStack(onItemUpdate(player, item)));
+                ClientboundContainerSetSlotPacketAccessor.getFieldItemStack().set(packet, NMSUtils.getNmsItemStack(onItemUpdate(player, item.clone())));
             } else if (packet.getClass().equals(ClientboundContainerSetContentPacketAccessor.getType())) {
                 List<ItemStack> items = ((List<Object>) ClientboundContainerSetContentPacketAccessor.getFieldItems().get(packet))
                         .stream()
                         .map(NMSUtils::getBukkitItemStack)
                         .collect(Collectors.toList());
 
-                items.replaceAll(item -> item == null || item.getType().isAir() ? item : onItemUpdate(player, item));
+                items.replaceAll(item -> item == null || item.getType().isAir() ? item : onItemUpdate(player, item.clone()));
 
                 ClientboundContainerSetContentPacketAccessor.getFieldItems().set(packet, items
                         .stream()
