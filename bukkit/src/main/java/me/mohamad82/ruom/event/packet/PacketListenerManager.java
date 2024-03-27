@@ -13,12 +13,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class PacketListenerManager implements Listener {
 
@@ -89,13 +86,9 @@ public class PacketListenerManager implements Listener {
 
                     if (!isCancelled) {
                         if (packet.getClass().equals(ServerboundPlayerActionPacketAccessor.getType()) && !PlayerActionEvent.HANDLER_LIST.isEmpty()) {
-                            Ruom.runAsync(() -> {
-                                PlayerActionEvent.HANDLER_LIST.forEach(event -> event.handle(player, packet));
-                            });
+                            PlayerActionEvent.HANDLER_LIST.forEach(event -> event.handle(player, packet));
                         } else if (packet.getClass().equals(ServerboundInteractPacketAccessor.getType()) && !PlayerInteractAtEntityEvent.HANDLER_LIST.isEmpty()) {
-                            Ruom.runAsync(() -> {
-                                PlayerInteractAtEntityEvent.HANDLER_LIST.forEach(event -> event.handle(player, packet));
-                            });
+                            PlayerInteractAtEntityEvent.HANDLER_LIST.forEach(event -> event.handle(player, packet));
                         }
 
                         try {

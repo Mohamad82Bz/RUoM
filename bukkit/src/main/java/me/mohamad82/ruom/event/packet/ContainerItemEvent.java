@@ -22,8 +22,6 @@ public abstract class ContainerItemEvent implements PacketListener {
 
     public abstract ItemStack onItemUpdate(Player player, ItemStack item);
 
-    //public abstract List<ItemStack> onSetContent(Player player, List<ItemStack> content);
-
     @Override
     public void register() {
         HANDLER_LIST.add(this);
