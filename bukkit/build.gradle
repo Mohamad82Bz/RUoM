@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.17.1'
+version = '4.17.3'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -298,6 +298,7 @@ nmsGen {
     var ClientInformation = reqClass("net.minecraft.server.level.ClientInformation")
     var PacketFlow = reqClass("net.minecraft.network.protocol.PacketFlow")
     var CommonListenerCookie = reqClass("net.minecraft.server.network.CommonListenerCookie")
+    var InventoryMenu = reqClass("net.minecraft.world.inventory.InventoryMenu")
 
     var CrossbowItem = reqClass("net.minecraft.world.item.CrossbowItem")
 
