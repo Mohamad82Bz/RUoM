@@ -18,13 +18,15 @@ public class MySQLDatabase extends MySQLExecutor {
 
     private BukkitTask queueTask;
 
+    private String driverClassName = ServerVersion.supports(13) ? "com.mysql.cj.jdbc.Driver" : "com.mysql.jdbc.Driver";
+
     public MySQLDatabase(MySQLCredentials credentials, int poolingSize) {
         super(credentials, poolingSize, THREAD_FACTORY);
     }
 
     @Override
     public void connect() {
-        super.connect(ServerVersion.supports(13) ? "com.mysql.cj.jdbc.Driver" : "com.mysql.jdbc.Driver");
+        super.connect(driverClassName);
         this.queueTask = startQueue();
     }
 
@@ -33,6 +35,10 @@ public class MySQLDatabase extends MySQLExecutor {
         queueTask.cancel();
         queue.clear();
         hikari.close();
+    }
+
+    public void setDriverClassName(String driverClassName) {
+        this.driverClassName = driverClassName;
     }
 
     @Override
