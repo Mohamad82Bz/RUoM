@@ -23,7 +23,7 @@ dependencies {
     compileOnly 'net.md-5:bungeecord-api:1.16-R0.5-SNAPSHOT'
 
     //:core dependencies
-    compileOnly 'com.zaxxer:HikariCP:4.0.3'
+    compileOnly 'com.zaxxer:HikariCP:5.1.0'
 }
 
 shadowJar {

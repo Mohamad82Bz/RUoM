@@ -19,7 +19,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-api:3.0.0'
 
     //:core dependencies
-    compileOnly 'com.zaxxer:HikariCP:4.0.3'
+    compileOnly 'com.zaxxer:HikariCP:5.1.0'
 }
 
 shadowJar {

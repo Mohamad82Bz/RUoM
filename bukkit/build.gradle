@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.17.3'
+version = '4.18.0'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -55,7 +55,7 @@ dependencies {
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')
 
     //:core dependencies
-    compileOnly 'com.zaxxer:HikariCP:4.0.3'
+    compileOnly 'com.zaxxer:HikariCP:5.1.0'
 }
 
 shadowJar {
