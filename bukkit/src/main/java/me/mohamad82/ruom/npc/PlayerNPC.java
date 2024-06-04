@@ -1,7 +1,6 @@
 package me.mohamad82.ruom.npc;
 
 import com.mojang.authlib.GameProfile;
-import io.netty.channel.*;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.skin.MinecraftSkin;
@@ -20,7 +19,6 @@ import sun.reflect.ReflectionFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.net.SocketAddress;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -128,7 +126,7 @@ public class PlayerNPC extends LivingEntityNPC {
     protected void addViewer(Player player) {
         NMSUtils.sendPacket(player,
                 PacketUtils.getPlayerInfoPacket(entity, PacketUtils.PlayerInfoAction.ADD_PLAYER),
-                (ServerVersion.supports(21) || (ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 3)) ?
+                (ServerVersion.supports(21) || (ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 2)) ?
                         PacketUtils.getAddEntityPacket(entity) : PacketUtils.getAddPlayerPacket(entity),
                 PacketUtils.getHeadRotatePacket(entity, this.yaw),
                 createPlayerTeamPacket()
