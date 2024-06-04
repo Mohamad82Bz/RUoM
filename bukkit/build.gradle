@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.18.0'
+version = '4.18.1'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
