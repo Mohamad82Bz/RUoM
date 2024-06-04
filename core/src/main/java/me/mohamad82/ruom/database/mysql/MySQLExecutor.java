@@ -39,6 +39,8 @@ public abstract class MySQLExecutor extends Database {
         hikariConfig.setUsername(credentials.getUsername());
         hikariConfig.setPassword(credentials.getPassword());
         hikariConfig.setMaximumPoolSize(poolingSize);
+        hikariConfig.addDataSourceProperty("characterEncoding", "utf8");
+        hikariConfig.addDataSourceProperty("encoding", "UTF-8");
 
         this.hikari = new HikariDataSource(hikariConfig);
     }
