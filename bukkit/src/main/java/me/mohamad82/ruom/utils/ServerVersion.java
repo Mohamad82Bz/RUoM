@@ -15,6 +15,7 @@ public class ServerVersion {
      * @return The complete server's version. Example return: "v1_19_R2" which is 1.19.3
      * @deprecated No longer works after Paper's no-relocation strategy (1.20.5 and above)
      */
+    @Deprecated
     public static String getCompleteVersion() {
         return XReflection.NMS_VERSION;
     }

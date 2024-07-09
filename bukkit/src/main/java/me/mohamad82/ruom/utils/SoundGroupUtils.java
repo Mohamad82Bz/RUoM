@@ -1,6 +1,6 @@
 package me.mohamad82.ruom.utils;
 
-import com.cryptomorin.xseries.ReflectionUtils;
+import com.cryptomorin.xseries.reflection.XReflection;
 import me.mohamad82.ruom.nmsaccessors.*;
 import me.mohamad82.ruom.string.StringUtils;
 import org.bukkit.Material;
@@ -55,7 +55,7 @@ public class SoundGroupUtils {
                         return null;
                 }
                 Object nmsBlock = NMSUtils.getNmsBlock(block);
-                Class<?> STEP_SOUND = ReflectionUtils.getNMSClass("Block$StepSound");
+                Class<?> STEP_SOUND = XReflection.getNMSClass("Block$StepSound");
                 return Sound.valueOf(((String) STEP_SOUND.getMethod("get" + StringUtils.capitalize(type.toString()) + "Sound")
                         .invoke(nmsBlock)).replace(".", "_").toUpperCase());
             } catch (Exception e) {

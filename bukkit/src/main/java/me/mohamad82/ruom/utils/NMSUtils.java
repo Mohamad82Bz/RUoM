@@ -1,7 +1,7 @@
 package me.mohamad82.ruom.utils;
 
-import com.cryptomorin.xseries.ReflectionUtils;
 import com.cryptomorin.xseries.XSound;
+import com.cryptomorin.xseries.reflection.XReflection;
 import io.netty.channel.Channel;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
@@ -59,17 +59,17 @@ public class NMSUtils {
     static {
         try {
             {
-                CRAFT_ITEM_STACK = ReflectionUtils.getCraftClass("inventory.CraftItemStack");
-                CRAFT_PLAYER = ReflectionUtils.getCraftClass("entity.CraftPlayer");
-                CRAFT_WORLD = ReflectionUtils.getCraftClass("CraftWorld");
-                CRAFT_SERVER = ReflectionUtils.getCraftClass("CraftServer");
-                CRAFT_BLOCK_STATE = ReflectionUtils.getCraftClass("block.CraftBlockState");
-                CRAFT_LIVING_ENTITY = ReflectionUtils.getCraftClass("entity.CraftLivingEntity");
-                CRAFT_ENTITY = ReflectionUtils.getCraftClass("entity.CraftEntity");
+                CRAFT_ITEM_STACK = XReflection.getCraftClass("inventory.CraftItemStack");
+                CRAFT_PLAYER = XReflection.getCraftClass("entity.CraftPlayer");
+                CRAFT_WORLD = XReflection.getCraftClass("CraftWorld");
+                CRAFT_SERVER = XReflection.getCraftClass("CraftServer");
+                CRAFT_BLOCK_STATE = XReflection.getCraftClass("block.CraftBlockState");
+                CRAFT_LIVING_ENTITY = XReflection.getCraftClass("entity.CraftLivingEntity");
+                CRAFT_ENTITY = XReflection.getCraftClass("entity.CraftEntity");
                 if (ServerVersion.supports(9)) {
-                    CRAFT_BLOCK_ENTITY_STATE = ReflectionUtils.getCraftClass("block.CraftBlockEntityState");
+                    CRAFT_BLOCK_ENTITY_STATE = XReflection.getCraftClass("block.CraftBlockEntityState");
                 }
-                CRAFT_CHUNK = ReflectionUtils.getCraftClass("CraftChunk");
+                CRAFT_CHUNK = XReflection.getCraftClass("CraftChunk");
             }
             {
                 CRAFT_PLAYER_GET_HANDLE_METHOD = CRAFT_PLAYER.getMethod("getHandle");

@@ -35,11 +35,14 @@ public class BlockUtils {
             "ITEM_FRAME"
     );
 
+    /**
+     * @apiNote > 1.13
+     */
     public static boolean isInteractable(Material material) {
         if (ServerVersion.supports(13)) {
             return material.isInteractable();
         } else {
-            return XMaterial.matchXMaterial(material).isOneOf(INTERACTABLE_MATERIALS);
+            return false;
         }
     }
 
