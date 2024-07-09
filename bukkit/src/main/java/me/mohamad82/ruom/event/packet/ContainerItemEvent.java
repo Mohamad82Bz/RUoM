@@ -1,6 +1,5 @@
 package me.mohamad82.ruom.event.packet;
 
-import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.ClientboundContainerSetContentPacketAccessor;
 import me.mohamad82.ruom.nmsaccessors.ClientboundContainerSetSlotPacketAccessor;
 import me.mohamad82.ruom.utils.NMSUtils;
