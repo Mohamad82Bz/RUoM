@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.18.1'
+version = '4.18.3'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -36,7 +36,7 @@ dependencies {
     implementation 'net.kyori:adventure-text-minimessage:4.15.0'
     implementation 'net.kyori:adventure-platform-bukkit:4.3.2'
 
-    implementation 'com.github.cryptomorin:XSeries:9.9.0'
+    implementation 'com.github.cryptomorin:XSeries:11.2.0'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.3'
 
     implementation 'cloud.commandframework:cloud-paper:tooltips-SNAPSHOT'
@@ -516,7 +516,10 @@ nmsGen {
             .reqField("cameraId")
     ClientboundContainerSetContentPacket
             .reqConstructor(int, int, NonNullList, ItemStack)
+            .reqField("containerId")
+            .reqField("stateId")
             .reqField("items")
+            .reqField("carriedItem")
     ClientboundContainerSetSlotPacket
             .reqConstructor(int, int, int, ItemStack)
             .reqField("slot")
