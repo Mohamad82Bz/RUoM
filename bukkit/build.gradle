@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.18.3'
+version = '4.18.5'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -32,9 +32,9 @@ repositories {
 dependencies {
     implementation project(path: ':core', configuration: 'shadow')
 
-    implementation 'net.kyori:adventure-api:4.15.0'
-    implementation 'net.kyori:adventure-text-minimessage:4.15.0'
-    implementation 'net.kyori:adventure-platform-bukkit:4.3.2'
+    implementation 'net.kyori:adventure-api:4.17.0'
+    implementation 'net.kyori:adventure-text-minimessage:4.17.0'
+    implementation 'net.kyori:adventure-platform-bukkit:4.3.3'
 
     implementation 'com.github.cryptomorin:XSeries:11.2.0'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.3'
@@ -49,7 +49,7 @@ dependencies {
 
     compileOnly files(fileTree("/libs"))
 
-    testCompileOnly 'org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT:remapped-mojang'
+    testCompileOnly 'org.spigotmc:spigot:1.20.6-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT:remapped-mojang'
     //testCompileOnly 'org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT'
     //testCompileOnly files('C:\\lib\\spigot\\spigot-1.8.8.jar')

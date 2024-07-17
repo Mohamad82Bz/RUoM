@@ -10,19 +10,21 @@ import me.mohamad82.ruom.skin.exceptions.MineSkinAPIException;
 import me.mohamad82.ruom.skin.exceptions.NoSuchAccountNameException;
 import me.mohamad82.ruom.skin.exceptions.SkinParseException;
 import me.mohamad82.ruom.utils.NMSUtils;
-import net.skinsrestorer.api.SkinsRestorerAPI;
-import net.skinsrestorer.api.property.IProperty;
-import net.skinsrestorer.shared.utils.connections.MojangAPI;
+import net.skinsrestorer.api.SkinsRestorer;
+import net.skinsrestorer.api.SkinsRestorerProvider;
+import net.skinsrestorer.api.connections.MojangAPI;
+import net.skinsrestorer.api.exception.DataRequestException;
+import net.skinsrestorer.api.property.MojangSkinDataResult;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,7 +33,7 @@ public class SkinBuilder {
 
     private final Map<String, MinecraftSkin> cache = new HashMap<>();
 
-    private SkinsRestorerAPI skinsRestorerAPI;
+    private SkinsRestorer skinsRestorerAPI;
     private MojangAPI mojangAPI; //SkinsRestorer
     private final MineSkinAPI mineSkinAPI;
     private boolean hasSkinsRestorer = false;
@@ -49,15 +51,9 @@ public class SkinBuilder {
 
         if (Ruom.hasPlugin("SkinsRestorer")) {
             hasSkinsRestorer = true;
-            skinsRestorerAPI = SkinsRestorerAPI.getApi();
+            skinsRestorerAPI = SkinsRestorerProvider.get();
 
-            try {
-                Field mojangAPIField = skinsRestorerAPI.getClass().getField("mojangAPI");
-                mojangAPIField.setAccessible(true);
-                mojangAPI = (MojangAPI) mojangAPIField.get(skinsRestorerAPI);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mojangAPI = skinsRestorerAPI.getMojangAPI();
         }
 
         Ruom.registerListener(new SkinBuilderListeners());
@@ -183,15 +179,17 @@ public class SkinBuilder {
     public MinecraftSkin getSkinFromSkinsRestorer(String playerName) throws NoSuchAccountNameException {
         if (!hasSkinsRestorer) return null;
 
-        String name = skinsRestorerAPI.getSkinName(playerName);
-        if (name == null)
+        MojangSkinDataResult result = null;
+        try {
+            result = skinsRestorerAPI.getSkinStorage().getPlayerSkin(playerName, true).orElseThrow();
+        } catch (DataRequestException | NoSuchElementException e) {
             throw new NoSuchAccountNameException();
-        IProperty property = skinsRestorerAPI.getSkinData(name);
+        }
 
-        return new MinecraftSkin(property.getValue(), property.getSignature());
+        return new MinecraftSkin(result.getSkinProperty().getValue(), result.getSkinProperty().getSignature());
     }
 
-    public SkinsRestorerAPI getSkinsRestorerAPI() {
+    public SkinsRestorer getSkinsRestorerAPI() {
         return skinsRestorerAPI;
     }
 
