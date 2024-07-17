@@ -1,5 +1,5 @@
 name: RUoM
-version: "${project.version}"
+version: "${version}"
 main: me.mohamad82.ruom.test.TestMain
 api-version: 1.13
 authors: [ Mohamad82 ]
