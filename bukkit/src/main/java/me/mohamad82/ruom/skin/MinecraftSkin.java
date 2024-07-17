@@ -6,7 +6,7 @@ import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.nmsaccessors.PlayerAccessor;
 import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.PacketUtils;
-import net.skinsrestorer.api.PlayerWrapper;
+import net.skinsrestorer.api.property.SkinProperty;
 import org.bukkit.entity.Player;
 
 public class MinecraftSkin {
@@ -21,9 +21,9 @@ public class MinecraftSkin {
 
     public void apply(Player player) {
         if (SkinBuilder.getInstance().getSkinsRestorerAPI() != null) {
-            SkinBuilder.getInstance().getSkinsRestorerAPI().applySkin(
-                    new PlayerWrapper(player),
-                    SkinBuilder.getInstance().getMojangAPI().createProperty("textures", texture, signature)
+            SkinBuilder.getInstance().getSkinsRestorerAPI().getSkinApplier(Player.class).applySkin(
+                    player,
+                    SkinProperty.of(texture, signature)
             );
         } else {
             try {
