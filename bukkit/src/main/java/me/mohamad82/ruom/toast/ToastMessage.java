@@ -1,6 +1,7 @@
 package me.mohamad82.ruom.toast;
 
 import com.cryptomorin.xseries.XMaterial;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,6 +14,9 @@ import me.mohamad82.ruom.utils.NMSUtils;
 import me.mohamad82.ruom.utils.ServerVersion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.UnsafeValues;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
@@ -41,7 +45,8 @@ public class ToastMessage {
         JsonArray requirementsArray = new JsonArray();
         JsonArray elytraRequirementArray = new JsonArray();
 
-        iconJson.addProperty("item", "minecraft:" + icon.parseMaterial().toString().toLowerCase());
+        //In 1.20.5 and above, "item" was changed to "id"
+        iconJson.addProperty(((ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 5) || ServerVersion.supports(21)) ? "id" : "item", "minecraft:" + icon.parseMaterial().toString().toLowerCase());
         if (!ServerVersion.supports(13))
             iconJson.addProperty("data", icon.getData());
 
@@ -65,6 +70,8 @@ public class ToastMessage {
         jsonAdvancement.add("criteria", criteriaJson);
         jsonAdvancement.add("requirements", requirementsArray);
 
+        Bukkit.getUnsafe().loadAdvancement(NamespacedKey.randomKey(), new Gson().toJson(jsonAdvancement));
+
         Ruom.run(() -> {
             Object advancementResourceLocation = NMSUtils.createResourceLocation("ruom_toasts_" + UUID.randomUUID());
             Object advancementBuilder = null;
@@ -72,7 +79,7 @@ public class ToastMessage {
             if (ServerVersion.supports(13)) {
                 Object deserializationContext = null;
                 if (ServerVersion.supports(20)) {
-                    if ((ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 3) || ServerVersion.supports(21)) {
+                    if ((ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 3)) {
                         //Extracted this method from bukkit's UnsafeValues
                         Object jsonOps = Class.forName("com.mojang.serialization.JsonOps").getField("INSTANCE").get(null);
                         Method decoderParse = Class.forName("com.mojang.serialization.Decoder").getMethod(
@@ -85,7 +92,8 @@ public class ToastMessage {
                                 AdvancementAccessor.getFieldCODEC().get(null),
                                 jsonOps,
                                 jsonAdvancement
-                        ))).get();
+                        ))).orElseThrow(() -> new IllegalStateException("Failed to parse advancement json"));
+
                     } else {
                         deserializationContext = DeserializationContextAccessor.getConstructor1().newInstance(advancementResourceLocation, LootDataManagerAccessor.getConstructor0().newInstance());
                     }
