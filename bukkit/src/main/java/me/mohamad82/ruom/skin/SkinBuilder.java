@@ -122,9 +122,9 @@ public class SkinBuilder {
                 if (property.hasSignature()) {
                     Method signatureMethod;
                     if ((ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 3) || ServerVersion.supports(21)) {
-                        signatureMethod = GameProfile.class.getMethod("signature");
+                        signatureMethod = Property.class.getMethod("signature");
                     } else {
-                        signatureMethod = GameProfile.class.getMethod("getSignature");
+                        signatureMethod = Property.class.getMethod("getSignature");
                     }
                     signature = (String) signatureMethod.invoke(gameProfile);
                 }
