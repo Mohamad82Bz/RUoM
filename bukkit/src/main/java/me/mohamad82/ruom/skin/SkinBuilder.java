@@ -1,5 +1,6 @@
 package me.mohamad82.ruom.skin;
 
+import com.cryptomorin.xseries.profiles.PlayerProfiles;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
@@ -114,7 +115,7 @@ public class SkinBuilder {
             }
             Property property = gameProfile.getProperties().get("textures").iterator().next();
 
-            return new MinecraftSkin(property.getValue(), property.getSignature());
+            return new MinecraftSkin(PlayerProfiles.getSkinValue(gameProfile), property.getSignature());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
