@@ -11,6 +11,7 @@ import me.mohamad82.ruom.skin.exceptions.MineSkinAPIException;
 import me.mohamad82.ruom.skin.exceptions.NoSuchAccountNameException;
 import me.mohamad82.ruom.skin.exceptions.SkinParseException;
 import me.mohamad82.ruom.utils.NMSUtils;
+import me.mohamad82.ruom.utils.ServerVersion;
 import net.skinsrestorer.api.SkinsRestorer;
 import net.skinsrestorer.api.SkinsRestorerProvider;
 import net.skinsrestorer.api.connections.MojangAPI;
@@ -22,6 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -115,7 +117,23 @@ public class SkinBuilder {
             }
             Property property = gameProfile.getProperties().get("textures").iterator().next();
 
-            return new MinecraftSkin(PlayerProfiles.getSkinValue(gameProfile), property.getSignature());
+            String signature = null;
+            try {
+                if (property.hasSignature()) {
+                    Method signatureMethod;
+                    if ((ServerVersion.getVersion() == 20 && ServerVersion.getPatchNumber() >= 3) || ServerVersion.supports(21)) {
+                        signatureMethod = GameProfile.class.getMethod("signature");
+                    } else {
+                        signatureMethod = GameProfile.class.getMethod("getSignature");
+                    }
+                    signature = (String) signatureMethod.invoke(gameProfile);
+                }
+            } catch (Exception e) {
+                Ruom.error("Error while getting skin signature of player " + player.getName());
+                e.printStackTrace();
+            }
+
+            return new MinecraftSkin(PlayerProfiles.getSkinValue(gameProfile), signature);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
