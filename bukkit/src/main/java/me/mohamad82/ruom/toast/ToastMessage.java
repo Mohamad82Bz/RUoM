@@ -28,7 +28,6 @@ public class ToastMessage {
     private final char ignoreChar = 'ˑ';
 
     private Object addPacket;
-    private Object updatePacket;
     private Object removePacket;
     private Object advancementProgress;
 
@@ -69,8 +68,6 @@ public class ToastMessage {
         jsonAdvancement.add("display", displayJson);
         jsonAdvancement.add("criteria", criteriaJson);
         jsonAdvancement.add("requirements", requirementsArray);
-
-        Bukkit.getUnsafe().loadAdvancement(NamespacedKey.randomKey(), new Gson().toJson(jsonAdvancement));
 
         Ruom.run(() -> {
             Object advancementResourceLocation = NMSUtils.createResourceLocation("ruom_toasts_" + UUID.randomUUID());

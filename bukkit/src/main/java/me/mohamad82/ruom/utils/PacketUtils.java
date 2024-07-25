@@ -504,10 +504,12 @@ public class PacketUtils {
      */
     public static Object getSetObjectivePacket(Object objective, int method) {
         try {
-            return ClientboundSetObjectivePacketAccessor.getConstructor0().newInstance(
+            Object packet = ClientboundSetObjectivePacketAccessor.getConstructor0().newInstance(
                     objective,
                     method
             );
+            ClientboundSetObjectivePacketAccessor.getFieldNumberFormat().set(packet, Optional.empty());
+            return packet;
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);

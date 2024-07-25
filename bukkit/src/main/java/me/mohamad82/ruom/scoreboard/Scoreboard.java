@@ -98,15 +98,14 @@ public class Scoreboard extends Viewable {
         List<Object> packets = new ArrayList<>();
 
         for (int i = 0; i <= Collections.max(lines.keySet()); i++) {
+            ScoreboardLine line;
             if (lines.containsKey(i)) {
-                ScoreboardLine line = lines.get(i);
-                packets.add(line.getScorePacket());
-                packets.add(line.getTeamPacket());
+                line = lines.get(i);
             } else {
-                ScoreboardLine line = createLine(i, Component.empty());
-                packets.add(line.getScorePacket());
-                packets.add(line.getTeamPacket());
+                line = createLine(i, Component.empty());
             }
+            packets.add(line.getScorePacket());
+            packets.add(line.getTeamPacket());
         }
 
         return packets;
