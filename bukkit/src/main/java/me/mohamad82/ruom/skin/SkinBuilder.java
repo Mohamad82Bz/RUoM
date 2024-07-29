@@ -126,7 +126,7 @@ public class SkinBuilder {
                     } else {
                         signatureMethod = Property.class.getMethod("getSignature");
                     }
-                    signature = (String) signatureMethod.invoke(gameProfile);
+                    signature = (String) signatureMethod.invoke(property);
                 }
             } catch (Exception e) {
                 Ruom.error("Error while getting skin signature of player " + player.getName());
