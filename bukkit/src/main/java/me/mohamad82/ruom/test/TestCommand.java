@@ -139,13 +139,8 @@ public class TestCommand implements CommandExecutor {
                     break;
                 }
                 case "npc": {
-                    npc = PlayerNPC.playerNPC("test", ((sender instanceof Player) ? ((Player) sender).getLocation() : new Location(Bukkit.getWorlds().get(0), 0, 0, 0)), Optional.of(
-                            new MinecraftSkin(
-                                    "ewogICJ0aW1lc3RhbXAiIDogMTY4MjQzOTEzMjQ1OCwKICAicHJvZmlsZUlkIiA6ICI0NmY3N2NjNmQ2MjU0NjEzYjc2NmYyZDRmMDM2MzZhNiIsCiAgInByb2ZpbGVOYW1lIiA6ICJNaXNzV29sZiIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9lM2QyZThkZGU0Yzc2ZDJkMDVhNTgwOTQ0NjMwYTdjYWRmYzE2YThiZjkwNWY1NDRiNGRmZDRiN2VjMjFlZTU5IgogICAgfQogIH0KfQ==",
-                                    "lEa0S+JWwUBL516ewtRM976YKVkDSLSHVqAb/9nF/G3y7eJ7vOJgynrdlif2kYT+F9ei0QomIa9qVXxjh26p0CFdZoOgomTKz/UHUJ8iSR1WkfO7BcVn50cXq41ZKCi0FV2juduUuJXWqaaKAnQ2oWEJpyQ1wLEUvItMBjbRg/PshbWRXdiq25xqtqwGNspqJ8WH5cgEPocwPaX5H+QEulFtqtCrLLU9y2QpIsxfAEgBhqClBu5UbHtdPR4nz0l3/Qw7s9lTQXM16c14PLE1zAlHkBoigxRp8ZMH5zlS5IPlvp3u2OG4SqVOLsMx6HBJES99ef09s2qSmV5+5HYkrpxDxOWUC7qm7+xrGFakPTGb/ojQdZLRIolzcEZywtomuqoCy1m2jZxu07jDT8cpFnDCX5qyr21LX7TQJV0UFCj514HJvGsMqF4xNXuaVqeT6oY3JUZVuIRvts5y8O2qbkcK20kNn00gk3HLAzFclu7pngXAywPFgxvd5FLsuOyuQ/L2VBzAaKRMR87ws90oKlf0hfZglWGRcnvAJ88JvFKcdQUrt3Z/qsAAPG+tobJN/aS9AE52a+z+P0A46XVnmcKRNzC66iamR+8mJUFwxhEkA8f5uVRGEX3vf5PVDz//HwtVFtvApfVz8ze+a0ZviVbYw0+EmHEIRUOnaEGbqFY="
-                            )
-                    ));
-                    npc.setModelParts(PlayerNPC.ModelPart.values());
+                    Player player = (Player) sender;
+                    npc = PlayerNPC.playerNPC("testMamad", player.getLocation(), Optional.empty());
                     npc.addViewers(((Player) sender));
                     break;
                 }

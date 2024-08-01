@@ -530,29 +530,17 @@ public class PacketUtils {
 
     public static Object getEntityDataPacket(Object entity) {
         try {
-            if (ServerVersion.supports(20) || ServerVersion.getCompleteVersion().equals("v1_19_R2") || ServerVersion.getCompleteVersion().equals("v1_19_R3")) {
-                Class<?> int2ObjectClass = Class.forName("it.unimi.dsi.fastutil.ints.Int2ObjectMap");
-                Method valuesMethod = int2ObjectClass.getMethod("values");
-                Method iteratorMethod = int2ObjectClass.getMethod("values").getReturnType().getMethod("iterator");
-
-                Iterator<?> iterator = (Iterator<?>) iteratorMethod.invoke(valuesMethod.invoke(SynchedEntityDataAccessor.getFieldItemsById().get(EntityAccessor.getMethodGetEntityData1().invoke(entity))));
-                List<Object> list = new ArrayList<>();
-
-                while (iterator.hasNext()) {
-                    list.add(SynchedEntityData_i_DataItemAccessor.getMethodValue1().invoke(iterator.next()));
-                }
-
-                return ClientboundSetEntityDataPacketAccessor.getConstructor1().newInstance(
-                        EntityAccessor.getMethodGetId1().invoke(entity),
-                        list
-                );
-            } else {
-                return ClientboundSetEntityDataPacketAccessor.getConstructor0().newInstance(
+            //TODO: Check if version is 1.19.3 instead if null check
+            return ClientboundSetEntityDataPacketAccessor.getConstructor0() == null ?
+                    ClientboundSetEntityDataPacketAccessor.getConstructor1().newInstance(
+                            EntityAccessor.getMethodGetId1().invoke(entity),
+                            SynchedEntityDataAccessor.getMethodGetNonDefaultValues1().invoke(EntityAccessor.getMethodGetEntityData1().invoke(entity))
+                    ) :
+                    ClientboundSetEntityDataPacketAccessor.getConstructor0().newInstance(
                         EntityAccessor.getMethodGetId1().invoke(entity),
                         EntityAccessor.getMethodGetEntityData1().invoke(entity),
                         true
-                );
-            }
+                    );
         } catch (Exception e) {
             e.printStackTrace();
             throw new Error(e);
