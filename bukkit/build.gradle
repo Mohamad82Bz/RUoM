@@ -8,7 +8,7 @@ apply plugin: 'org.screamingsandals.nms-mapper'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'xyz.jpenilla.run-paper'
 
-version = '4.18.10'
+version = '4.18.12'
 compileJava.options.encoding = "UTF-8"
 
 var latestMinecraftVersion = "1.20"
@@ -34,7 +34,7 @@ dependencies {
 
     implementation 'net.kyori:adventure-api:4.17.0'
     implementation 'net.kyori:adventure-text-minimessage:4.17.0'
-    implementation 'net.kyori:adventure-platform-bukkit:4.3.3'
+    implementation 'net.kyori:adventure-platform-bukkit:4.3.4'
 
     implementation 'com.github.cryptomorin:XSeries:11.2.0'
     implementation 'com.github.patheloper.pathetic:pathetic-mapping:2.3'

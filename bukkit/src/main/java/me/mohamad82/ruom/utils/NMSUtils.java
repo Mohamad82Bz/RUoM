@@ -2,6 +2,7 @@ package me.mohamad82.ruom.utils;
 
 import com.cryptomorin.xseries.XSound;
 import com.cryptomorin.xseries.reflection.XReflection;
+import com.cryptomorin.xseries.reflection.minecraft.MinecraftPackage;
 import io.netty.channel.Channel;
 import me.mohamad82.ruom.Ruom;
 import me.mohamad82.ruom.math.vector.Vector3;
@@ -59,7 +60,7 @@ public class NMSUtils {
     static {
         try {
             {
-                CRAFT_ITEM_STACK = XReflection.getCraftClass("inventory.CraftItemStack");
+                CRAFT_ITEM_STACK = XReflection.ofMinecraft().inPackage(MinecraftPackage.CB, "inventory").named("CraftItemStack").reflect();
                 CRAFT_PLAYER = XReflection.getCraftClass("entity.CraftPlayer");
                 CRAFT_WORLD = XReflection.getCraftClass("CraftWorld");
                 CRAFT_SERVER = XReflection.getCraftClass("CraftServer");
