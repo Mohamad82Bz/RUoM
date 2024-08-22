@@ -1,7 +1,6 @@
 package me.mohamad82.ruom.utils;
 
 import com.cryptomorin.xseries.XSound;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.List;
