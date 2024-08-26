@@ -54,7 +54,4 @@ public class VaultLoader {
         return chat;
     }
 
-
-
-
 }
